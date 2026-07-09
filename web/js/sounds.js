@@ -44,6 +44,8 @@ export function stopAllLoops() {
   for (const key of [...loops.keys()]) stopLoop(key);
 }
 
+// Sound loops with time played
+
 export const sounds = {
   playForestSound: () => playLoop("forest", "forest_sound.wav", 0.7),
   stopForestSound: () => stopLoop("forest"),

@@ -20,13 +20,19 @@ function pyInt(value) {
   return Math.trunc(value);
 }
 
+// BA calculation based on QMD and TPA
+
 function calculateBA(qmd, tpa) {
   return 0.005454 * tpa * (qmd ** 2);
 }
 
+// CI Risk calculation
+
 function riskFromCI(ci) {
   return ci <= 20 ? "High" : ci < 25 ? "Moderate" : "Low";
 }
+
+// BA risk calculation
 
 function riskFromBA(ba) {
   return ba > 100 ? "High" : ba > 60 ? "Moderate" : "Low";
@@ -39,7 +45,44 @@ function eventMatches(event, name, year = null) {
   return event === name && year === null;
 }
 
+// Variable initalization
+
 export class Game {
+  random = null;
+  stand = null;
+  initial_stand = null;
+  low_tpa_count = 0;
+  action_history = [];
+  pine_snakes_colonized = false;             // Flag for if pine snakes have colonized the stand
+  gentian_colonized = false;                 // Flag for if gentian has colonized the stand
+  suitable_tanager_ba_reached = false;       // Flag for if a suitable BA for Summer Tanager has been reached
+  summer_tanager_colonized = false;          // Flag for if Summer Tanager has colonized the stand
+  suitable_bunting_ba_reached = false;       // Flag for if a suitable BA for Indigo Bunting has been reached
+  indigo_bunting_colonized = false;          // Flag for if Indigo Bunting has colonized the stand
+  pine_barrens_tree_frog_colonized = false;  // Flag for if Pine Barrens Tree Frog has colonized the stand
+  short_colonized = false;                   // Flag for if Shortleaf Pine has colonized the stand
+  pine_snake_achieved = false;               // Flag for if Pine Snake has been achieved
+  gentian_achieved = false;                  // Flag for if Gentian has been achieved
+  summer_tanager_achieved = false;           // Flag for if Summer Tanager has been achieved
+  tree_frog_achieved = false;                // Flag for if Pine Barrens Tree Frog has been achieved
+  indigo_bunting_achieved = false;           // Flag for if Indigo Bunting has been achieved
+  short_achieved = false;                    // Flag for if Shortleaf Pine has been achieved
+  turkey_beard_achieved = false;             // Flag for if Turkey Beard has been achieved
+  achievements_history = [];                 // List of achievements with year achieved
+  recruitment_pending = [];         
+  recruitment_handled = new Set();
+  summer_tanager_screen_shown = false;
+  tree_frog_screen_shown = false;
+  gentian_screen_shown = false;
+  indigo_bunting_screen_shown = false;
+  short_screen_shown = false;
+  turkey_beard_screen_shown = false;
+  hurricane_occurred = false;
+  hurricane_screen_shown = false;
+  hurricane_years = new Set();
+  wildfire_screen_shown = false;
+  history = [];
+
   constructor(randomFn = Math.random) {
     this.random = randomFn;
     this.resetGame();
@@ -210,20 +253,28 @@ export class Game {
     if (tpaNext <= 20) this.low_tpa_count += 1;
     else this.low_tpa_count = 0;
 
+    // Pine Snake Achievement requirements
+
     if (45 <= baNext && baNext <= 70 && !this.pine_snakes_colonized && this.random() < 0.3) {
       this.pine_snakes_colonized = true;
       this.addAchievement("Pine snake", this.stand.year);
     }
+
+    // Gentian Achievement requirements
 
     if (action === "4" && !this.gentian_colonized && this.random() < 0.2) {
       this.gentian_colonized = true;
       this.addAchievement("Gentian", this.stand.year);
     }
 
+    // Turkey Beard Achievement requirements
+
     if (action === "4" && baNext < 60 && !this.turkey_beard_achieved && this.random() < 0.5) {
       this.turkey_beard_achieved = true;
       this.addAchievement("Turkey Beard", this.stand.year);
     }
+
+    // Summer Tanager Achievement requirements
 
     let actions = this.action_history.map(([, a]) => a).concat(action);
     if (!this.summer_tanager_colonized
@@ -236,6 +287,8 @@ export class Game {
       this.addAchievement("Summer Tanager", this.stand.year);
     }
 
+    // Indigo Bunting Achievement requirements
+
     actions = this.action_history.map(([, a]) => a).concat(action);
     if (!this.indigo_bunting_colonized
       && this.suitable_bunting_ba_reached
@@ -247,11 +300,15 @@ export class Game {
       this.addAchievement("Indigo Bunting", this.stand.year);
     }
 
+    // Shortleaf Pine Achievement requirements
+
     if (45 <= baNext && baNext <= 70 && !this.short_colonized && this.random() < 0.2) {
       this.short_colonized = true;
       this.short_achieved = true;
       this.addAchievement("Shortleaf pine", this.stand.year);
     }
+
+    // Pine Barrens Tree Frog Achievement requirements
 
     if (!this.pine_barrens_tree_frog_colonized) {
       actions = this.action_history.map(([, a]) => a).concat(action);
@@ -268,6 +325,8 @@ export class Game {
         }
       }
     }
+
+    // Survivable Hurricane event
 
     let hurricaneOccurred = false;
     const priorHurricaneExists = (this.stand.events || []).some((event) => eventMatches(event, "Hurricane passed through"));
@@ -294,6 +353,8 @@ export class Game {
       this.history.push(preSnapshot, this.makeSnapshot(postYear));
       hurricaneOccurred = true;
     }
+
+    // Survivable Wildfire event
 
     let wildfireOccurred = false;
     currYear = this.stand.year;
@@ -345,6 +406,8 @@ export class Game {
     return (this.low_tpa_count ?? 0) >= 1;
   }
 
+  // Catastrophic wildfire event conditions
+
   simulateEvent() {
     let eventLog = null;
     if (this.random() < 0.15 && this.stand.fire_risk === "High") {
@@ -356,6 +419,8 @@ export class Game {
     } else {
       this.stand.catastrophic_wildfire = false;
     }
+
+    // Catastrophic Conditions for SPB outbreak
 
     if (!eventLog && this.random() < 0.10 && this.stand.SPB_risk === "High") {
       this.stand.TPA = pyInt(this.stand.TPA * 0.7);
@@ -386,6 +451,8 @@ export class Game {
       SPB_risk: this.stand.SPB_risk
     };
   }
+
+  // Unsure exactly? Shows text descriptions of colonizing events and final stand data
 
   getSummary() {
     let summary = `Final Stand: QMD: ${this.stand.QMD.toFixed(1)}, TPA: ${this.stand.TPA}, BA: ${this.stand.BA.toFixed(1)}, Carbon: ${this.stand.carbon.toFixed(1)} MT/ac, CI: ${this.stand.CI}, Fire Risk: ${this.stand.fire_risk}, SPB Risk: ${this.stand.SPB_risk}\n\n`;

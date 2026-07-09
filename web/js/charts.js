@@ -8,6 +8,8 @@ const RISK_COLORS = {
 
 let currentChart = null;
 
+// Data Table
+
 export function renderDataTable(rows) {
   const headers = ["Year", "QMD", "TPA", "BA", "Carbon", "CI", "Fire risk", "SPB risk"];
   const data = rows.map((row) => [
@@ -28,6 +30,8 @@ export function renderDataTable(rows) {
   return [format(headers), format(headers.map((header) => "-".repeat(header.length))), ...data.map(format)].join("\n");
 }
 
+// Variable Plot
+
 export function showVariablePlot(container, variable, decadalData) {
   if (!window.Chart) {
     container.innerHTML = "<p>Chart.js did not load.</p>";
@@ -40,6 +44,8 @@ export function showVariablePlot(container, variable, decadalData) {
   const canvas = document.createElement("canvas");
   container.innerHTML = "";
   container.append(canvas);
+
+  // Labels for variables
 
   const labels = decadalData.map((row) => row.year === "Start" ? -1 : Number(row.year));
   const displayLabels = labels.map((year) => year === -1 ? "" : String(year));

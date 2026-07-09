@@ -7,7 +7,7 @@ const ASSET_BASE = "../src/assets/";
 
 const game = new Game();
 Object.assign(game, {
-  current_bg_img: "Evenagestand.jpg",
+  current_bg_img: "Evenagestand.jpg", //Standard background image
   achievement_queue: [],
   achievement_final_bg: null,
   thin_lightly_event: false,
@@ -23,6 +23,8 @@ Object.assign(game, {
 });
 
 window.pitchPineTrailGame = game;
+
+// Achievement Screens with sound and text description.
 
 const achievementScreens = {
   snake: { image: "Pinesnake.jpg", sound: sounds.playPineSnakeSound, title: "Pine snakes are utilizing this stand!" },
@@ -108,6 +110,8 @@ function lastEventNamed(name) {
   }
   return null;
 }
+
+// Non-losing events; with flags for whether the event has been displayed yet.
 
 function consumeNewModalEvents() {
   const hurricane = lastEventNamed("Hurricane passed through");
@@ -275,6 +279,7 @@ function startAnimation(during, durationMs, final) {
 }
 
 function showIntroScreen() {
+  root.style.backgroundSize = "cover";
   clearScreen("introscreen.jpg");
   const buttons = document.createElement("div");
   buttons.className = "intro-buttons";
@@ -289,6 +294,7 @@ function showIntroScreen() {
 }
 
 function startZoomSequence() {
+  root.style.backgroundSize = "contain";
   sounds.playZoomSound();
   clearScreen("zoom_1.jpg");
   let frame = 1;
@@ -298,14 +304,14 @@ function startZoomSequence() {
     if (frame >= 10) {
       clearInterval(timer);
       const buttons = document.createElement("div");
-      buttons.className = "intro-buttons";
+      buttons.className = "intro-buttons-second";
       buttons.append(button("Let's Play!", "tan-button", () => {
         sounds.playLetsPlaySound();
         showGameScreen();
       }));
       root.append(buttons);
       const defs = document.createElement("div");
-      defs.className = "definitions-link";
+      defs.className = "intro-definitions-link";
       defs.append(button("Click for Definitions", "dark-button", showDefinitionsScreen));
       root.append(defs);
     }
@@ -313,7 +319,8 @@ function startZoomSequence() {
 }
 
 function showGameScreen(narration = "") {
-  clearScreen(game.current_bg_img || "Evenagestand.jpg");
+  const bg = game.current_bg_img?.startsWith("zoom_") ? "Evenagestand.jpg" : game.current_bg_img || "Evenagestand.jpg";
+  clearScreen(bg);
   renderMetrics();
   const actions = document.createElement("section");
   actions.className = "action-panel";
