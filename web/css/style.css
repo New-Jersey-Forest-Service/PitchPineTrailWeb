@@ -86,13 +86,19 @@ input:focus-visible {
   font-size: clamp(14px, 1vw, 20px);
 }
 
+/* text color for risk levels - green color for good */
+
 .risk-low {
   color: var(--good);
 }
 
+/* text color for risk levels - yellow color for moderate */
+
 .risk-moderate {
   color: var(--warning);
 }
+
+/* text color for risk levels - red color for high */
 
 .risk-high {
   color: var(--danger);
@@ -109,6 +115,9 @@ input:focus-visible {
   color: var(--green);
 }
 
+/* This panel holds the buttons for the  four potential management actions the player can take. 
+(ex. Do nothing, Prescribed burn, etc.) */
+
 .action-panel {
   top: 26%;
   right: 10%;
@@ -116,6 +125,8 @@ input:focus-visible {
   flex-direction: column;
   gap: 10px;
 }
+
+/* This is for the actual blue buttons with the management options. */
 
 .action-button {
   width: clamp(210px, 15vw, 300px);
@@ -125,10 +136,14 @@ input:focus-visible {
   font-size: clamp(14px, 1vw, 20px);
 }
 
+/* Is the hover effect for the management action buttons. They turn green when mouse is hovered over them. */
+
 .action-button:hover {
   background: var(--green);
   color: var(--navy);
 }
+
+/* This is a panel for the buttons that allow the player to begin or exit the game upon starting it up.*/
 
 .intro-buttons {
   position: absolute;
@@ -139,6 +154,8 @@ input:focus-visible {
   transform: translate(-50%, -50%);
 }
 
+/* This needs to be relabeled  */
+
 .tan-button {
   min-width: 170px;
   padding: 8px 16px;
@@ -146,6 +163,8 @@ input:focus-visible {
   color: #663e1d;
   font-size: clamp(14px, 1vw, 20px);
 }
+
+/* Hover action effect */
 
 .tan-button:hover {
   background: #069134;

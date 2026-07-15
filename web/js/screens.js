@@ -24,7 +24,7 @@ Object.assign(game, {
 
 window.pitchPineTrailGame = game;
 
-// Achievement Screens with sound and text description.
+// Achievement Screen images with sound and text description.
 
 const achievementScreens = {
   snake: { image: "Pinesnake.jpg", sound: sounds.playPineSnakeSound, title: "Pine snakes are utilizing this stand!" },
@@ -60,9 +60,14 @@ function button(text, className, onClick) {
   return btn;
 }
 
+// Function for risk classes. This affects the text color in the clipboard panel for fire and SPB risk.
+
 function riskClass(risk) {
   return risk === "Low" ? "risk-low" : risk === "Moderate" ? "risk-moderate" : "risk-high";
 }
+
+/* Metrics panel. This is the clipboard panel that shows year, BA, TPA, QMD, Carbon per acre,
+ Crowning index, fire risk, and SPB risk. */
 
 function renderMetrics(parent = root) {
   const status = game.getStatusDict();
@@ -111,7 +116,8 @@ function lastEventNamed(name) {
   return null;
 }
 
-// Non-losing events; with flags for whether the event has been displayed yet.
+// Non-losing events (Hurricane and Wildfire); 
+// with flags for whether the event has been displayed yet.
 
 function consumeNewModalEvents() {
   const hurricane = lastEventNamed("Hurricane passed through");
@@ -125,6 +131,9 @@ function consumeNewModalEvents() {
     game.wildfire_last_shown_year = wildfire.eventYear;
   }
 }
+
+// Builds array of achievements to show
+// Returns true if any achievements are queued.
 
 function queueAchievements(before, finalBg) {
   const queue = [];
@@ -292,6 +301,9 @@ function showIntroScreen() {
   );
   root.append(buttons);
 }
+
+// Function for the intro zoom sequence from the title screen to the about screen.
+// Plays a zoom sound and animates a series of images to create a zoom effect.
 
 function startZoomSequence() {
   root.style.backgroundSize = "contain";
@@ -617,6 +629,8 @@ function showCertificateOverlay() {
   overlay.append(input, save);
   root.append(overlay);
 }
+
+// Switches screen to Analysis Lab
 
 function showAnalysisLab(prevBg = game.current_bg_img, loading = true, returnTarget = "game") {
   sounds.stopForestSound();
