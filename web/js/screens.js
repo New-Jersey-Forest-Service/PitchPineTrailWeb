@@ -7,7 +7,7 @@ const ASSET_BASE = "../src/assets/";
 
 const game = new Game();
 Object.assign(game, {
-  current_bg_img: "Evenagestand.jpg",
+  current_bg_img: "Evenagestand.jpg", //Standard background image
   achievement_queue: [],
   achievement_final_bg: null,
   thin_lightly_event: false,
@@ -23,6 +23,8 @@ Object.assign(game, {
 });
 
 window.pitchPineTrailGame = game;
+
+// Achievement Screen images with sound and text description.
 
 const achievementScreens = {
   snake: { image: "Pinesnake.jpg", sound: sounds.playPineSnakeSound, title: "Pine snakes are utilizing this stand!" },
@@ -58,9 +60,14 @@ function button(text, className, onClick) {
   return btn;
 }
 
+// Function for risk classes. This affects the text color in the clipboard panel for fire and SPB risk.
+
 function riskClass(risk) {
   return risk === "Low" ? "risk-low" : risk === "Moderate" ? "risk-moderate" : "risk-high";
 }
+
+/* Metrics panel. This is the clipboard panel that shows year, BA, TPA, QMD, Carbon per acre,
+ Crowning index, fire risk, and SPB risk. */
 
 function renderMetrics(parent = root) {
   const status = game.getStatusDict();
@@ -109,6 +116,9 @@ function lastEventNamed(name) {
   return null;
 }
 
+// Non-losing events (Hurricane and Wildfire); 
+// with flags for whether the event has been displayed yet.
+
 function consumeNewModalEvents() {
   const hurricane = lastEventNamed("Hurricane passed through");
   if (hurricane && game.hurricane_last_shown_year !== hurricane.eventYear && !game.hurricane_screen_shown) {
@@ -121,6 +131,9 @@ function consumeNewModalEvents() {
     game.wildfire_last_shown_year = wildfire.eventYear;
   }
 }
+
+// Builds array of achievements to show
+// Returns true if any achievements are queued.
 
 function queueAchievements(before, finalBg) {
   const queue = [];
@@ -275,6 +288,7 @@ function startAnimation(during, durationMs, final) {
 }
 
 function showIntroScreen() {
+  root.style.backgroundSize = "cover";
   clearScreen("introscreen.jpg");
   const buttons = document.createElement("div");
   buttons.className = "intro-buttons";
@@ -288,7 +302,11 @@ function showIntroScreen() {
   root.append(buttons);
 }
 
+// Function for the intro zoom sequence from the title screen to the about screen.
+// Plays a zoom sound and animates a series of images to create a zoom effect.
+
 function startZoomSequence() {
+  root.style.backgroundSize = "contain";
   sounds.playZoomSound();
   clearScreen("zoom_1.jpg");
   let frame = 1;
@@ -298,14 +316,14 @@ function startZoomSequence() {
     if (frame >= 10) {
       clearInterval(timer);
       const buttons = document.createElement("div");
-      buttons.className = "intro-buttons";
+      buttons.className = "intro-buttons-second";
       buttons.append(button("Let's Play!", "tan-button", () => {
         sounds.playLetsPlaySound();
         showGameScreen();
       }));
       root.append(buttons);
       const defs = document.createElement("div");
-      defs.className = "definitions-link";
+      defs.className = "intro-definitions-link";
       defs.append(button("Click for Definitions", "dark-button", showDefinitionsScreen));
       root.append(defs);
     }
@@ -313,7 +331,8 @@ function startZoomSequence() {
 }
 
 function showGameScreen(narration = "") {
-  clearScreen(game.current_bg_img || "Evenagestand.jpg");
+  const bg = game.current_bg_img?.startsWith("zoom_") ? "Evenagestand.jpg" : game.current_bg_img || "Evenagestand.jpg";
+  clearScreen(bg);
   renderMetrics();
   const actions = document.createElement("section");
   actions.className = "action-panel";
@@ -610,6 +629,8 @@ function showCertificateOverlay() {
   overlay.append(input, save);
   root.append(overlay);
 }
+
+// Switches screen to Analysis Lab
 
 function showAnalysisLab(prevBg = game.current_bg_img, loading = true, returnTarget = "game") {
   sounds.stopForestSound();
