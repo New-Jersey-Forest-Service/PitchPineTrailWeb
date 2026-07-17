@@ -155,6 +155,8 @@ function queueAchievements(before, finalBg) {
   return false;
 }
 
+// This function applies the player's action to the game. TAKING A TURN. Updates game state
+
 function applyTurn(action) {
   const before = {
     snake: game.pine_snakes_colonized,
@@ -170,6 +172,8 @@ function applyTurn(action) {
   game.stand.year += 10;
   return { before, event };
 }
+
+// This function finishes the player's turn.
 
 function finishTurn(before, event, finalBg, animate = null) {
   if (game.isLowTpaGameOver()) return showLowTpaScreen();
@@ -189,6 +193,9 @@ function finishTurn(before, event, finalBg, animate = null) {
   if (animate) return startAnimation(animate.during, animate.ms, animate.final);
   showGameScreen(event || "");
 }
+
+// Animations for turns and events. 
+// Determines which actions to animate based on the game state and player's actions.
 
 function chooseAnimation(action) {
   const history = game.action_history;
@@ -330,6 +337,8 @@ function startZoomSequence() {
   }, 10);
 }
 
+// Main game screen with 4 management options.
+
 function showGameScreen(narration = "") {
   const bg = game.current_bg_img?.startsWith("zoom_") ? "Evenagestand.jpg" : game.current_bg_img || "Evenagestand.jpg";
   clearScreen(bg);
@@ -378,6 +387,8 @@ function showClosingScreen() {
   root.append(actions);
 }
 
+// Determines the player's win background image, displays BAD, OKAY, or GOOD ending options.
+
 function getWinBgName() {
   const status = game.getStatusDict();
   const base = status.QMD < 13 || status.fire_risk === "High" || status.SPB_risk === "High"
@@ -396,6 +407,8 @@ function getWinBgName() {
   ].filter(([, present]) => present).map(([name]) => name).join("-");
   return `${base}_${medals ? `${medals}medal` : "nomedal"}.jpg`;
 }
+
+// Losing screen
 
 function showLossScreen(bg, text, soundFn) {
   stopAllLoops();
@@ -416,13 +429,19 @@ function showLossScreen(bg, text, soundFn) {
   root.append(actions);
 }
 
+// Loss screen, LOW STOCKING
+
 function showLowTpaScreen() {
   showLossScreen("LowStocking.jpg", "Your stand stocking is too low to continue growing a mature pitch pine forest.", sounds.playLosingTromboneSound);
 }
 
+// Loss screen, CATASTROPHIC WILDFIRE
+
 function showFireLossScreen() {
   showLossScreen("LossByFire.jpg", "A catastrophic wildfire has occurred.\n\nA new pitch pine stand may begin, but the mature stand management goal was lost.", sounds.playLosingTromboneSound);
 }
+
+// Loss screen, SOUTHERN PINE BEETLE
 
 function showSpbLossScreen() {
   showLossScreen("LossBySPB.jpg", "Southern pine beetle caused a stand-level loss while SPB risk was High.", sounds.playSpbEatingSound);
@@ -441,7 +460,7 @@ function showAchievementScreen(code) {
   const actions = document.createElement("div");
   actions.className = "achievement-actions";
   actions.append(button("Continue", "green-button", () => {
-    if (code === "frog") sounds.stopTreeFrogSound();
+    if (code === "frog") sounds.stopTreeFrogSound(); // Not sure why only the frog is here
     showNextQueuedAchievementOrGame();
   }));
   root.append(actions);
@@ -489,6 +508,8 @@ function showNextQueuedAchievementOrGame() {
   showGameScreen();
 }
 
+// Hurricane screen with lightning and rain animation, sound, and message.
+
 function showHurricaneScreen() {
   if (game.hurricane_screen_shown) return showGameScreen();
   game.hurricane_screen_shown = true;
@@ -512,6 +533,8 @@ function showHurricaneScreen() {
   step();
 }
 
+// End of Hurricane screen, shows metrics and message about the hurricane event.
+
 function finishHurricaneScreen() {
   root.innerHTML = "";
   renderMetrics();
@@ -528,6 +551,8 @@ function finishHurricaneScreen() {
   }));
   root.append(actions);
 }
+
+// Wildfire screen with fire sound and message about the wildfire event.
 
 function showWildfireScreen() {
   if (game.wildfire_screen_shown) return showGameScreen();
@@ -549,11 +574,15 @@ function showWildfireScreen() {
   root.append(actions);
 }
 
+// Opens the field guide screen with a return button to go back to the game screen.
+
 function showFieldGuideScreen() {
   sounds.playPageTurnSound();
   clearScreen("fieldguide.jpg");
   root.append(button("Return", "green-button exit-link", () => showGameScreen()));
 }
+
+// Opens the definitions screen with a return button to go back to the game screen.
 
 function showDefinitionsScreen() {
   sounds.playPageTurnSound();
@@ -561,11 +590,15 @@ function showDefinitionsScreen() {
   root.append(button("Return", "green-button exit-link", () => showGameScreen()));
 }
 
+// Opens the analysis definitions screen with a return button to go back to the analysis lab.
+
 function showAnalysisDefinitions(prevBg, returnTarget) {
   sounds.playPageTurnSound();
   clearScreen("analyze_definitions.jpg");
   root.append(button("Return", "green-button exit-link", () => showAnalysisLab(prevBg, false, returnTarget)));
 }
+
+// Opens the hint overlay with a series of hint images that can be cycled through.
 
 function showHintOverlay() {
   sounds.playHintOpenSound();
@@ -582,6 +615,8 @@ function showHintOverlay() {
   }));
   root.append(overlay);
 }
+
+// Opens the exit survey overlay with a link to the feedback survey and options to exit or cancel.
 
 function showExitSurveyOverlay() {
   sounds.playPageTurnSound();
@@ -604,6 +639,8 @@ function showExitSurveyOverlay() {
   overlay.append(actions);
   root.append(overlay);
 }
+
+// Opens the certificate overlay with an input for the player's name and a save button to download the certificate as a JPEG.
 
 function showCertificateOverlay() {
   const existing = root.querySelector(".certificate-overlay");
@@ -701,6 +738,8 @@ function showAnalysisLab(prevBg = game.current_bg_img, loading = true, returnTar
   else build();
 }
 
+// Shows a chart overlay for a given variable and data rows, with options to close the overlay or view FAQs.
+
 function showChartOverlay(variable, rows) {
   const existing = root.querySelector(".chart-overlay");
   if (existing) existing.remove();
@@ -740,6 +779,8 @@ function startAnalysisBlink() {
     blink = !blink;
   }, blink ? 500 : 1000);
 }
+
+// Restarts the game
 
 function restartGame() {
   stopAllLoops();
