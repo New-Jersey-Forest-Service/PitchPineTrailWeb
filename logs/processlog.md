@@ -281,3 +281,25 @@ Server process:
 - Command line: `"C:\Users\wzipse\AppData\Local\anaconda3\python.exe" -m http.server 8001`
 
 Reminder: ask the user before shutting this server down at session end.
+
+## 2026-07-22 Update: GitHub Pages Port Planning
+
+- Summary: Documented a non-implementation migration plan for a self-contained GitHub Pages artifact and added task-plan guidance for agents.
+- Files changed: `tasks/PagesPortPlan.md`, `AGENTS.md`, `logs/promptlog.md`, `logs/processlog.md`.
+- Inspection run: `rg` found the web asset base in `web/js/screens.js` and `web/js/sounds.js` is currently `../src/assets/`; no Pages workflow or configuration files were present.
+- Verification: The plan recommends a root `assets/` directory and a Pages Actions artifact containing both `assets/` and `web/`, preserving the relative `/web/` game URL.
+- Caveat / next step: This session intentionally makes no implementation changes to asset locations, application code, or deployment settings. The pre-existing `AGENTS.md` prompt-log change was retained and expanded as requested.
+
+## 2026-07-22 Update: Mirrored Agent Instruction Files
+
+- Summary: Added the rule that `AGENTS.md` and `CLAUDE.md` must remain identical, and created `CLAUDE.md` as the matching copy.
+- Files changed: `AGENTS.md`, `CLAUDE.md`, `logs/promptlog.md`, `logs/processlog.md`.
+- Verification: Compared the two instruction files by content after creation; they match.
+- Caveat / next step: Future edits to either instruction file must be applied to both in the same task.
+
+## 2026-07-22 Update: Commit And Push Preparation
+
+- Summary: Prepared the Pages-port plan, mirrored agent instructions, and required logs for commit on branch `WZport`.
+- Files changed: `AGENTS.md`, `CLAUDE.md`, `tasks/PagesPortPlan.md`, `logs/promptlog.md`, `logs/processlog.md`.
+- Verification: Confirmed `AGENTS.md` and `CLAUDE.md` are byte-identical; reviewed the staged scope before commit.
+- Next step: Commit the listed files and push `WZport` to `origin`.
