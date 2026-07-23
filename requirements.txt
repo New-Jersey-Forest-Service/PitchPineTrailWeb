@@ -1,5 +1,0 @@
-tkinter
-Pillow
-pygame
-pandas
-matplotlib

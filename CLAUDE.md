@@ -6,12 +6,11 @@ These instructions apply to agents working in this repository.
 
 Before making changes, read:
 
-- `README.md` for the project overview.
-- `context/webplan.md` for the intended browser-port architecture.
-- `context/LocalAnaconda.md` for this computer's Python/Anaconda guidance.
+- `README.md` for the project overview and local run instructions.
+- `context/webplan.md` for the browser application and GitHub Pages architecture.
 - `logs/processlog.md` for the latest handoff notes from prior agents.
 
-Treat `src/game_logic.py` as the source of truth for simulation behavior. Treat `src/gui.py` as the source of truth for the desktop screen flow, animations, sound behavior, overlays, analysis lab, certificate workflow, and CSV export behavior.
+Treat the existing browser implementation under `web/` as the application source of truth. Preserve its game behavior, screen flow, animations, sound behavior, overlays, analysis lab, certificate workflow, and CSV export behavior unless the user asks to change them.
 
 ## Tasks And Implementation Plans
 
@@ -23,55 +22,28 @@ To preserve context space, do not read files in `tasks/implemented/` unless the 
 
 `AGENTS.md` and `CLAUDE.md` must be identical copies of these repository instructions. If either file is changed, make the matching change in the other file during the same task. If either file is missing, create it by copying the existing instruction file so both files exist and remain synchronized.
 
-## Python On This Machine
+## Web Application And Pages Rules
 
-Do not assume `python`, `py`, or `conda` are available from the default shell.
-
-Use the documented local Anaconda interpreter when Python is needed:
-
-```powershell
-& 'C:\Users\wzipse\AppData\Local\anaconda3\python.exe' --version
-```
-
-For scripts or local static servers, prefer the absolute interpreter path:
-
-```powershell
-& 'C:\Users\wzipse\AppData\Local\anaconda3\python.exe' script.py
-```
-
-The matching conda executable is:
-
-```powershell
-C:\Users\wzipse\AppData\Local\anaconda3\Scripts\conda.exe
-```
-
-## Web Port Rules
-
-The web port lives under `web/`. The existing desktop app lives under `src/`.
-
-Preserve the desktop Python version unless the user explicitly asks to change it. For the browser port:
+The complete browser application lives under `web/`. Keep all browser-delivered HTML, CSS, JavaScript, images, audio, and fonts there; `web/assets/` is the canonical asset directory.
 
 - Use a static vanilla JavaScript app.
-- Do not add a backend.
-- Do not add a framework or build step unless the user approves the change in direction.
-- Share existing assets from `src/assets/` when possible.
-- Keep behavior aligned with the current Python source, not only with the summary in `context/webplan.md`.
+- Do not add a backend, framework, or browser build step unless the user approves a change in direction.
+- Use document-relative asset paths that work from `web/`, such as `assets/filename.jpg`; do not use `../src/assets/` or site-root asset paths beginning with `/`.
 - Preserve the retro fullscreen visual style, Courier typography, and original game aesthetic.
-
-Important deployment caveat: paths such as `../src/assets/filename.jpg` work when serving the repository root and opening `/web/`. They do not work when serving `web/` as the HTTP document root. Resolve the GitHub Pages asset strategy intentionally before final deployment.
+- Deploy `web/` unchanged through `.github/workflows/pages.yml`; the artifact contents are the GitHub Pages site root.
 
 ## Testing And Local Servers
 
-When testing the web app locally, prefer serving the repository root and opening the app at:
+When testing locally, serve `web/` as the document root and open:
 
 ```text
-http://localhost:8001/web/
+http://localhost:8001/
 ```
 
 Example:
 
 ```powershell
-Start-Process -FilePath 'C:\Users\wzipse\AppData\Local\anaconda3\python.exe' -ArgumentList @('-m','http.server','8001') -WindowStyle Hidden
+Start-Process -FilePath 'C:\Users\n2ubx\anaconda3\python.exe' -ArgumentList @('-m','http.server','8001','--directory','web') -WindowStyle Hidden
 ```
 
 If you start any local web server for testing, track:
@@ -101,7 +73,8 @@ Each process-log entry should include:
 Do not overwrite prior process-log content. Append new notes.
 
 ## Prompt Log
-Always append the user prompt, verbatime to `logs/promptlog.md`. If the log file does not exist, create it in the proper folder. Do not alter previous prompts.
+
+Always append the user prompt, verbatim, to `logs/promptlog.md`. If the log file does not exist, create it in the proper folder. Do not alter previous prompts.
 
 ## Git And File Safety
 
@@ -115,9 +88,11 @@ Always append the user prompt, verbatime to `logs/promptlog.md`. If the log file
 ## Useful Current Files
 
 - `web/index.html`: browser app shell.
+- `web/assets/`: game images and audio.
 - `web/css/style.css`: web app styling.
-- `web/js/game.js`: JavaScript game logic port.
+- `web/js/game.js`: JavaScript game logic.
 - `web/js/screens.js`: web screen router and turn flow.
 - `web/js/sounds.js`: browser audio wrappers.
 - `web/js/charts.js`: analysis lab charts and CSV export.
+- `.github/workflows/pages.yml`: GitHub Pages deployment.
 - `logs/processlog.md`: running handoff log.
