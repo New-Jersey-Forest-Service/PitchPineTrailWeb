@@ -303,3 +303,24 @@ Reminder: ask the user before shutting this server down at session end.
 - Files changed: `AGENTS.md`, `CLAUDE.md`, `tasks/PagesPortPlan.md`, `logs/promptlog.md`, `logs/processlog.md`.
 - Verification: Confirmed `AGENTS.md` and `CLAUDE.md` are byte-identical; reviewed the staged scope before commit.
 - Next step: Commit the listed files and push `WZport` to `origin`.
+
+## 2026-07-22 Update: Web-Only Pages Plan Revision
+
+- Summary: Revised `tasks/PagesPortPlan.md` after confirmation that this is a standalone web-project fork and does not need to preserve desktop functionality.
+- Files changed: `tasks/PagesPortPlan.md`, `logs/promptlog.md`, `logs/processlog.md`.
+- Verification: The revised plan makes `web/` a self-contained Pages deploy root with assets at `web/assets/`, a root site URL, and no production dependency on `src/`.
+- Caveat / next step: This is a planning-only change; no assets, browser paths, desktop files, or deployment workflow were modified.
+
+## 2026-07-22 Update: Pages Source And Artifact Layout Clarification
+
+- Summary: Expanded `tasks/PagesPortPlan.md` to keep all site source under `web/`, publish its contents at the Pages artifact root, and keep repository operational files out of the deployment.
+- Files changed: `tasks/PagesPortPlan.md`, `logs/promptlog.md`, `logs/processlog.md`.
+- Verification: The plan now explicitly covers the root public URL, document-relative asset paths, `.github/workflows/pages.yml`, artifact structure, and the optional `/docs` branch-publishing alternative.
+- Caveat / next step: This remains a planning-only change; no site files or GitHub Pages configuration were modified.
+
+## 2026-07-22 Update: Commit And Push Preparation (Plan Clarification)
+
+- Summary: Prepared the latest GitHub Pages plan clarification and its required logs for commit on branch `WZport`.
+- Files changed: `tasks/PagesPortPlan.md`, `logs/promptlog.md`, `logs/processlog.md`.
+- Verification: Ran `git diff --check`; the plan explicitly preserves `web/` as the site source directory while publishing its contents at the Pages artifact root.
+- Next step: Commit the listed files and push `WZport` to `origin`.
