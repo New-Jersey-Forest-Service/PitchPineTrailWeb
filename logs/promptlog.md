@@ -9,3 +9,9 @@ To make it clear, this is a new repository that was branched off as a separate p
 Excellent points. If they are not reflected in tasks/PagesPortPlan.md, let's amend it to reflect these elements that we discussed.
 
 Let's commit and push these changes to this branch.
+
+Let's create a branch off of the branch that we're currently using, because we're gonna make some changes to that and try to implement the plan. So let's make a branch first and switch branches to that new branch called...
+
+WZPagesPortPlan
+
+Great. Um, can you publish this branch now?

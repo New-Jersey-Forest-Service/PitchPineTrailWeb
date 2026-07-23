@@ -324,3 +324,17 @@ Reminder: ask the user before shutting this server down at session end.
 - Files changed: `tasks/PagesPortPlan.md`, `logs/promptlog.md`, `logs/processlog.md`.
 - Verification: Ran `git diff --check`; the plan explicitly preserves `web/` as the site source directory while publishing its contents at the Pages artifact root.
 - Next step: Commit the listed files and push `WZport` to `origin`.
+
+## 2026-07-22 Update: Pages Port Implementation Branch
+
+- Summary: Created and switched to `WZPagesPortPlan` from `WZport` at commit `17a31fc` to implement the GitHub Pages port plan.
+- Files changed: `logs/promptlog.md`, `logs/processlog.md`.
+- Verification: `git branch --show-current` returned `WZPagesPortPlan`; the branch started with a clean working tree.
+- Next step: Implement the web-only Pages layout on this branch.
+
+## 2026-07-22 Update: Pages Port Branch Publication Preparation
+
+- Summary: Prepared `WZPagesPortPlan` for its initial push to `origin`.
+- Files changed: `logs/promptlog.md`, `logs/processlog.md`.
+- Verification: Confirmed the current branch is `WZPagesPortPlan` and `origin` is configured for `New-Jersey-Forest-Service/PitchPineTrailWeb`.
+- Next step: Commit the branch handoff logs and push the branch with upstream tracking.
