@@ -21,3 +21,5 @@ Okay, let's implement our yet-to-be-implemented plan and tasks/.
 Great, yeah, I just tested it and it works. You can shut it down.
 
 Great. Commit and push any remaining changes on this branch.
+Let's do a pull request into the branch's root.
+Okay, I'll take care of the, uh, pull request then.

@@ -361,3 +361,17 @@ Reminder: ask the user before shutting this server down at session end.
 - Files changed: all completed migration files plus `logs/promptlog.md` and `logs/processlog.md`.
 - Verification: Local site, assets, workflow structure, and mirrored agent instructions were verified before staging; no local test server remains running.
 - Next step: Commit the migration and push `WZPagesPortPlan` to `origin`.
+
+## 2026-07-22 Update: Pull Request Preparation
+
+- Summary: Preparing a pull request from `WZPagesPortPlan` into the repository's root/default branch, `main`.
+- Files changed: `logs/promptlog.md`, `logs/processlog.md`.
+- Verification: `WZPagesPortPlan` is synchronized with `origin` at `a30a4e4`; local branches confirm `main` is the repository root branch.
+- Next step: Commit these handoff logs, push the branch, then create a draft pull request targeting `main`.
+
+## 2026-07-22 Update: Pull Request Handoff
+
+- Summary: The user will create the pull request from `WZPagesPortPlan` into `main` directly.
+- Files changed: `logs/promptlog.md`, `logs/processlog.md`.
+- Verification: The Pages migration commit `a30a4e4` is already pushed to `origin/WZPagesPortPlan`.
+- Caveat / next step: GitHub CLI is not installed locally, so no pull request was created in this session. The two log files contain uncommitted handoff notes.
