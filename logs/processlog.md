@@ -281,3 +281,97 @@ Server process:
 - Command line: `"C:\Users\wzipse\AppData\Local\anaconda3\python.exe" -m http.server 8001`
 
 Reminder: ask the user before shutting this server down at session end.
+
+## 2026-07-22 Update: GitHub Pages Port Planning
+
+- Summary: Documented a non-implementation migration plan for a self-contained GitHub Pages artifact and added task-plan guidance for agents.
+- Files changed: `tasks/PagesPortPlan.md`, `AGENTS.md`, `logs/promptlog.md`, `logs/processlog.md`.
+- Inspection run: `rg` found the web asset base in `web/js/screens.js` and `web/js/sounds.js` is currently `../src/assets/`; no Pages workflow or configuration files were present.
+- Verification: The plan recommends a root `assets/` directory and a Pages Actions artifact containing both `assets/` and `web/`, preserving the relative `/web/` game URL.
+- Caveat / next step: This session intentionally makes no implementation changes to asset locations, application code, or deployment settings. The pre-existing `AGENTS.md` prompt-log change was retained and expanded as requested.
+
+## 2026-07-22 Update: Mirrored Agent Instruction Files
+
+- Summary: Added the rule that `AGENTS.md` and `CLAUDE.md` must remain identical, and created `CLAUDE.md` as the matching copy.
+- Files changed: `AGENTS.md`, `CLAUDE.md`, `logs/promptlog.md`, `logs/processlog.md`.
+- Verification: Compared the two instruction files by content after creation; they match.
+- Caveat / next step: Future edits to either instruction file must be applied to both in the same task.
+
+## 2026-07-22 Update: Commit And Push Preparation
+
+- Summary: Prepared the Pages-port plan, mirrored agent instructions, and required logs for commit on branch `WZport`.
+- Files changed: `AGENTS.md`, `CLAUDE.md`, `tasks/PagesPortPlan.md`, `logs/promptlog.md`, `logs/processlog.md`.
+- Verification: Confirmed `AGENTS.md` and `CLAUDE.md` are byte-identical; reviewed the staged scope before commit.
+- Next step: Commit the listed files and push `WZport` to `origin`.
+
+## 2026-07-22 Update: Web-Only Pages Plan Revision
+
+- Summary: Revised `tasks/PagesPortPlan.md` after confirmation that this is a standalone web-project fork and does not need to preserve desktop functionality.
+- Files changed: `tasks/PagesPortPlan.md`, `logs/promptlog.md`, `logs/processlog.md`.
+- Verification: The revised plan makes `web/` a self-contained Pages deploy root with assets at `web/assets/`, a root site URL, and no production dependency on `src/`.
+- Caveat / next step: This is a planning-only change; no assets, browser paths, desktop files, or deployment workflow were modified.
+
+## 2026-07-22 Update: Pages Source And Artifact Layout Clarification
+
+- Summary: Expanded `tasks/PagesPortPlan.md` to keep all site source under `web/`, publish its contents at the Pages artifact root, and keep repository operational files out of the deployment.
+- Files changed: `tasks/PagesPortPlan.md`, `logs/promptlog.md`, `logs/processlog.md`.
+- Verification: The plan now explicitly covers the root public URL, document-relative asset paths, `.github/workflows/pages.yml`, artifact structure, and the optional `/docs` branch-publishing alternative.
+- Caveat / next step: This remains a planning-only change; no site files or GitHub Pages configuration were modified.
+
+## 2026-07-22 Update: Commit And Push Preparation (Plan Clarification)
+
+- Summary: Prepared the latest GitHub Pages plan clarification and its required logs for commit on branch `WZport`.
+- Files changed: `tasks/PagesPortPlan.md`, `logs/promptlog.md`, `logs/processlog.md`.
+- Verification: Ran `git diff --check`; the plan explicitly preserves `web/` as the site source directory while publishing its contents at the Pages artifact root.
+- Next step: Commit the listed files and push `WZport` to `origin`.
+
+## 2026-07-22 Update: Pages Port Implementation Branch
+
+- Summary: Created and switched to `WZPagesPortPlan` from `WZport` at commit `17a31fc` to implement the GitHub Pages port plan.
+- Files changed: `logs/promptlog.md`, `logs/processlog.md`.
+- Verification: `git branch --show-current` returned `WZPagesPortPlan`; the branch started with a clean working tree.
+- Next step: Implement the web-only Pages layout on this branch.
+
+## 2026-07-22 Update: Pages Port Branch Publication Preparation
+
+- Summary: Prepared `WZPagesPortPlan` for its initial push to `origin`.
+- Files changed: `logs/promptlog.md`, `logs/processlog.md`.
+- Verification: Confirmed the current branch is `WZPagesPortPlan` and `origin` is configured for `New-Jersey-Forest-Service/PitchPineTrailWeb`.
+- Next step: Commit the branch handoff logs and push the branch with upstream tracking.
+
+## 2026-07-22 Update: GitHub Pages Port Implemented
+
+- Summary: Converted the standalone web fork into a self-contained GitHub Pages site under `web/`.
+- Files changed: moved `src/assets/` to `web/assets/`; updated `web/js/screens.js` and `web/js/sounds.js`; added `.github/workflows/pages.yml`; rewrote `README.md`, `context/webplan.md`, and `context/siteinstructions.md`; updated synchronized `AGENTS.md` and `CLAUDE.md`; removed desktop-only `src/`, `requirements.txt`, `ppt.bat`, and `context/LocalAnaconda.md`; moved `tasks/PagesPortPlan.md` to `tasks/implemented/`.
+- Commands and tests: served `web/` with `C:\Users\n2ubx\anaconda3\python.exe -m http.server 8001 --directory web` (PID `23796`); verified the site root and representative files returned HTTP 200; verified all 483 assets returned HTTP 200; verified 76 direct browser asset references exist; confirmed AGENTS and CLAUDE are byte-identical.
+- Verification result: browser assets are now served from `web/assets/`, with no active browser source using `../src/assets/`.
+- Caveat / next step: the local test server remains running on port 8001. Configure GitHub Pages to use GitHub Actions, then merge or push the desired deployment branch to `main` to trigger the workflow. The in-app browser could not reach the local host despite the host-level HTTP checks succeeding.
+
+## 2026-07-22 Update: Local Pages Test Server Stopped
+
+- Summary: Stopped the local static server after the user confirmed their manual test succeeded and asked for shutdown.
+- Files changed: `logs/promptlog.md`, `logs/processlog.md`.
+- Server stopped: PID `23796`, command `C:\Users\n2ubx\anaconda3\python.exe -m http.server 8001 --directory web`.
+- Verification: Process no longer exists and `netstat` found no listener on port `8001`.
+- Next step: No local test server remains running.
+
+## 2026-07-22 Update: Pages Port Commit And Push Preparation
+
+- Summary: Prepared the completed web-only Pages migration for commit and push on `WZPagesPortPlan`.
+- Files changed: all completed migration files plus `logs/promptlog.md` and `logs/processlog.md`.
+- Verification: Local site, assets, workflow structure, and mirrored agent instructions were verified before staging; no local test server remains running.
+- Next step: Commit the migration and push `WZPagesPortPlan` to `origin`.
+
+## 2026-07-22 Update: Pull Request Preparation
+
+- Summary: Preparing a pull request from `WZPagesPortPlan` into the repository's root/default branch, `main`.
+- Files changed: `logs/promptlog.md`, `logs/processlog.md`.
+- Verification: `WZPagesPortPlan` is synchronized with `origin` at `a30a4e4`; local branches confirm `main` is the repository root branch.
+- Next step: Commit these handoff logs, push the branch, then create a draft pull request targeting `main`.
+
+## 2026-07-22 Update: Pull Request Handoff
+
+- Summary: The user will create the pull request from `WZPagesPortPlan` into `main` directly.
+- Files changed: `logs/promptlog.md`, `logs/processlog.md`.
+- Verification: The Pages migration commit `a30a4e4` is already pushed to `origin/WZPagesPortPlan`.
+- Caveat / next step: GitHub CLI is not installed locally, so no pull request was created in this session. The two log files contain uncommitted handoff notes.

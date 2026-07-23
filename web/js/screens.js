@@ -3,7 +3,7 @@ import { exportCSV, renderDataTable, showVariablePlot } from "./charts.js";
 import { sounds, stopAllLoops } from "./sounds.js";
 
 const root = document.getElementById("game-root");
-const ASSET_BASE = "../src/assets/";
+const ASSET_BASE = "assets/";
 
 const game = new Game();
 Object.assign(game, {
