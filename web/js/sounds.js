@@ -1,4 +1,4 @@
-const ASSET_BASE = "../src/assets/";
+const ASSET_BASE = "assets/";
 
 const loops = new Map();
 

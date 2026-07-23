@@ -338,3 +338,26 @@ Reminder: ask the user before shutting this server down at session end.
 - Files changed: `logs/promptlog.md`, `logs/processlog.md`.
 - Verification: Confirmed the current branch is `WZPagesPortPlan` and `origin` is configured for `New-Jersey-Forest-Service/PitchPineTrailWeb`.
 - Next step: Commit the branch handoff logs and push the branch with upstream tracking.
+
+## 2026-07-22 Update: GitHub Pages Port Implemented
+
+- Summary: Converted the standalone web fork into a self-contained GitHub Pages site under `web/`.
+- Files changed: moved `src/assets/` to `web/assets/`; updated `web/js/screens.js` and `web/js/sounds.js`; added `.github/workflows/pages.yml`; rewrote `README.md`, `context/webplan.md`, and `context/siteinstructions.md`; updated synchronized `AGENTS.md` and `CLAUDE.md`; removed desktop-only `src/`, `requirements.txt`, `ppt.bat`, and `context/LocalAnaconda.md`; moved `tasks/PagesPortPlan.md` to `tasks/implemented/`.
+- Commands and tests: served `web/` with `C:\Users\n2ubx\anaconda3\python.exe -m http.server 8001 --directory web` (PID `23796`); verified the site root and representative files returned HTTP 200; verified all 483 assets returned HTTP 200; verified 76 direct browser asset references exist; confirmed AGENTS and CLAUDE are byte-identical.
+- Verification result: browser assets are now served from `web/assets/`, with no active browser source using `../src/assets/`.
+- Caveat / next step: the local test server remains running on port 8001. Configure GitHub Pages to use GitHub Actions, then merge or push the desired deployment branch to `main` to trigger the workflow. The in-app browser could not reach the local host despite the host-level HTTP checks succeeding.
+
+## 2026-07-22 Update: Local Pages Test Server Stopped
+
+- Summary: Stopped the local static server after the user confirmed their manual test succeeded and asked for shutdown.
+- Files changed: `logs/promptlog.md`, `logs/processlog.md`.
+- Server stopped: PID `23796`, command `C:\Users\n2ubx\anaconda3\python.exe -m http.server 8001 --directory web`.
+- Verification: Process no longer exists and `netstat` found no listener on port `8001`.
+- Next step: No local test server remains running.
+
+## 2026-07-22 Update: Pages Port Commit And Push Preparation
+
+- Summary: Prepared the completed web-only Pages migration for commit and push on `WZPagesPortPlan`.
+- Files changed: all completed migration files plus `logs/promptlog.md` and `logs/processlog.md`.
+- Verification: Local site, assets, workflow structure, and mirrored agent instructions were verified before staging; no local test server remains running.
+- Next step: Commit the migration and push `WZPagesPortPlan` to `origin`.

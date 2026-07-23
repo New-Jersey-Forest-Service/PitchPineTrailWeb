@@ -1,50 +1,46 @@
 # Pitch Pine Trail
 
-## Overview
-Pitch Pine Trail is a retro-style game inspired by classic 1980s and 1990s games. The game features a nostalgic graphical interface and engaging gameplay mechanics that immerse players in a unique forest managment experience.
+Pitch Pine Trail is a retro-style, browser-based forest-management game. It is a static vanilla JavaScript application designed to run locally or on GitHub Pages.
 
 ## Project Structure
+
+```text
+web/                       # Complete browser application and Pages artifact
+├── index.html
+├── assets/                # Game images and audio
+├── css/
+└── js/
+.github/workflows/pages.yml # GitHub Pages deployment workflow
 ```
-PitchPineTrail
-├── src
-│   ├── main.py          # Entry point of the application
-│   ├── gui.py           # GUI class for retro-style interface
-│   ├── game_logic.py    # Core game logic and mechanics
-│   └── assets           # Directory for graphics and font files
-├── requirements.txt     # Project dependencies
-└── README.md            # Project documentation
+
+Repository planning, logs, and agent instructions remain outside `web/` and are not part of the published site.
+
+## Run Locally
+
+From the repository root, serve `web/` as the document root:
+
+```powershell
+& 'C:\Users\n2ubx\anaconda3\python.exe' -m http.server 8001 --directory web
 ```
 
-## Install Instruction Video for Beginners 
-https://www.youtube.com/watch?v=HVITFqAQqi0
+Then open [http://localhost:8001/](http://localhost:8001/).
 
-## Setup Instructions
-1. Clone the repository:
-   ```
-   git clone <repository-url>
-   cd PitchPineTrail
-   ```
+From an Anaconda Prompt in the repository root, the equivalent is:
 
-2. Install the required dependencies:
-   ```
-   pip install -r requirements.txt
-   ```
+```cmd
+python -m http.server 8001 --directory web
+```
 
-3. Run the game:
-   ```
-   python src/main.py
-   ```
+Press `Ctrl+C` in the serving terminal to stop the server.
 
-## Gameplay
-This is a single player game where you make choices on how to best care for your forest.
-Your choices will impact the way your trees grow, what plants and animals may choose to call your forest home and ultimately how at risk your forest is to detrimental impacts. 
-Your goal? Leave the forest better than you found it for a future generation of managers!
+## Deployment
 
-## Assets
-The `src/assets` directory is designated for storing graphics and font files. Placeholders for these assets will be provided, and users can replace them with their own graphics to enhance the game experience.
+The GitHub Pages workflow deploys the contents of `web/` unchanged, making `web/index.html` the public site root. Configure the repository Pages source to **GitHub Actions**. The site will be available at:
 
-## Contributing
-Contributions are welcome! If you have suggestions or improvements, please feel free to submit a pull request.
+```text
+https://<organization>.github.io/<repository>/
+```
 
 ## License
-This project is licensed under the MIT License. See the LICENSE file for more details.
+
+This project is licensed under the MIT License. See [LICENSE.txt](LICENSE.txt).

@@ -15,3 +15,9 @@ Let's create a branch off of the branch that we're currently using, because we'r
 WZPagesPortPlan
 
 Great. Um, can you publish this branch now?
+
+Okay, let's implement our yet-to-be-implemented plan and tasks/.
+
+Great, yeah, I just tested it and it works. You can shut it down.
+
+Great. Commit and push any remaining changes on this branch.
