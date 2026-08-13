@@ -375,3 +375,27 @@ Reminder: ask the user before shutting this server down at session end.
 - Files changed: `logs/promptlog.md`, `logs/processlog.md`.
 - Verification: The Pages migration commit `a30a4e4` is already pushed to `origin/WZPagesPortPlan`.
 - Caveat / next step: GitHub CLI is not installed locally, so no pull request was created in this session. The two log files contain uncommitted handoff notes.
+
+## 2026-08-13 Update: Root-Level GitHub Pages Layout
+
+- Summary: Moved the static browser app from `web/` to the repository root so the site entry point is root `index.html`.
+- Files changed: moved `web/index.html` to `index.html`; moved `web/assets/`, `web/css/`, and `web/js/` to root `assets/`, `css/`, and `js/`; updated `.github/workflows/pages.yml`, `README.md`, `context/webplan.md`, `context/siteinstructions.md`, synchronized `AGENTS.md` and `CLAUDE.md`, `logs/promptlog.md`, and `logs/processlog.md`.
+- Commands and tests: inspected Pages workflow, application references, and repository layout; confirmed the browser entry point uses document-relative `css/` and `js/` paths before moving files.
+- Verification result: the Pages workflow now uploads `.` and root `index.html` references `css/style.css` and `js/screens.js`, which resolve correctly from the repository root.
+- Caveat / next step: run the root-level local server and confirm the GitHub Actions deployment after pushing the changes.
+
+## 2026-08-13 Update: Root-Level Local Smoke Test
+
+- Summary: Started and tested the re-rooted static site.
+- Files changed: `logs/processlog.md`.
+- Command: `C:\Users\n2ubx\anaconda3\python.exe -m http.server 8001` from the repository root (PID `27404`).
+- Verification: HTTP 200 responses for `/`, `/css/style.css`, `/js/screens.js`, and `/assets/introscreen.jpg` at `http://localhost:8001/`.
+- Caveat / next step: The tool-run temporary server is no longer active after the smoke test. Push the changes and confirm the GitHub Actions Pages deployment.
+
+## 2026-08-13 Update: Root-Level Pages Migration Committed
+
+- Summary: Committed the requested root-level GitHub Pages migration on `WZport`.
+- Files changed: root-level application files and assets, Pages workflow, documentation, synchronized agent instructions, and required logs.
+- Commands and tests: staged only the migration scope; ran `git diff --cached --check`; created commit `4235811` (`Move GitHub Pages site to repository root`).
+- Verification: Git identified the application files and 484 assets as renames from `web/` to the repository root.
+- Caveat / next step: Push `WZport` to `origin`, then verify the GitHub Pages Actions deployment.

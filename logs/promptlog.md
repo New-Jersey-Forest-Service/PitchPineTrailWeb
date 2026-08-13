@@ -23,6 +23,9 @@ Great, yeah, I just tested it and it works. You can shut it down.
 Great. Commit and push any remaining changes on this branch.
 Let's do a pull request into the branch's root.
 Okay, I'll take care of the, uh, pull request then.
+So when I went to run this project on GitHub Pages, it appears the project needs to be run through root. So, can we move files appropriately from the web folder and assets in a way that this site will run from the root instead of from the web folder? It appears to be having problems with that.
+Can you check and let me know what branch we're working on right now?
+Excellent. Can we commit and push these changes?
 Okay, I switched branches. Can you see which branch we're on? We should be on WZport now.
 Let's do a pull request into the branch's root.
 Okay, I'll take care of the, uh, pull request then.

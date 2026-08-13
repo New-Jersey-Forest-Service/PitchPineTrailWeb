@@ -1,6 +1,6 @@
 # GitHub Pages Deployment Instructions
 
-Pitch Pine Trail is deployed as a static GitHub Pages site from the `web/` directory.
+Pitch Pine Trail is deployed as a static GitHub Pages site from the repository root.
 
 ## One-Time Repository Setup
 
@@ -12,13 +12,13 @@ The workflow at `.github/workflows/pages.yml` deploys automatically when changes
 
 ## What Is Published
 
-The workflow uploads `web/` unchanged. Its contents become the published site root:
+The workflow uploads the repository root. The browser application paths become the published site paths:
 
 ```text
-web/index.html       → https://<organization>.github.io/<repository>/
-web/assets/          → https://<organization>.github.io/<repository>/assets/
-web/css/             → https://<organization>.github.io/<repository>/css/
-web/js/              → https://<organization>.github.io/<repository>/js/
+index.html           → https://<organization>.github.io/<repository>/
+assets/              → https://<organization>.github.io/<repository>/assets/
+css/                 → https://<organization>.github.io/<repository>/css/
+js/                  → https://<organization>.github.io/<repository>/js/
 ```
 
 Use document-relative asset paths such as `assets/introscreen.jpg`. Do not use `/assets/...`, because a GitHub Pages project site includes the repository name in its URL path.
@@ -28,7 +28,7 @@ Use document-relative asset paths such as `assets/introscreen.jpg`. Do not use `
 From the repository root:
 
 ```powershell
-& 'C:\Users\n2ubx\anaconda3\python.exe' -m http.server 8001 --directory web
+& 'C:\Users\n2ubx\anaconda3\python.exe' -m http.server 8001
 ```
 
 Open `http://localhost:8001/`. Press `Ctrl+C` in the serving terminal to stop the server.
