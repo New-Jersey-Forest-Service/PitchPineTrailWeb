@@ -10,7 +10,7 @@ Before making changes, read:
 - `context/webplan.md` for the browser application and GitHub Pages architecture.
 - `logs/processlog.md` for the latest handoff notes from prior agents.
 
-Treat the existing browser implementation under `web/` as the application source of truth. Preserve its game behavior, screen flow, animations, sound behavior, overlays, analysis lab, certificate workflow, and CSV export behavior unless the user asks to change them.
+Treat the existing browser implementation at the repository root as the application source of truth. Preserve its game behavior, screen flow, animations, sound behavior, overlays, analysis lab, certificate workflow, and CSV export behavior unless the user asks to change them.
 
 ## Tasks And Implementation Plans
 
@@ -24,17 +24,17 @@ To preserve context space, do not read files in `tasks/implemented/` unless the 
 
 ## Web Application And Pages Rules
 
-The complete browser application lives under `web/`. Keep all browser-delivered HTML, CSS, JavaScript, images, audio, and fonts there; `web/assets/` is the canonical asset directory.
+The complete browser application lives at the repository root. Keep browser-delivered HTML, CSS, JavaScript, images, audio, and fonts in `index.html`, `css/`, `js/`, and `assets/`; `assets/` is the canonical asset directory.
 
 - Use a static vanilla JavaScript app.
 - Do not add a backend, framework, or browser build step unless the user approves a change in direction.
-- Use document-relative asset paths that work from `web/`, such as `assets/filename.jpg`; do not use `../src/assets/` or site-root asset paths beginning with `/`.
+- Use document-relative asset paths that work from the repository root, such as `assets/filename.jpg`; do not use `../src/assets/` or site-root asset paths beginning with `/`.
 - Preserve the retro fullscreen visual style, Courier typography, and original game aesthetic.
-- Deploy `web/` unchanged through `.github/workflows/pages.yml`; the artifact contents are the GitHub Pages site root.
+- Deploy the repository root through `.github/workflows/pages.yml`; its `index.html` is the GitHub Pages site root.
 
 ## Testing And Local Servers
 
-When testing locally, serve `web/` as the document root and open:
+When testing locally, serve the repository root as the document root and open:
 
 ```text
 http://localhost:8001/
@@ -43,7 +43,7 @@ http://localhost:8001/
 Example:
 
 ```powershell
-Start-Process -FilePath 'C:\Users\n2ubx\anaconda3\python.exe' -ArgumentList @('-m','http.server','8001','--directory','web') -WindowStyle Hidden
+Start-Process -FilePath 'C:\Users\n2ubx\anaconda3\python.exe' -ArgumentList @('-m','http.server','8001') -WindowStyle Hidden
 ```
 
 If you start any local web server for testing, track:
@@ -87,12 +87,12 @@ Always append the user prompt, verbatim, to `logs/promptlog.md`. If the log file
 
 ## Useful Current Files
 
-- `web/index.html`: browser app shell.
-- `web/assets/`: game images and audio.
-- `web/css/style.css`: web app styling.
-- `web/js/game.js`: JavaScript game logic.
-- `web/js/screens.js`: web screen router and turn flow.
-- `web/js/sounds.js`: browser audio wrappers.
-- `web/js/charts.js`: analysis lab charts and CSV export.
+- `index.html`: browser app shell.
+- `assets/`: game images and audio.
+- `css/style.css`: web app styling.
+- `js/game.js`: JavaScript game logic.
+- `js/screens.js`: web screen router and turn flow.
+- `js/sounds.js`: browser audio wrappers.
+- `js/charts.js`: analysis lab charts and CSV export.
 - `.github/workflows/pages.yml`: GitHub Pages deployment.
 - `logs/processlog.md`: running handoff log.
