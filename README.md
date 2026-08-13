@@ -43,3 +43,9 @@ https://<organization>.github.io/<repository>/
 ## License
 
 This project is licensed under the MIT License. See [LICENSE.txt](LICENSE.txt).
+
+## Web App
+
+To access the web app go to:
+
+https://New-Jersey-Forest-Service.github.io/PitchPineTrailWeb/
