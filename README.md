@@ -19,7 +19,7 @@ Repository planning, logs, and agent instructions remain separate from the brows
 From the repository root, serve the repository as the document root:
 
 ```powershell
-& 'C:\Users\n2ubx\anaconda3\python.exe' -m http.server 8001
+& 'C:\Users\[user]\anaconda3\python.exe' -m http.server 8001
 ```
 
 Then open [http://localhost:8001/](http://localhost:8001/).
