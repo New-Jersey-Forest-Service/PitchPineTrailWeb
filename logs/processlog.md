@@ -426,6 +426,171 @@ Reminder: ask the user before shutting this server down at session end.
 - Files changed: `js/screens.js`, `logs/promptlog.md`, `logs/processlog.md`.
 - Verification: `get_errors` reported no errors in `js/screens.js`.
 
+## 2026-08-18 Update: Artwork-Pixel UI Layout Conversion
+
+- Summary: Added a shared `5515 x 2700` artwork coordinate transform using the current `cover` or `contain` presentation, centered crop/letterbox offsets, and resize updates.
+- Files changed: `js/screens.js`, `css/style.css`, `logs/promptlog.md`, `logs/processlog.md`.
+- Converted layout surfaces: metrics, action controls, intro controls, navigation, hint/survey overlays, summary, ending medals, event/loss/achievement content, analysis controls, chart overlay, certificate, and loading note.
+- Verification: `get_errors` reported no errors in `js/screens.js` or `css/style.css`; a CSS variable search confirmed all new layout variables are assigned by `updatePixelLayout()`.
+- Caveat / next step: The source coordinates preserve the prior percentage-based arrangement as a first pass; visual browser testing may still warrant tuning individual artwork anchors.
+
+## 2026-08-18 Update: Preserve UI During Turn Animations
+
+- Summary: Changed `startAnimation()` to render the updated game screen before swapping animation backgrounds, removing the `clearScreen(during)` call that deleted buttons and text overlays.
+- Files changed: `js/screens.js`, `logs/promptlog.md`, `logs/processlog.md`.
+- Verification: `get_errors` reported no errors in `js/screens.js`.
+- Caveat / next step: Browser testing should confirm the controls remain visually readable over each animation frame.
+
+## 2026-08-18 Update: Restore Background After Temporary Screens
+
+- Summary: Fixed achievement, hurricane, and wildfire Continue flows so temporary background images no longer become the main play screen background.
+- Files changed: `js/screens.js`, `logs/promptlog.md`, `logs/processlog.md`.
+- Behavior: Achievement queues restore and clear `achievement_final_bg`; event screens save, restore, and clear `event_return_bg`; restart resets both fields.
+- Verification: `get_errors` reported no errors in `js/screens.js`; control-flow review confirmed all restoration paths.
+
+## 2026-08-18 Update: Reduced Responsive Ending Medal Size
+
+- Summary: Reduced the ending medal width from `1435` to `950` artwork pixels while retaining the shared responsive artwork-scale calculation.
+- Files changed: `js/screens.js`, `logs/promptlog.md`, `logs/processlog.md`.
+- Verification: `get_errors` reported no errors in `js/screens.js`.
+
+## 2026-08-18 Update: Preserve UI During Hurricane Animation
+
+- Summary: Changed the hurricane screen to render the current game UI before cycling hurricane backgrounds instead of clearing the root first.
+- Files changed: `js/screens.js`, `logs/promptlog.md`, `logs/processlog.md`.
+- Verification: `get_errors` reported no errors in `js/screens.js`.
+- Caveat / next step: Browser playback should confirm the controls remain readable over the hurricane artwork at the target viewport.
+
+## 2026-08-18 Update: Replaced Main Definitions Button With Glossary Hotspot
+
+- Summary: Removed the main play screen Definitions button and replaced it with a clickable artwork-scaled hotspot at the established definitions region.
+- Files changed: `js/screens.js`, `logs/promptlog.md`, `logs/processlog.md`.
+- Behavior: Hover/focus shows `Don't know what a term means? Click here for the Glossary!`; clicking opens the existing definitions screen and returning rebuilds the hotspot.
+- Verification: `get_errors` reported no errors in `js/screens.js`.
+
+## 2026-08-18 Update: Replaced Main Field Guide Button With Hotspot
+
+- Summary: Removed the main play screen Field Guide button and replaced it with a clickable artwork-scaled hotspot at the existing zoom field-guide region (`x=299`, `y=1252`, `304 x 426`).
+- Files changed: `js/screens.js`, `logs/promptlog.md`, `logs/processlog.md`.
+- Behavior: Hover/focus shows field-guide guidance; clicking opens the existing field guide screen. Definitions and field-guide hotspot cleanup now run together.
+- Verification: `get_errors` reported no errors in `js/screens.js`.
+
+## 2026-08-18 Update: Restore Background From Guide Screens
+
+- Summary: Updated the Field Guide and Definitions Return buttons to restore the gameplay background captured before each temporary guide screen was opened.
+- Files changed: `js/screens.js`, `logs/promptlog.md`, `logs/processlog.md`.
+- Verification: `get_errors` reported no errors in `js/screens.js`.
+
+## 2026-08-18 Update: Replaced Guide Return Buttons With Hotspots
+
+- Summary: Replaced the visible Definitions and Field Guide Return buttons with responsive clickable hotspots at their established artwork regions.
+- Files changed: `js/screens.js`, `css/style.css`, `logs/promptlog.md`, `logs/processlog.md`.
+- Behavior: Definitions returns from `x=142`, `y=714`; Field Guide returns from `x=299`, `y=1252`; both use `304 x 426` regions and restore the captured gameplay background.
+- Verification: `get_errors` reported no errors in `js/screens.js` or `css/style.css`.
+
+## 2026-08-18 Update: Replaced Analysis Definitions Buttons With Hotspots
+
+- Summary: Replaced the Analysis Lab Definitions button and the Analysis Definitions Return button with responsive artwork-scaled hover/click hotspots.
+- Files changed: `js/screens.js`, `logs/promptlog.md`, `logs/processlog.md`.
+- Behavior: Both use the analysis definitions artwork region at `x=276`, `y=2592`, preserve `prevBg` and `returnTarget`, and clean up their resize listeners on screen changes.
+- Verification: `get_errors` reported no errors in `js/screens.js`.
+
+## 2026-08-18 Update: Matched Analysis Glossary Region
+
+- Summary: Changed the Analysis Lab glossary hotspot and its Return hotspot to exactly match the main play Definitions region: `x=142`, `y=714`, `304 x 426`.
+- Files changed: `js/screens.js`, `logs/promptlog.md`, `logs/processlog.md`.
+- Verification: `get_errors` reported no errors in `js/screens.js`.
+
+## 2026-08-18 Update: Removed Analysis Glossary Hover Text
+
+- Summary: Removed popup text from the Analysis Lab glossary and Return hotspots while preserving their clickable regions, keyboard focus, and navigation.
+- Files changed: `js/screens.js`, `logs/promptlog.md`, `logs/processlog.md`.
+- Verification: `get_errors` reported no errors in `js/screens.js`.
+
+## 2026-08-18 Update: Restored Analysis Glossary Hover Text
+
+- Summary: Restored the glossary popup on the Analysis Lab glossary hotspot while keeping the Analysis Definitions return hotspot text-free.
+- Files changed: `js/screens.js`, `logs/promptlog.md`, `logs/processlog.md`.
+- Verification: `get_errors` reported no errors in `js/screens.js`.
+
+## 2026-08-18 Update: Replaced Hint Button With Hotspot
+
+- Summary: Removed the main Hint button and moved its behavior to the artwork-defined hint region at `x=79`, `y=226`, `250 x 237`.
+- Files changed: `js/screens.js`, `logs/promptlog.md`, `logs/processlog.md`.
+- Behavior: Hover/focus shows `Stuck? Click for a hint!`; clicking opens the next hint image, positioned directly to the right of the hotspot and constrained to the visible screen width.
+- Verification: `get_errors` reported no errors in `js/screens.js`.
+
+## 2026-08-18 Update: Adjusted Hint Image Size And Offset
+
+- Summary: Reduced the hint overlay maximum from `2640` to `2200` artwork pixels and moved it 20px to the right of the hint hotspot.
+- Files changed: `js/screens.js`, `logs/promptlog.md`, `logs/processlog.md`.
+- Verification: `get_errors` reported no errors in `js/screens.js`.
+
+## 2026-08-18 Update: Scoped Main Exit Button Text Size
+
+- Summary: Added the `main-exit-button` class to the main play Exit button and set its font size independently at `16px`.
+- Files changed: `js/screens.js`, `css/style.css`, `logs/promptlog.md`, `logs/processlog.md`.
+- Verification: `get_errors` reported no errors in `js/screens.js` or `css/style.css`.
+
+## 2026-08-18 Update: Added Guide Screen Close Sound
+
+- Summary: Connected `sounds.playPageCloseSound()` to the Field Guide return hotspot and Analysis Definitions return hotspot.
+- Files changed: `js/screens.js`, `logs/promptlog.md`, `logs/processlog.md`.
+- Behavior: Closing either screen plays `page_close.wav`; opening them continues to use the existing page-turn sound.
+- Verification: `get_errors` reported no errors in `js/screens.js`.
+
+## 2026-08-18 Update: Independent Survey Button Positioning
+
+- Summary: Added dedicated classes and independent relative-position rules for the Open Feedback, Exit, and Cancel survey buttons.
+- Files changed: `js/screens.js`, `css/style.css`, `logs/promptlog.md`, `logs/processlog.md`.
+- Verification: `get_errors` reported no errors in `js/screens.js` or `css/style.css`.
+
+## 2026-08-18 Update: Artwork-Pixel Survey Button Positions
+
+- Summary: Converted the three survey action buttons to independent responsive artwork-pixel anchors instead of relative offsets within the shared action row.
+- Files changed: `js/screens.js`, `css/style.css`, `logs/promptlog.md`, `logs/processlog.md`.
+- Current anchors: Open Feedback `1000,500`; Exit `4420,2376`; Cancel `4930,2376`.
+- Verification: `get_errors` reported no errors in `js/screens.js` or `css/style.css`.
+
+## 2026-08-18 Update: Responsive Survey Button Text
+
+- Summary: Added responsive `clamp()` font sizing to all three independently positioned survey buttons.
+- Files changed: `css/style.css`, `logs/promptlog.md`, `logs/processlog.md`.
+- Verification: `get_errors` reported no errors in `css/style.css`.
+
+## 2026-08-18 Update: Survey Exit Tab Close Request
+
+- Summary: Added `window.close()` to the survey Exit action while retaining the existing screen-clearing fallback.
+- Files changed: `js/screens.js`, `logs/promptlog.md`, `logs/processlog.md`.
+- Verification: `get_errors` reported no errors in `js/screens.js`.
+- Caveat: Browsers generally block scripts from closing tabs that were opened directly by the user.
+
+## 2026-08-18 Update: Added Main Screen Restart Button
+
+- Summary: Added a navy Restart button beside Exit on the main play screen.
+- Behavior: Restart resets the game state and audio, then returns directly to `zoom_10.jpg` with its existing hotspots and `Let's Play!` button.
+- Files changed: `js/screens.js`, `css/style.css`, `logs/promptlog.md`, `logs/processlog.md`.
+- Verification: `get_errors` reported no errors in `js/screens.js` or `css/style.css`.
+
+## 2026-08-18 Update: Hurricane Screen Shows Only Continue
+
+- Summary: Removed the normal game action UI from the hurricane animation screen; the event now shows only the hurricane sequence and its final Continue button.
+- Files changed: `js/screens.js`, `logs/promptlog.md`, `logs/processlog.md`.
+- Verification: `get_errors` reported no errors in `js/screens.js`.
+
+## 2026-08-18 Update: Early Hurricane Continue Control
+
+- Summary: Made the hurricane Continue button visible and clickable immediately when the animation starts.
+- Behavior: Early Continue cancels the pending animation timer, stops the hurricane sound, restores the gameplay background, and returns to the main game screen.
+- Files changed: `js/screens.js`, `logs/promptlog.md`, `logs/processlog.md`.
+- Verification: `get_errors` reported no errors in `js/screens.js`.
+
+## 2026-08-18 Update: Keep Metrics Over Hurricane Animation
+
+- Summary: Rendered the metrics panel on the hurricane animation screen while keeping normal action buttons and navigation hidden.
+- Files changed: `js/screens.js`, `logs/promptlog.md`, `logs/processlog.md`.
+- Verification: `get_errors` reported no errors in `js/screens.js`.
+
 ## 2026-07-22 Update: Commit And Push Preparation (Plan Clarification)
 
 - Summary: Prepared the latest GitHub Pages plan clarification and its required logs for commit on branch `WZport`.

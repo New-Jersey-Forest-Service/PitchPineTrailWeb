@@ -41,6 +41,34 @@ can you make these changes?
 can we make the pop up appear just to the right of the hover area and can we center the text
 can we add a similar sized and formatted pop up at 299 instead of 142 and 1252 instead of 714. This one should say "When playing the game, click here for the field guide of rare plants and animals that could come live in your forest!"
 now we are going to add a third with slight different postion, width and height. x: 79, y: 226, width: 250, height:237. THis pop up should say "You don't need a hint yet! You haven't even started!"
+can we rework the positioning of everything on the screen throughout the whole game to be in reference to the pixel of the background image instead of relative position on the screen and that way using the scale factor it will always scale appropriately on different screens? Can you caluclate using the background image size we've discused.
+Can we try the above request again. I have now made sure all the background images are the same pixel dimensions
+the game is having an issue where the button and text overlays are disapearing when an turn animation plays during game. Can we make it so buttons and text always appears on top of cycling background images
+there is an issue where the continue buttons after achviments and game events (e.g hurricane and out of control burn) is not return to the main play screen. Make sure the continue button removes the temporary background iamge loaded when the achviement or game event is triggered
+we make the ending screen medal size smaller and set it so it scales with screen size
+the button and text disappear while the huriccane animation is playing. Can we make them remain on top of that animation as well?
+I want to remove the click for definitions button on the main play screen and replace it with the hover area we defined for the click here to help understand what different terms and management decisions mean. The new hover should say, "Don't know what a term means? Click here for the Glossary!" and when clicked it should direct to the screen that then click for definitions button used to direct to
+now let's do the same for the field guide. Remove click for field guide button, replace with a hover and click where the click for field guide hover is on the zoom screen
+Now make sure both of those return button return the background image to the play screen in the same way we just fixed the continue button for the achievments
+can we replace both return buttons for both the definitions and the field guide with a click in their respective defined areas used to open those screens
+Now can we make the same changes to buttons in the analysis lab for the analysis lab definitions screen
+can we make the region the exact same that it was on the main play screen
+can we remove the hover text in the anlysis lab definitions
+can we add back the hover the says "Don't know what a term means? Click here for the Glossary!" in the analysis lab
+I now want to take the click for a hint button, remove it, and transfer it's functionality to a hover and click region that was used for the "You don't need a hint yet! You haven't even started!". THe new hover should say "Stuck? Click for a hint!", the hint images should now appear directly to the right of the region
+can we make the hint images a little smaller and more them a little to the right
+will this change all red button text? can I seperate out the exit button so I only change that text size
+can you do this for me
+can we make sure the page_close.wav plays when wither anlysis screen or the field guide is closed. it should be associted with the hover and clicks that close those screens
+can I control the three button inthe survey actions seperately
+I want to indpendently control their location
+can we make it so each of the three buttons can be placed indpendently in reference to the pixel of the background image
+plase make it so the text for the survey button scales with screen size
+can we change the fucntionality of the survey exit tab so it closes the tab that the game is running in
+on the right next to the exit button the main play screen can we add a navy button that says "Restart" over and returns the player to the zoom_10.jpg screen restrating the game
+the actions buttons should be over the hurricane screen omly the continue button
+the continue button should be visiable and clickable before the animation is over. the continue button should end the animation and sound
+the metrics should stay on top of the hurricane animation screen
 Okay, I'll take care of the, uh, pull request then.
 So when I went to run this project on GitHub Pages, it appears the project needs to be run through root. So, can we move files appropriately from the web folder and assets in a way that this site will run from the root instead of from the web folder? It appears to be having problems with that.
 Can you check and let me know what branch we're working on right now?

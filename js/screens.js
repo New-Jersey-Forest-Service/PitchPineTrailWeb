@@ -4,6 +4,8 @@ import { sounds, stopAllLoops } from "./sounds.js";
 
 const root = document.getElementById("game-root");
 const ASSET_BASE = "assets/";
+const ART_WIDTH = 5515;
+const ART_HEIGHT = 2700;
 
 const game = new Game();
 const decodedBackgrounds = new Map();
@@ -13,6 +15,7 @@ Object.assign(game, {
   current_bg_img: "Evenagestand.jpg", //Standard background image
   achievement_queue: [],
   achievement_final_bg: null,
+  event_return_bg: null,
   thin_lightly_event: false,
   prescribed_burn_event: false,
   pb_after_first_heavythin_shown: false,
@@ -81,10 +84,78 @@ function setBg(name) {
   image.src = asset(imageName);
 }
 
+function updatePixelLayout() {
+  const rootWidth = root.clientWidth;
+  const rootHeight = root.clientHeight;
+  const contain = root.style.backgroundSize === "contain";
+  const scale = contain
+    ? Math.min(rootWidth / ART_WIDTH, rootHeight / ART_HEIGHT)
+    : Math.max(rootWidth / ART_WIDTH, rootHeight / ART_HEIGHT);
+  const imageWidth = ART_WIDTH * scale;
+  const imageHeight = ART_HEIGHT * scale;
+  const imageLeft = (rootWidth - imageWidth) / 2;
+  const imageTop = (rootHeight - imageHeight) / 2;
+  const set = (name, value) => root.style.setProperty(`--${name}`, `${value}px`);
+  const point = (name, x, y) => {
+    set(`${name}-left`, imageLeft + x * scale);
+    set(`${name}-top`, imageTop + y * scale);
+  };
+  const size = (name, width, height) => {
+    if (width != null) set(`${name}-width`, width * scale);
+    if (height != null) set(`${name}-height`, height * scale);
+  };
+
+  point("metrics", 4190, 1490);
+  size("metrics", 1100);
+  point("actions", 4550, 350);
+  size("actions", 720);
+  point("intro", 4429, 2403);
+  point("intro-second", 3309, 1917);
+  point("definitions", 276, 2592);
+  point("field-guide", 276, 1863);
+  point("exit", 800, 65);
+  point("hint", 3695, 81);
+  point("summary", 4144, 270);
+  size("summary", 1150);
+  point("closing-actions", 4600, 800);
+  point("loss-message", 4600, 350);
+  size("loss-message", 800);
+  point("analysis-table", 745, 635);
+  size("analysis-table", 2650, 1240);
+  point("plot-buttons", 4964, 1944);
+  point("achievement-list", 4130, 1188);
+  size("achievement-list", 1380, 650);
+  point("analysis-return", 993, 2025);
+  point("analysis-definitions", 276, 2592);
+  point("save-data", 3174, 1504);
+  point("chart-overlay", 745, 635);
+  size("chart-overlay", 2650, 1150);
+  point("certificate", 331, 216);
+  size("certificate", 2640);
+  point("hint-overlay", 2758, 54);
+  size("hint-overlay", 2640);
+  point("survey-overlay", 800, 65);
+  size("survey-overlay", 2000);
+  point("survey-open", 2100, 800);
+  point("survey-exit", 1950, 950);
+  point("survey-cancel", 2250, 950);
+  point("medal-slot-1", 1379, 324);
+  point("medal-slot-2", 1379, 972);
+  point("medal-slot-3", 1379, 1620);
+  point("medal-slot-4", 2482, 324);
+  point("medal-slot-5", 2482, 972);
+  point("medal-slot-6", 2482, 1620);
+  point("medal-slot-7", 3802, 972);
+  size("medal", 950);
+}
+
+window.addEventListener("resize", updatePixelLayout);
+
 function clearScreen(bgName) {
   zoomHotspotCleanup?.();
   zoomHotspotCleanup = null;
   root.innerHTML = "";
+  updatePixelLayout();
   if (bgName) setBg(bgName);
 }
 
@@ -113,17 +184,17 @@ function renderMetrics(parent = root) {
   panel.innerHTML = `
     <div>Year: ${status.year}</div>
     <br>
-    <div>Basal Area (BA): ${Number(status.BA).toFixed(1)} sqft/acre</div>
+    <div>Basal Area(BA): ${Number(status.BA).toFixed(1)} sqft/acre</div>
     <br>
-    <div>Trees Per Acre (TPA): ${status.TPA}</div>
+    <div>Trees Per Acre(TPA): ${status.TPA}</div>
     <br>
-    <div>Quadratic Mean Diameter (QMD): ${Number(status.QMD).toFixed(1)} inches</div>
+    <div>Quadratic Mean Diameter(QMD): ${Number(status.QMD).toFixed(1)} inches</div>
     <br>
     <div>Carbon per Acre: ${Number(status.carbon).toFixed(1)} Metric Tons/acre</div>
     <br>
     <div>Crowning Index: ${Number(status.CI).toFixed(1)}</div>
-    <span class="metric-risk ${riskClass(status.fire_risk)}">Fire Risk: ${status.fire_risk}</span>
-    <span class="metric-risk ${riskClass(status.SPB_risk)}">Southern Pine Beetle Risk: ${status.SPB_risk}</span>
+    <span class="metric-risk ${riskClass(status.fire_risk)}">Fire Risk:<br>${status.fire_risk}</span>
+    <span class="metric-risk ${riskClass(status.SPB_risk)}">Southern Pine Beetle Risk:<br>${status.SPB_risk}</span>
   `;
   parent.append(panel);
   return panel;
@@ -131,15 +202,12 @@ function renderMetrics(parent = root) {
 
 function renderCommonNav() {
   root.append(
-    Object.assign(document.createElement("div"), { className: "field-guide-link" }),
-    Object.assign(document.createElement("div"), { className: "definitions-link" }),
-    Object.assign(document.createElement("div"), { className: "exit-link" }),
-    Object.assign(document.createElement("div"), { className: "hint-link" })
+    Object.assign(document.createElement("div"), { className: "exit-link" })
   );
-  root.querySelector(".field-guide-link").append(button("Click for Field Guide", "dark-button", showFieldGuideScreen));
-  root.querySelector(".definitions-link").append(button("Click for Definitions", "dark-button", showDefinitionsScreen));
-  root.querySelector(".exit-link").append(button("Exit", "red-button", () => showExitSurveyOverlay()));
-  root.querySelector(".hint-link").append(button("Click for a Hint", "blue-button", () => showHintOverlay()));
+  root.querySelector(".exit-link").append(
+    button("Exit", "red-button main-exit-button", () => showExitSurveyOverlay()),
+    button("Restart", "blue-button main-restart-button", restartGameToZoom)
+  );
 }
 
 function lastEventNamed(name) {
@@ -317,7 +385,8 @@ function nextTurn(action) {
 }
 
 function startAnimation(during, durationMs, final) {
-  clearScreen(during);
+  showGameScreen();
+  setBg(during);
   setTimeout(() => {
     setBg(final);
     showGameScreen();
@@ -368,17 +437,23 @@ function startZoomSequence() {
       setBg(frames[frame - 1]);
       if (frame >= frames.length) {
         clearInterval(timer);
-        zoomHotspotCleanup = addZoomDefinitionsHotspot();
-        const buttons = document.createElement("div");
-        buttons.className = "intro-buttons-second";
-        buttons.append(button("Let's Play!", "tan-button", () => {
-          sounds.playLetsPlaySound();
-          showGameScreen();
-        }));
-        root.append(buttons);
+        showZoomFinalScreen();
       }
     }, 300);
   });
+}
+
+function showZoomFinalScreen() {
+  root.style.backgroundSize = "contain";
+  clearScreen("zoom_10.jpg");
+  zoomHotspotCleanup = addZoomDefinitionsHotspot();
+  const buttons = document.createElement("div");
+  buttons.className = "intro-buttons-second";
+  buttons.append(button("Let's Play!", "tan-button", () => {
+    sounds.playLetsPlaySound();
+    showGameScreen();
+  }));
+  root.append(buttons);
 }
 
 function addZoomDefinitionsHotspot() {
@@ -442,6 +517,174 @@ function addZoomDefinitionsHotspot() {
   };
 }
 
+function addGameDefinitionsHotspot() {
+  const imageWidth = ART_WIDTH;
+  const imageHeight = ART_HEIGHT;
+  const hotspot = document.createElement("div");
+  hotspot.className = "zoom-definitions-hotspot";
+  hotspot.tabIndex = 0;
+  hotspot.setAttribute("aria-label", "Glossary information");
+  hotspot.addEventListener("click", showDefinitionsScreen);
+  const popup = document.createElement("div");
+  popup.className = "zoom-definitions-popup";
+  popup.textContent = "Don't know what a term means? Click here for the Glossary!";
+  hotspot.append(popup);
+  root.append(hotspot);
+
+  const positionHotspot = () => {
+    const rootWidth = root.clientWidth;
+    const rootHeight = root.clientHeight;
+    const scale = Math.max(rootWidth / imageWidth, rootHeight / imageHeight);
+    const imageLeft = (rootWidth - imageWidth * scale) / 2;
+    const imageTop = (rootHeight - imageHeight * scale) / 2;
+    hotspot.style.left = `${imageLeft + 142 * scale}px`;
+    hotspot.style.top = `${imageTop + 714 * scale}px`;
+    hotspot.style.width = `${304 * scale}px`;
+    hotspot.style.height = `${426 * scale}px`;
+  };
+
+  positionHotspot();
+  window.addEventListener("resize", positionHotspot);
+  return () => {
+    window.removeEventListener("resize", positionHotspot);
+    hotspot.remove();
+  };
+}
+
+function addGameFieldGuideHotspot() {
+  const imageWidth = ART_WIDTH;
+  const imageHeight = ART_HEIGHT;
+  const hotspot = document.createElement("div");
+  hotspot.className = "zoom-definitions-hotspot";
+  hotspot.tabIndex = 0;
+  hotspot.setAttribute("aria-label", "Field guide information");
+  hotspot.addEventListener("click", showFieldGuideScreen);
+  const popup = document.createElement("div");
+  popup.className = "zoom-definitions-popup";
+  popup.textContent = "Don't know what a plant or animal is? Click here for the Field Guide!";
+  hotspot.append(popup);
+  root.append(hotspot);
+
+  const positionHotspot = () => {
+    const rootWidth = root.clientWidth;
+    const rootHeight = root.clientHeight;
+    const scale = Math.max(rootWidth / imageWidth, rootHeight / imageHeight);
+    const imageLeft = (rootWidth - imageWidth * scale) / 2;
+    const imageTop = (rootHeight - imageHeight * scale) / 2;
+    hotspot.style.left = `${imageLeft + 299 * scale}px`;
+    hotspot.style.top = `${imageTop + 1252 * scale}px`;
+    hotspot.style.width = `${304 * scale}px`;
+    hotspot.style.height = `${426 * scale}px`;
+  };
+
+  positionHotspot();
+  window.addEventListener("resize", positionHotspot);
+  return () => {
+    window.removeEventListener("resize", positionHotspot);
+    hotspot.remove();
+  };
+}
+
+function addGameHintHotspot() {
+  const x = 79;
+  const y = 226;
+  const width = 250;
+  const height = 237;
+  const hotspot = document.createElement("div");
+  hotspot.className = "zoom-definitions-hotspot";
+  hotspot.tabIndex = 0;
+  hotspot.setAttribute("aria-label", "Hint information");
+  hotspot.addEventListener("click", showHintOverlay);
+  const popup = document.createElement("div");
+  popup.className = "zoom-definitions-popup";
+  popup.textContent = "Stuck? Click for a hint!";
+  hotspot.append(popup);
+  root.append(hotspot);
+
+  const positionHotspot = () => {
+    const scale = Math.max(root.clientWidth / ART_WIDTH, root.clientHeight / ART_HEIGHT);
+    const imageLeft = (root.clientWidth - ART_WIDTH * scale) / 2;
+    const imageTop = (root.clientHeight - ART_HEIGHT * scale) / 2;
+    hotspot.style.left = `${imageLeft + x * scale}px`;
+    hotspot.style.top = `${imageTop + y * scale}px`;
+    hotspot.style.width = `${width * scale}px`;
+    hotspot.style.height = `${height * scale}px`;
+  };
+
+  positionHotspot();
+  window.addEventListener("resize", positionHotspot);
+  return () => {
+    window.removeEventListener("resize", positionHotspot);
+    hotspot.remove();
+  };
+}
+
+function addGuideReturnHotspot(x, y, label, returnBg) {
+  const hotspot = document.createElement("div");
+  hotspot.className = "guide-return-hotspot";
+  hotspot.tabIndex = 0;
+  hotspot.setAttribute("aria-label", label);
+  hotspot.addEventListener("click", () => {
+    sounds.playPageCloseSound();
+    game.current_bg_img = returnBg;
+    showGameScreen();
+  });
+  root.append(hotspot);
+
+  const positionHotspot = () => {
+    const scale = Math.max(root.clientWidth / ART_WIDTH, root.clientHeight / ART_HEIGHT);
+    const imageLeft = (root.clientWidth - ART_WIDTH * scale) / 2;
+    const imageTop = (root.clientHeight - ART_HEIGHT * scale) / 2;
+    hotspot.style.left = `${imageLeft + x * scale}px`;
+    hotspot.style.top = `${imageTop + y * scale}px`;
+    hotspot.style.width = `${304 * scale}px`;
+    hotspot.style.height = `${426 * scale}px`;
+  };
+
+  positionHotspot();
+  window.addEventListener("resize", positionHotspot);
+  return () => {
+    window.removeEventListener("resize", positionHotspot);
+    hotspot.remove();
+  };
+}
+
+function addAnalysisDefinitionsHotspot(label, onClick, text = "") {
+  const x = 142;
+  const y = 714;
+  const width = 304;
+  const height = 426;
+  const hotspot = document.createElement("div");
+  hotspot.className = "zoom-definitions-hotspot";
+  hotspot.tabIndex = 0;
+  hotspot.setAttribute("aria-label", label);
+  hotspot.addEventListener("click", onClick);
+  if (text) {
+    const popup = document.createElement("div");
+    popup.className = "zoom-definitions-popup";
+    popup.textContent = text;
+    hotspot.append(popup);
+  }
+  root.append(hotspot);
+
+  const positionHotspot = () => {
+    const scale = Math.max(root.clientWidth / ART_WIDTH, root.clientHeight / ART_HEIGHT);
+    const imageLeft = (root.clientWidth - ART_WIDTH * scale) / 2;
+    const imageTop = (root.clientHeight - ART_HEIGHT * scale) / 2;
+    hotspot.style.left = `${imageLeft + x * scale}px`;
+    hotspot.style.top = `${imageTop + y * scale}px`;
+    hotspot.style.width = `${width * scale}px`;
+    hotspot.style.height = `${height * scale}px`;
+  };
+
+  positionHotspot();
+  window.addEventListener("resize", positionHotspot);
+  return () => {
+    window.removeEventListener("resize", positionHotspot);
+    hotspot.remove();
+  };
+}
+
 function showGameScreen(narration = "") {
   const bg = game.current_bg_img?.startsWith("zoom_") ? "Evenagestand.jpg" : game.current_bg_img || "Evenagestand.jpg";
   clearScreen(bg);
@@ -465,6 +708,14 @@ function showGameScreen(narration = "") {
     root.append(note);
   }
   renderCommonNav();
+  const cleanupDefinitionsHotspot = addGameDefinitionsHotspot();
+  const cleanupFieldGuideHotspot = addGameFieldGuideHotspot();
+  const cleanupHintHotspot = addGameHintHotspot();
+  zoomHotspotCleanup = () => {
+    cleanupDefinitionsHotspot();
+    cleanupFieldGuideHotspot();
+    cleanupHintHotspot();
+  };
 }
 
 function showClosingScreen() {
@@ -590,6 +841,10 @@ function showNextQueuedAchievementOrGame() {
     }
     return showAchievementScreen(code);
   }
+  if (game.achievement_final_bg) {
+    game.current_bg_img = game.achievement_final_bg;
+    game.achievement_final_bg = null;
+  }
   if (game.hurricane_pending) {
     game.hurricane_pending = false;
     return showHurricaneScreen();
@@ -604,9 +859,23 @@ function showNextQueuedAchievementOrGame() {
 
 function showHurricaneScreen() {
   if (game.hurricane_screen_shown) return showGameScreen();
+  game.event_return_bg = game.current_bg_img;
   game.hurricane_screen_shown = true;
   sounds.playHurricaneSound();
   clearScreen("hurricane_lightning.jpg");
+  renderMetrics();
+  let hurricaneTimer = null;
+  const continueHurricane = () => {
+    if (hurricaneTimer) clearTimeout(hurricaneTimer);
+    sounds.stopHurricaneSound();
+    game.current_bg_img = game.event_return_bg || "Evenagestand.jpg";
+    game.event_return_bg = null;
+    showGameScreen();
+  };
+  const actions = document.createElement("div");
+  actions.className = "event-actions";
+  actions.append(button("Continue", "green-button", continueHurricane));
+  root.append(actions);
   const sequence = [
     ["hurricane_lightning.jpg", 200],
     ["hurricane_rain.jpg", 2900],
@@ -620,7 +889,7 @@ function showHurricaneScreen() {
     setBg(image);
     if (delay == null) return finishHurricaneScreen();
     index += 1;
-    setTimeout(step, delay);
+    hurricaneTimer = setTimeout(step, delay);
   };
   step();
 }
@@ -636,6 +905,8 @@ function finishHurricaneScreen() {
   actions.className = "event-actions";
   actions.append(button("Continue", "green-button", () => {
     sounds.stopHurricaneSound();
+    game.current_bg_img = game.event_return_bg || "Evenagestand.jpg";
+    game.event_return_bg = null;
     if (game.stand.year >= 100) showClosingScreen();
     else showGameScreen();
   }));
@@ -644,6 +915,7 @@ function finishHurricaneScreen() {
 
 function showWildfireScreen() {
   if (game.wildfire_screen_shown) return showGameScreen();
+  game.event_return_bg = game.current_bg_img;
   game.wildfire_screen_shown = true;
   sounds.playFireSound();
   clearScreen("nonlosing_fire.jpg");
@@ -656,6 +928,8 @@ function showWildfireScreen() {
   actions.className = "event-actions";
   actions.append(button("Continue", "green-button", () => {
     sounds.stopFireSound();
+    game.current_bg_img = game.event_return_bg || "Evenagestand.jpg";
+    game.event_return_bg = null;
     if (game.stand.year >= 100) showClosingScreen();
     else showGameScreen();
   }));
@@ -664,20 +938,28 @@ function showWildfireScreen() {
 
 function showFieldGuideScreen() {
   sounds.playPageTurnSound();
+  const returnBg = game.current_bg_img;
   clearScreen("fieldguide.jpg");
-  root.append(button("Return", "green-button exit-link", () => showGameScreen()));
+  zoomHotspotCleanup = addGuideReturnHotspot(299, 1252, "Return from field guide", returnBg);
 }
 
 function showDefinitionsScreen() {
   sounds.playPageTurnSound();
+  const returnBg = game.current_bg_img;
   clearScreen("definitions.jpg");
-  root.append(button("Return", "green-button exit-link", () => showGameScreen()));
+  zoomHotspotCleanup = addGuideReturnHotspot(142, 714, "Return from glossary", returnBg);
 }
 
 function showAnalysisDefinitions(prevBg, returnTarget) {
   sounds.playPageTurnSound();
   clearScreen("analyze_definitions.jpg");
-  root.append(button("Return", "green-button exit-link", () => showAnalysisLab(prevBg, false, returnTarget)));
+  zoomHotspotCleanup = addAnalysisDefinitionsHotspot(
+    "Return to Analysis Lab",
+    () => {
+      sounds.playPageCloseSound();
+      showAnalysisLab(prevBg, false, returnTarget);
+    }
+  );
 }
 
 function showHintOverlay() {
@@ -687,6 +969,15 @@ function showHintOverlay() {
   const images = Array.from({ length: 12 }, (_, index) => `hint${index + 1}.jpg`);
   const overlay = document.createElement("div");
   overlay.className = "hint-overlay";
+  const scale = Math.max(root.clientWidth / ART_WIDTH, root.clientHeight / ART_HEIGHT);
+  const imageLeft = (root.clientWidth - ART_WIDTH * scale) / 2;
+  const imageTop = (root.clientHeight - ART_HEIGHT * scale) / 2;
+  const hotspotRight = imageLeft + (79 + 250) * scale;
+  const availableWidth = root.clientWidth - hotspotRight - 20;
+  overlay.style.left = `${hotspotRight + 20}px`;
+  overlay.style.top = `${imageTop + 226 * scale}px`;
+  overlay.style.width = `${Math.max(0, Math.min(2200 * scale, availableWidth))}px`;
+  overlay.style.transform = "none";
   overlay.innerHTML = `<img src="${asset(images[game.hint_index % images.length])}" alt="">`;
   game.hint_index = (game.hint_index + 1) % images.length;
   overlay.append(button("Close Hint", "red-button hint-close", () => {
@@ -706,13 +997,14 @@ function showExitSurveyOverlay() {
   const actions = document.createElement("div");
   actions.className = "survey-actions";
   actions.append(
-    button("Open Feedback Survey", "tan-button", () => window.open("https://forms.office.com/g/N38DQhPe2V", "_blank", "noopener")),
-    button("Exit", "red-button", () => {
+    button("Open Feedback Survey", "tan-button survey-open-button", () => window.open("https://forms.office.com/g/N38DQhPe2V", "_blank", "noopener")),
+    button("Exit", "red-button survey-exit-button", () => {
       stopAllLoops();
+      window.close();
       clearScreen(null);
       root.style.backgroundImage = "";
     }),
-    button("Cancel", "green-button", () => overlay.remove())
+    button("Cancel", "green-button survey-cancel-button", () => overlay.remove())
   );
   overlay.append(actions);
   root.append(overlay);
@@ -804,10 +1096,11 @@ function showAnalysisLab(prevBg = game.current_bg_img, loading = true, returnTar
       plotButtons.append(button(labels[variable], "green-button", () => showChartOverlay(variable, rows)));
     }
     root.append(plotButtons);
-    const defs = document.createElement("div");
-    defs.className = "analysis-definitions-link";
-    defs.append(button("Click for Definitions", "dark-button", () => showAnalysisDefinitions(prevBg, returnTarget)));
-    root.append(defs);
+    zoomHotspotCleanup = addAnalysisDefinitionsHotspot(
+      "Analysis definitions information",
+      () => showAnalysisDefinitions(prevBg, returnTarget),
+      "Don't know what a term means? Click here for the Glossary!"
+    );
     startAnalysisBlink();
   };
   if (loading) setTimeout(build, 1000);
@@ -854,13 +1147,14 @@ function startAnalysisBlink() {
   }, blink ? 500 : 1000);
 }
 
-function restartGame() {
+function resetGameState() {
   stopAllLoops();
   game.resetGame();
   Object.assign(game, {
     current_bg_img: "Evenagestand.jpg",
     achievement_queue: [],
     achievement_final_bg: null,
+    event_return_bg: null,
     thin_lightly_event: false,
     prescribed_burn_event: false,
     pb_after_first_heavythin_shown: false,
@@ -871,8 +1165,18 @@ function restartGame() {
     wildfire_last_shown_year: null,
     hurricane_last_shown_year: null
   });
+}
+
+function restartGame() {
+  resetGameState();
   sounds.playForestSound();
   showGameScreen();
+}
+
+function restartGameToZoom() {
+  resetGameState();
+  sounds.playForestSound();
+  showZoomFinalScreen();
 }
 
 showIntroScreen();
