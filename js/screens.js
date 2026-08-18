@@ -6,6 +6,9 @@ const root = document.getElementById("game-root");
 const ASSET_BASE = "assets/";
 
 const game = new Game();
+const decodedBackgrounds = new Map();
+let backgroundRequest = 0;
+let zoomHotspotCleanup = null;
 Object.assign(game, {
   current_bg_img: "Evenagestand.jpg", //Standard background image
   achievement_queue: [],
@@ -36,6 +39,16 @@ const achievementScreens = {
   frog: { image: "treefrog.jpg", sound: sounds.playTreeFrogSound, title: "Pine Barrens tree frog has colonized this stand!" }
 };
 
+const endingMedals = [
+  ["Pine snake", "pine_snake_achieved", "pine_snakes_colonized", "pinesnake_medal_end.png"],
+  ["Gentian", "gentian_achieved", "gentian_colonized", "gentian_medal_end.png"],
+  ["Summer Tanager", "summer_tanager_achieved", "summer_tanager_colonized", "tanager_medal_end.png"],
+  ["Pine Barrens tree frog", "tree_frog_achieved", "pine_barrens_tree_frog_colonized", "treefrog_medal_end.png"],
+  ["Indigo Bunting", "indigo_bunting_achieved", "indigo_bunting_colonized", "bunting_medal_end.png"],
+  ["Turkey Beard", "turkey_beard_achieved", null, "turkeybeard_medal_end.png"],
+  ["Shortleaf pine", "short_achieved", "short_colonized", "shortleaf_medal_end.png"]
+];
+
 function asset(name) {
   if (name.startsWith("../") || name.startsWith("http")) return name;
   return `${ASSET_BASE}${name.replace(/^assets\//, "")}`;
@@ -43,10 +56,34 @@ function asset(name) {
 
 function setBg(name) {
   game.current_bg_img = name.replace(/^assets\//, "");
-  root.style.backgroundImage = `url("${asset(name)}")`;
+  const imageName = game.current_bg_img;
+  const request = ++backgroundRequest;
+  const apply = () => {
+    if (request === backgroundRequest) {
+      root.style.backgroundImage = `url("${asset(imageName)}")`;
+    }
+  };
+  if (decodedBackgrounds.has(imageName)) {
+    apply();
+    return;
+  }
+  const image = new Image();
+  image.onload = async () => {
+    try {
+      await image.decode();
+    } catch {
+      // The loaded image is still usable when decode() is unavailable.
+    }
+    decodedBackgrounds.set(imageName, true);
+    apply();
+  };
+  image.onerror = apply;
+  image.src = asset(imageName);
 }
 
 function clearScreen(bgName) {
+  zoomHotspotCleanup?.();
+  zoomHotspotCleanup = null;
   root.innerHTML = "";
   if (bgName) setBg(bgName);
 }
@@ -290,11 +327,11 @@ function startAnimation(during, durationMs, final) {
 function showIntroScreen() {
   root.style.backgroundSize = "cover";
   clearScreen("introscreen.jpg");
+  sounds.playForestSound();
   const buttons = document.createElement("div");
   buttons.className = "intro-buttons";
   buttons.append(
     button("Begin", "tan-button", () => {
-      sounds.playForestSound();
       startZoomSequence();
     }),
     button("Exit", "tan-button", () => showExitSurveyOverlay())
@@ -331,6 +368,7 @@ function startZoomSequence() {
       setBg(frames[frame - 1]);
       if (frame >= frames.length) {
         clearInterval(timer);
+        zoomHotspotCleanup = addZoomDefinitionsHotspot();
         const buttons = document.createElement("div");
         buttons.className = "intro-buttons-second";
         buttons.append(button("Let's Play!", "tan-button", () => {
@@ -338,13 +376,70 @@ function startZoomSequence() {
           showGameScreen();
         }));
         root.append(buttons);
-        const defs = document.createElement("div");
-        defs.className = "intro-definitions-link";
-        defs.append(button("Click for Definitions", "dark-button", showDefinitionsScreen));
-        root.append(defs);
       }
     }, 300);
   });
+}
+
+function addZoomDefinitionsHotspot() {
+  const imageWidth = 5515;
+  const imageHeight = 2700;
+  const hotspots = [
+    {
+      x: 142,
+      y: 714,
+      text: "When playing the game, click here to help understand what different terms and management decisions mean!",
+      label: "Definitions book information"
+    },
+    {
+      x: 299,
+      y: 1252,
+      text: "When playing the game, click here for the field guide of rare plants and animals that could come live in your forest!",
+      label: "Rare plants and animals field guide information"
+    },
+    {
+      x: 79,
+      y: 226,
+      width: 250,
+      height: 237,
+      text: "You don't need a hint yet! You haven't even started!",
+      label: "Hint information"
+    }
+  ].map(({ x, y, width = 304, height = 426, text, label }) => {
+    const hotspot = document.createElement("div");
+    hotspot.className = "zoom-definitions-hotspot";
+    hotspot.tabIndex = 0;
+    hotspot.setAttribute("aria-label", label);
+    const popup = document.createElement("div");
+    popup.className = "zoom-definitions-popup";
+    popup.textContent = text;
+    hotspot.append(popup);
+    root.append(hotspot);
+    return { hotspot, x, y, width, height };
+  });
+
+  const positionHotspot = () => {
+    const rootWidth = root.clientWidth;
+    const rootHeight = root.clientHeight;
+    const scale = Math.min(rootWidth / imageWidth, rootHeight / imageHeight);
+    const displayedWidth = imageWidth * scale;
+    const displayedHeight = imageHeight * scale;
+    const imageLeft = (rootWidth - displayedWidth) / 2;
+    const imageTop = (rootHeight - displayedHeight) / 2;
+    for (const { hotspot, x, y, width, height } of hotspots) {
+      hotspot.style.left = `${imageLeft + x * scale}px`;
+      hotspot.style.top = `${imageTop + y * scale}px`;
+      hotspot.style.width = `${width * scale}px`;
+      hotspot.style.height = `${height * scale}px`;
+    }
+  };
+
+  positionHotspot();
+  window.addEventListener("resize", positionHotspot);
+  return () => {
+    window.removeEventListener("resize", positionHotspot);
+    hotspots.forEach(({ hotspot }) => hotspot.remove());
+  };
 }
 
 function showGameScreen(narration = "") {
@@ -377,6 +472,20 @@ function showClosingScreen() {
   sounds.playTrumpetWinSound();
   clearScreen(getWinBgName());
   renderMetrics();
+  const achievementOrder = new Map(
+    (game.achievements_history || []).map(([year, name], index) => [name, index])
+  );
+  const earnedMedals = endingMedals
+    .filter(([, achievementFlag, colonizedFlag]) => game[achievementFlag] || (colonizedFlag && game[colonizedFlag]))
+    .sort(([nameA], [nameB]) => (achievementOrder.get(nameA) ?? Number.MAX_SAFE_INTEGER)
+      - (achievementOrder.get(nameB) ?? Number.MAX_SAFE_INTEGER));
+  earnedMedals.forEach(([, , , imageName], index) => {
+      const medal = document.createElement("img");
+      medal.className = `ending-medal-overlay ending-medal-slot-${index + 1}`;
+      medal.src = asset(imageName);
+      medal.alt = "";
+      root.append(medal);
+  });
   const summary = document.createElement("section");
   summary.className = "summary-panel";
   summary.textContent = game.getActionSummary();
@@ -397,21 +506,8 @@ function showClosingScreen() {
 
 function getWinBgName() {
   const status = game.getStatusDict();
-  const base = status.QMD < 13 || status.fire_risk === "High" || status.SPB_risk === "High"
-    ? "bad"
-    : status.QMD < 15
-      ? "okay"
-      : "good";
-  const medals = [
-    ["snake", game.pine_snake_achieved || game.pine_snakes_colonized],
-    ["gentian", game.gentian_achieved || game.gentian_colonized],
-    ["tanager", game.summer_tanager_achieved || game.summer_tanager_colonized],
-    ["frog", game.tree_frog_achieved || game.pine_barrens_tree_frog_colonized],
-    ["bunting", game.indigo_bunting_achieved || game.indigo_bunting_colonized],
-    ["turkey", game.turkey_beard_achieved],
-    ["short", game.short_achieved || game.short_colonized]
-  ].filter(([, present]) => present).map(([name]) => name).join("-");
-  return `${base}_${medals ? `${medals}medal` : "nomedal"}.jpg`;
+  const rating = status.QMD < 13 ? "bad" : status.QMD < 15 ? "okay" : "good";
+  return `${rating}.jpg`;
 }
 
 function showLossScreen(bg, text, soundFn) {

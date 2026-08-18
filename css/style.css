@@ -35,8 +35,6 @@ body {
 
 #game-root {
   position: relative;
-  min-width: 1024px;
-  min-height: 600px;
   background-position: center;
   background-size: cover;
   background-repeat: no-repeat;
@@ -147,11 +145,47 @@ input:focus-visible {
 
 .intro-buttons {
   position: absolute;
-  left: 79.5%;
-  top: 82.8%;
+  left: 80.3%;
+  top: 89%;
   display: flex;
-  gap: 10px;
+  gap: 25px;
   transform: translate(-50%, -50%);
+}
+
+.intro-buttons-second {
+  position: absolute;
+  left: 60%;
+  top: 71%;
+  transform: translate(-50%, -50%);
+}
+
+.zoom-definitions-hotspot {
+  position: absolute;
+  z-index: 2;
+  cursor: help;
+}
+
+.zoom-definitions-popup {
+  position: absolute;
+  left: calc(100% + 10px);
+  top: 50%;
+  display: none;
+  width: max-content;
+  max-width: min(360px, 30vw);
+  padding: 10px 14px;
+  background: var(--navy);
+  color: var(--green);
+  font-size: clamp(10px, 0.9vw, 17px);
+  line-height: 1.25;
+  text-align: center;
+  white-space: normal;
+  pointer-events: none;
+  transform: translateY(-50%);
+}
+
+.zoom-definitions-hotspot:hover .zoom-definitions-popup,
+.zoom-definitions-hotspot:focus .zoom-definitions-popup {
+  display: block;
 }
 
 /* This needs to be relabeled  */
@@ -275,6 +309,22 @@ input:focus-visible {
   white-space: pre-wrap;
   font-size: clamp(12px, 0.95vw, 19px);
 }
+
+.ending-medal-overlay {
+  position: absolute;
+  width: min(26vw, 360px);
+  transform: translate(-50%, -50%);
+  z-index: 1;
+  pointer-events: none;
+}
+
+.ending-medal-slot-1 { left: 25%; top: 12%; }
+.ending-medal-slot-2 { left: 25%; top: 36%; }
+.ending-medal-slot-3 { left: 25%; top: 60%; }
+.ending-medal-slot-4 { left: 45%; top: 12%; }
+.ending-medal-slot-5 { left: 45%; top: 36%; }
+.ending-medal-slot-6 { left: 45%; top: 60%; }
+.ending-medal-slot-7 { left: 69%; top: 36%; }
 
 .closing-actions,
 .loss-actions,

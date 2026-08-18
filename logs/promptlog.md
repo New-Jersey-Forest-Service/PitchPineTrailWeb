@@ -23,6 +23,24 @@ Great, yeah, I just tested it and it works. You can shut it down.
 Great. Commit and push any remaining changes on this branch.
 Let's do a pull request into the branch's root.
 the images seem to load in such a way that they load from top to bottom over a navy screen which really just make them look like they are glirching rather than playing the zoom sequence. Is there a way to fix this?
+Great! Can we make every image load in the same way so there is never a navy screen showing in the background as an image loads from top to bottom
+the forest_sound.wav should begin one the intro screen not on the screen sfterwards
+on the ending screen if the player won the pinesnake achievment I want to load the pinesnake_medal_end.png on top of the screen that is already loaded
+can you please add these fixes
+okay, using this I want to reqork how ending screens are done, now the background screen will be loaded based on QMD and the three options are bad_nomedal.jpg, okay_nomedal.jpg and good_nomedal.jpg. instead of choosing a background screen based on achievements different PNGs will be loaded based on what achievments are won. We alreadly did the pine snake so please do this for the remainder of the .pngs in the assest folder corresponded with the correct achievment
+now I want to postion the medals, can we make it so the forst medal acheived will appear in the top left and then second achieved will appear below that and so on. There should be only a potential of 3 medals in the first collum, 3 in the second and 2 in the third if all the medals were one in a single game
+can we make it so the medals are larger and the whole grid is moved up
+can we make the medals even larger
+I want to move the Let's Play button to 70% , 80%
+I want to remove the click for definitions button from the zoom_10.jpg screen.
+so I've measured and on the zoom_10.jpg between the x pixel range 714-1440 and the y pixel range 142-446 I want text popup to read, when you playing the game, clickere here for the definitions book. Can you make it so this is scaled appropriately depending on the size of the image in the browser
+please make the neccesary changes
+can we remove the min width and min -height to see if that fixes the issue?
+it still is not in right place but I have verfied my pixel range is correct. Any suggestions?
+can you make these changes?
+can we make the pop up appear just to the right of the hover area and can we center the text
+can we add a similar sized and formatted pop up at 299 instead of 142 and 1252 instead of 714. This one should say "When playing the game, click here for the field guide of rare plants and animals that could come live in your forest!"
+now we are going to add a third with slight different postion, width and height. x: 79, y: 226, width: 250, height:237. THis pop up should say "You don't need a hint yet! You haven't even started!"
 Okay, I'll take care of the, uh, pull request then.
 So when I went to run this project on GitHub Pages, it appears the project needs to be run through root. So, can we move files appropriately from the web folder and assets in a way that this site will run from the root instead of from the web folder? It appears to be having problems with that.
 Can you check and let me know what branch we're working on right now?

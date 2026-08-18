@@ -325,6 +325,107 @@ Reminder: ask the user before shutting this server down at session end.
 - Verification: `get_errors` reported no errors in `js/screens.js`.
 - Caveat / next step: Browser playback should be manually checked to confirm the decoded frame transitions look smooth at the 300 ms interval.
 
+## 2026-08-18 Update: Decode All Background Images Before Swap
+
+- Summary: Centralized background image loading in `setBg` so every background is loaded and decoded off-screen before being applied, preserving the current image while a replacement loads.
+- Files changed: `js/screens.js`, `logs/promptlog.md`, `logs/processlog.md`.
+- Verification: `get_errors` reported no errors in `js/screens.js`.
+- Caveat / next step: Browser playback should be checked across intro, management, achievement, event, loss, and analysis screens.
+
+## 2026-08-18 Update: Start Forest Sound On Intro Screen
+
+- Summary: Moved the forest ambience start from the Begin button handler to `showIntroScreen()`, so `forest_sound.wav` begins when the intro screen appears and continues into the zoom sequence.
+- Files changed: `js/screens.js`, `logs/promptlog.md`, `logs/processlog.md`.
+- Verification: `get_errors` reported no errors in `js/screens.js`.
+- Caveat / next step: Browser audio playback still depends on the browser's autoplay policy.
+
+## 2026-08-18 Update: Pine Snake Ending Medal Overlay
+
+- Summary: Added `pinesnake_medal_end.png` as a transparent overlay on the closing screen when the player has earned the pine-snake achievement.
+- Files changed: `js/screens.js`, `css/style.css`, `logs/promptlog.md`, `logs/processlog.md`.
+- Verification: `get_errors` reported no errors in `js/screens.js` or `css/style.css`.
+- Caveat / next step: The overlay position and size may be adjusted in `.pinesnake-medal-end` after visual browser testing.
+
+## 2026-08-18 Update: QMD Ending Backgrounds And Achievement Overlays
+
+- Summary: Refactored the closing screen to choose only `bad_nomedal.jpg`, `okay_nomedal.jpg`, or `good_nomedal.jpg` from QMD, then layer all earned achievement medal PNGs over that background.
+- Files changed: `js/screens.js`, `css/style.css`, `logs/promptlog.md`, `logs/processlog.md`.
+- Achievement overlays: `pinesnake_medal_end.png`, `gentian_medal_end.png`, `tanager_medal_end.png`, `treefrog_medal_end.png`, `bunting_medal_end.png`, `turkeybeard_medal_end.png`, and `shortleaf_medal_end.png`.
+- Verification: `get_errors` reported no errors in `js/screens.js` or `css/style.css` after the refactor and cleanup.
+- Caveat / next step: Browser visual testing should confirm that the shared overlay placement matches the artwork dimensions.
+
+## 2026-08-18 Update: Ordered Ending Medal Grid
+
+- Summary: Ordered earned ending medals using `game.achievements_history` and placed them in an eight-slot 3-3-2 grid: three rows in each of the first two columns and two rows in the third.
+- Files changed: `js/screens.js`, `css/style.css`, `logs/promptlog.md`, `logs/processlog.md`.
+- Verification: `get_errors` reported no errors in `js/screens.js` or `css/style.css`.
+- Caveat / next step: Browser visual testing may be needed to tune slot coordinates and medal size for the target viewport.
+
+## 2026-08-18 Update: Enlarged And Raised Medal Grid
+
+- Summary: Increased ending medal overlays from a 240px maximum width to 300px and moved all medal grid rows upward while preserving the 3-3-2 layout.
+- Files changed: `css/style.css`, `logs/promptlog.md`, `logs/processlog.md`.
+- Verification: `get_errors` reported no errors in `css/style.css`.
+- Caveat / next step: Final spacing should be visually checked at the target browser viewport.
+
+## 2026-08-18 Update: Increased Medal Size Again
+
+- Summary: Increased the ending medal overlay width from a 300px maximum to 360px while preserving the current grid positions.
+- Files changed: `css/style.css`, `logs/promptlog.md`, `logs/processlog.md`.
+- Verification: `get_errors` reported no errors in `css/style.css`.
+
+## 2026-08-18 Update: Repositioned Let's Play Button
+
+- Summary: Added positioning for the post-zoom `.intro-buttons-second` container at 70% from the left and 80% from the top.
+- Files changed: `css/style.css`, `logs/promptlog.md`, `logs/processlog.md`.
+- Verification: `get_errors` reported no errors in `css/style.css`.
+
+## 2026-08-18 Update: Removed Zoom Definitions Button
+
+- Summary: Removed the `Click for Definitions` button from the final zoom frame, leaving only the `Let's Play!` button on the `zoom_10.jpg` screen.
+- Files changed: `js/screens.js`, `logs/promptlog.md`, `logs/processlog.md`.
+- Verification: `get_errors` reported no errors in `js/screens.js`.
+
+## 2026-08-18 Update: Responsive Zoom Definitions Hotspot
+
+- Summary: Added a hover-only definitions popup over the measured `zoom_10.jpg` artwork region (`x=714..1440`, `y=142..446`) using the image's `5515 x 2700` dimensions.
+- Files changed: `js/screens.js`, `css/style.css`, `logs/promptlog.md`, `logs/processlog.md`.
+- Behavior: The hotspot accounts for `background-size: contain`, centered image offsets, browser resizing, and removes its resize listener when leaving the zoom screen.
+- Verification: `get_errors` reported no errors in `js/screens.js` or `css/style.css`.
+- Caveat / next step: Browser visual testing should confirm the hotspot aligns with the intended artwork location at the target viewport.
+
+## 2026-08-18 Update: Removed Game Root Minimum Dimensions
+
+- Summary: Removed the `1024px` minimum width and `600px` minimum height from `#game-root` so its dimensions follow the actual browser viewport.
+- Files changed: `css/style.css`, `logs/promptlog.md`, `logs/processlog.md`.
+- Verification: `get_errors` reported no errors in `css/style.css`.
+- Caveat / next step: Narrow viewport testing may reveal other fixed-width panels that need separate responsive rules.
+
+## 2026-08-18 Update: Repositioned Definitions Popup
+
+- Summary: Centered the zoom definitions popup over its image-scaled hotspot and moved it below the hotspot instead of above and left-aligned.
+- Files changed: `css/style.css`, `logs/promptlog.md`, `logs/processlog.md`.
+- Verification: `get_errors` reported no errors in `css/style.css`.
+
+## 2026-08-18 Update: Right-Aligned Definitions Popup
+
+- Summary: Positioned the zoom definitions popup 10px to the right of the hover area, vertically centered it against the hotspot, and centered its text.
+- Files changed: `css/style.css`, `logs/promptlog.md`, `logs/processlog.md`.
+- Verification: `get_errors` reported no errors in `css/style.css`.
+
+## 2026-08-18 Update: Added Field Guide Zoom Hotspot
+
+- Summary: Added a second image-scaled hover popup at `x=1252`, `y=299`, using the same `304 x 426` source-region size as the definitions hotspot.
+- Files changed: `js/screens.js`, `logs/promptlog.md`, `logs/processlog.md`.
+- Behavior: Both zoom hotspots share contain scaling, centered offsets, resize handling, hover/focus behavior, and cleanup.
+- Verification: `get_errors` reported no errors in `js/screens.js`.
+
+## 2026-08-18 Update: Added Hint Zoom Hotspot
+
+- Summary: Added a third zoom hotspot at image coordinates `x=79`, `y=226` with source dimensions `250 x 237`, displaying the hint message before gameplay begins.
+- Files changed: `js/screens.js`, `logs/promptlog.md`, `logs/processlog.md`.
+- Verification: `get_errors` reported no errors in `js/screens.js`.
+
 ## 2026-07-22 Update: Commit And Push Preparation (Plan Clarification)
 
 - Summary: Prepared the latest GitHub Pages plan clarification and its required logs for commit on branch `WZport`.
