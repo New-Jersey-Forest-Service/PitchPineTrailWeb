@@ -318,6 +318,13 @@ Reminder: ask the user before shutting this server down at session end.
 - Verification: The plan now explicitly covers the root public URL, document-relative asset paths, `.github/workflows/pages.yml`, artifact structure, and the optional `/docs` branch-publishing alternative.
 - Caveat / next step: This remains a planning-only change; no site files or GitHub Pages configuration were modified.
 
+## 2026-08-18 Update: Preloaded Intro Zoom Frames
+
+- Summary: Updated the intro zoom sequence to preload and decode all ten frames before beginning the timed background swaps, preventing progressive JPEG rendering over the navy root background.
+- Files changed: `js/screens.js`, `logs/promptlog.md`, `logs/processlog.md`.
+- Verification: `get_errors` reported no errors in `js/screens.js`.
+- Caveat / next step: Browser playback should be manually checked to confirm the decoded frame transitions look smooth at the 300 ms interval.
+
 ## 2026-07-22 Update: Commit And Push Preparation (Plan Clarification)
 
 - Summary: Prepared the latest GitHub Pages plan clarification and its required logs for commit on branch `WZport`.

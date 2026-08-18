@@ -308,26 +308,43 @@ function showIntroScreen() {
 function startZoomSequence() {
   root.style.backgroundSize = "contain";
   sounds.playZoomSound();
-  clearScreen("zoom_1.jpg");
-  let frame = 1;
-  const timer = setInterval(() => {
-    frame += 1;
-    if (frame <= 10) setBg(`zoom_${frame}.jpg`);
-    if (frame >= 10) {
-      clearInterval(timer);
-      const buttons = document.createElement("div");
-      buttons.className = "intro-buttons-second";
-      buttons.append(button("Let's Play!", "tan-button", () => {
-        sounds.playLetsPlaySound();
-        showGameScreen();
-      }));
-      root.append(buttons);
-      const defs = document.createElement("div");
-      defs.className = "intro-definitions-link";
-      defs.append(button("Click for Definitions", "dark-button", showDefinitionsScreen));
-      root.append(defs);
-    }
-  }, 10);
+  const frames = Array.from({ length: 10 }, (_, index) => `zoom_${index + 1}.jpg`);
+  const preload = frames.map((name) => new Promise((resolve) => {
+    const image = new Image();
+    image.onload = async () => {
+      try {
+        await image.decode();
+      } catch {
+        // The loaded image is still usable when decode() is unavailable.
+      }
+      resolve();
+    };
+    image.onerror = resolve;
+    image.src = asset(name);
+  }));
+
+  Promise.all(preload).then(() => {
+    clearScreen(frames[0]);
+    let frame = 1;
+    const timer = setInterval(() => {
+      frame += 1;
+      setBg(frames[frame - 1]);
+      if (frame >= frames.length) {
+        clearInterval(timer);
+        const buttons = document.createElement("div");
+        buttons.className = "intro-buttons-second";
+        buttons.append(button("Let's Play!", "tan-button", () => {
+          sounds.playLetsPlaySound();
+          showGameScreen();
+        }));
+        root.append(buttons);
+        const defs = document.createElement("div");
+        defs.className = "intro-definitions-link";
+        defs.append(button("Click for Definitions", "dark-button", showDefinitionsScreen));
+        root.append(defs);
+      }
+    }, 300);
+  });
 }
 
 function showGameScreen(narration = "") {
