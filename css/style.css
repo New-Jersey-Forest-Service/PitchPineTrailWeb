@@ -107,7 +107,14 @@ input:focus-visible {
 .nav-panel,
 .summary-panel,
 .achievement-list,
-.plot-buttons,
+.plot-buttons{
+  position: absolute;
+  font-size: clamp(12px, 1vw, 16px);
+  padding: clamp(5px, 1vw, 5px);
+  background: var(--navy);
+  color: var(--green);
+}
+
 .analysis-table {
   position: absolute;
   background: var(--navy);
@@ -362,7 +369,22 @@ input:focus-visible {
 
 .closing-actions,
 .loss-actions,
-.event-actions,
+.event-actions{
+  position: absolute;
+  inset: 0;
+  display: block;
+  pointer-events: none;
+}
+
+.event-actions button {
+  position: absolute;
+  left: var(--event-actions-left);
+  top: var(--event-actions-top);
+  z-index: 2;
+  transform: translate(-50%, -50%);
+  pointer-events: auto;
+}
+
 .achievement-actions {
   position: absolute;
   left: var(--closing-actions-left);
@@ -370,6 +392,83 @@ input:focus-visible {
   display: flex;
   gap: 12px;
   align-items: center;
+}
+
+.closing-actions {
+  position: absolute;
+  inset: 0;
+  display: block;
+  pointer-events: none;
+}
+
+.achievement-actions {
+  position: absolute;
+  inset: 0;
+  display: block;
+  pointer-events: none;
+}
+
+.achievement-actions button {
+  position: absolute;
+  left: var(--achievement-actions-left);
+  top: var(--achievement-actions-top);
+  z-index: 2;
+  transform: translate(-50%, -50%);
+  pointer-events: auto;
+}
+
+.closing-analyze-button{
+  font-size: clamp(12px, 1vw, 24px);
+  position: absolute;
+  z-index: 2;
+  transform: translate(-50%, -50%);
+  pointer-events: auto;
+}
+
+.closing-certificate-button{
+  font-size: clamp(12px, 1vw, 24px);
+  position: absolute;
+  z-index: 2;
+  transform: translate(-50%, -50%);
+  pointer-events: auto;
+  white-space: normal;
+  width: 300px;
+}
+
+.closing-restart-button{
+  font-size: clamp(12px, 1vw, 33px);
+  position: absolute;
+  z-index: 2;
+  transform: translate(-50%, -50%);
+  pointer-events: auto;
+}
+
+.closing-exit-button {
+  font-size: clamp(12px, 1vw, 33px);
+  position: absolute;
+  z-index: 2;
+  transform: translate(-50%, -50%);
+  pointer-events: auto;
+}
+
+.closing-analyze-button {
+  left: var(--closing-analyze-left);
+  top: var(--closing-analyze-top);
+}
+
+.closing-certificate-button {
+  left: var(--closing-certificate-left);
+  top: var(--closing-certificate-top);
+}
+
+.closing-restart-button {
+  left: var(--closing-restart-left);
+  top: var(--closing-restart-top);
+}
+
+.closing-exit-button {
+  left: var(--closing-exit-left);
+  top: var(--closing-exit-top);
 }
 
 .loss-message,
@@ -397,6 +496,7 @@ input:focus-visible {
   background: var(--graph-bg);
   color: var(--green);
   font-size: clamp(11px, 0.78vw, 15px);
+  text-align: center;
   white-space: pre;
 }
 

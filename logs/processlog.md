@@ -578,6 +578,58 @@ Reminder: ask the user before shutting this server down at session end.
 - Files changed: `js/screens.js`, `logs/promptlog.md`, `logs/processlog.md`.
 - Verification: `get_errors` reported no errors in `js/screens.js`.
 
+## 2026-08-18 Update: Independent Closing Button Positions
+
+- Summary: Split the four ending-screen buttons from the shared `closing-actions` flex position into independent artwork-pixel anchors.
+- Buttons: Analyze `3750,2200`; Certificate `4400,2200`; Restart `4800,2200`; Exit `5200,2200`.
+- Files changed: `js/screens.js`, `css/style.css`, `logs/promptlog.md`, `logs/processlog.md`.
+- Verification: `get_errors` reported no errors in `js/screens.js` or `css/style.css`.
+
+## 2026-08-18 Update: Achievement Action Anchor
+
+- Summary: Added a dedicated artwork-pixel anchor for achievement actions at `4800,800`.
+- Files changed: `js/screens.js`, `css/style.css`, `logs/promptlog.md`, `logs/processlog.md`.
+- Verification: `get_errors` reported no errors in `js/screens.js` or `css/style.css`.
+
+## 2026-08-18 Update: Restored Closing Action Positioning Context
+
+- Summary: Replaced `.closing-actions { display: contents; }` with a real static block so the four absolute-positioned ending buttons resolve against the game root.
+- Files changed: `css/style.css`, `logs/promptlog.md`, `logs/processlog.md`.
+- Verification: `get_errors` reported no errors in `css/style.css` or `js/screens.js`.
+
+## 2026-08-18 Update: Explicit Closing Button Layer
+
+- Summary: Made `.closing-actions` a full-screen positioned layer aligned to `#game-root`, with pointer events enabled only on the four independently positioned buttons.
+- Files changed: `css/style.css`, `logs/promptlog.md`, `logs/processlog.md`.
+- Verification: `get_errors` reported no errors in `css/style.css` or `js/screens.js`.
+
+## 2026-08-18 Update: Root-Aligned Achievement Continue Button
+
+- Summary: Applied the full-screen positioning-layer fix to achievement actions so the Continue button uses its artwork-pixel anchor rather than an upper-left fallback.
+- Files changed: `css/style.css`, `logs/promptlog.md`, `logs/processlog.md`.
+- Anchor: `point("achievement-actions", 4800, 800)` in `js/screens.js`.
+- Verification: `get_errors` reported no errors in `css/style.css` or `js/screens.js`.
+
+## 2026-08-18 Update: Fixed BA Analysis Table Width
+
+- Summary: Set the BA column in `renderDataTable()` to a consistent 10-character width.
+- Files changed: `js/charts.js`, `logs/promptlog.md`, `logs/processlog.md`.
+- Verification: `get_errors` reported no errors in `js/charts.js`.
+
+## 2026-08-18 Update: Unified Hurricane Continue Behavior
+
+- Summary: Changed the hurricane screen to keep one Continue button throughout the animation and after the event message appears, matching achievement screens.
+- Behavior: Continue uses one handler, cancels the animation timer when pressed early, stops the hurricane sound, restores the gameplay background, and returns to gameplay.
+- Files changed: `js/screens.js`, `logs/promptlog.md`, `logs/processlog.md`.
+- Verification: `get_errors` reported no errors in `js/screens.js`.
+
+## 2026-08-18 Update: Unified Closing And Loss Buttons
+
+- Summary: Changed loss-screen actions to reuse the winning-screen closing action layer and shared Analyze, Restart, and Exit button classes.
+- Behavior: Matching buttons on winning and loss screens now use the same artwork-pixel positions and CSS rules.
+- Files changed: `js/screens.js`, `logs/promptlog.md`, `logs/processlog.md`.
+- Verification: `get_errors` reported no errors in `js/screens.js` or `css/style.css`.
+
 ## 2026-08-18 Update: Early Hurricane Continue Control
 
 - Summary: Made the hurricane Continue button visible and clickable immediately when the animation starts.
@@ -588,6 +640,14 @@ Reminder: ask the user before shutting this server down at session end.
 ## 2026-08-18 Update: Keep Metrics Over Hurricane Animation
 
 - Summary: Rendered the metrics panel on the hurricane animation screen while keeping normal action buttons and navigation hidden.
+- Files changed: `js/screens.js`, `logs/promptlog.md`, `logs/processlog.md`.
+- Verification: `get_errors` reported no errors in `js/screens.js`.
+
+## 2026-08-18 Update: Looping Tree Frog Achievement Animation
+
+- Summary: Added an indefinite tree-frog achievement animation alternating `treefrog.jpg` and `treefrog_1.jpg`.
+- Timing: The initial/return `treefrog.jpg` frame displays for 2200ms; `treefrog_1.jpg` displays for 700ms.
+- Behavior: Achievement metrics, message, and Continue remain visible; Continue cancels the timer and advances the queue.
 - Files changed: `js/screens.js`, `logs/promptlog.md`, `logs/processlog.md`.
 - Verification: `get_errors` reported no errors in `js/screens.js`.
 

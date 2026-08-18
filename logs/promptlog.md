@@ -69,6 +69,17 @@ on the right next to the exit button the main play screen can we add a navy butt
 the actions buttons should be over the hurricane screen omly the continue button
 the continue button should be visiable and clickable before the animation is over. the continue button should end the animation and sound
 the metrics should stay on top of the hurricane animation screen
+the 4 buttons that are on the different ending screens that are possitioned with closing actions, I want to break them into four seperate positioning capabilities so I can move them independent of eachother
+can we make that achievement-actions point using the 4800, 800
+the closing buttons shpould be near the bottom right based on the point pixel area but they are all the way in the top left. why is that
+please make this change
+this didn't seem to work. They are still in the upper left corner
+please do the same fix for the achievement action "contunue button so it's position is controled by point
+how do I wrap the BA collum in the chart so that it is a set width
+can you make this change
+the continue button is behaving differently on the hurrican screen then on the achievment screens. I want them to behave the same way
+the closing buttons behave different on the loss screen vs the winning screen. I want them all to be the same and manupulated by the same lines of code
+I want to create and animation similar to the huricane snimation for the treefrog achievment. treefrog.jpg should appear followed by treefrog_1.jpg for a shorter ammount of time and then return to treefrog.jpg for a longer ammount of time. This animation should cycle indefintely until the continue button is pressed
 Okay, I'll take care of the, uh, pull request then.
 So when I went to run this project on GitHub Pages, it appears the project needs to be run through root. So, can we move files appropriately from the web folder and assets in a way that this site will run from the root instead of from the web folder? It appears to be having problems with that.
 Can you check and let me know what branch we're working on right now?

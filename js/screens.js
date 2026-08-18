@@ -115,21 +115,26 @@ function updatePixelLayout() {
   point("field-guide", 276, 1863);
   point("exit", 800, 65);
   point("hint", 3695, 81);
-  point("summary", 4144, 270);
-  size("summary", 1150);
-  point("closing-actions", 4600, 800);
-  point("loss-message", 4600, 350);
-  size("loss-message", 800);
-  point("analysis-table", 745, 635);
-  size("analysis-table", 2650, 1240);
-  point("plot-buttons", 4964, 1944);
-  point("achievement-list", 4130, 1188);
-  size("achievement-list", 1380, 650);
-  point("analysis-return", 993, 2025);
-  point("analysis-definitions", 276, 2592);
-  point("save-data", 3174, 1504);
-  point("chart-overlay", 745, 635);
-  size("chart-overlay", 2650, 1150);
+  point("summary", 4500, 280);
+  size("summary", 1000);
+  point("closing-analyze", 3600, 2200);
+  point("closing-certificate", 3600, 400);
+  size("closing-certificate", 500);
+  point("closing-restart", 3400, 2400);
+  point("closing-exit", 3800, 2400);
+  point("achievement-actions", 4900, 900);
+  point("event-actions", 4900, 900);
+  point("loss-message", 4450, 280);
+  size("loss-message", 1000);
+  point("analysis-table", 1500, 700);
+  size("analysis-table", 1498, 851);
+  point("plot-buttons", 4500, 1960);
+  point("achievement-list", 4500, 1200);
+  size("achievement-list", 1380);
+  point("analysis-return", 1650, 2025);
+  point("save-data", 3480, 1504);
+  point("chart-overlay", 1400, 603);
+  size("chart-overlay", 1727, 1125);
   point("certificate", 331, 216);
   size("certificate", 2640);
   point("hint-overlay", 2758, 54);
@@ -744,13 +749,13 @@ function showClosingScreen() {
   const actions = document.createElement("div");
   actions.className = "closing-actions";
   actions.append(
-    button("Analyze My Management", "blue-button", () => {
+    button("Analyze My Management", "blue-button closing-analyze-button", () => {
       sounds.playComputerStartup();
       showAnalysisLab(getWinBgName(), true, "closing");
     }),
-    button("Save your successful management certificate", "blue-button", showCertificateOverlay),
-    button("Try Again", "green-button", restartGame),
-    button("Exit", "red-button", () => showExitSurveyOverlay())
+    button("Save your successful management certificate", "blue-button closing-certificate-button", showCertificateOverlay),
+    button("Try Again", "green-button closing-restart-button", restartGame),
+    button("Exit", "red-button closing-exit-button", () => showExitSurveyOverlay())
   );
   root.append(actions);
 }
@@ -771,11 +776,11 @@ function showLossScreen(bg, text, soundFn) {
   message.textContent = text;
   root.append(message);
   const actions = document.createElement("div");
-  actions.className = "loss-actions";
+  actions.className = "closing-actions";
   actions.append(
-    button("Analyze My Management", "blue-button", () => showAnalysisLab(bg, true, bg)),
-    button("Try Again", "green-button", restartGame),
-    button("Exit", "red-button", () => showExitSurveyOverlay())
+    button("Analyze My Management", "blue-button closing-analyze-button", () => showAnalysisLab(bg, true, bg)),
+    button("Try Again", "green-button closing-restart-button", restartGame),
+    button("Exit", "red-button closing-exit-button", () => showExitSurveyOverlay())
   );
   root.append(actions);
 }
@@ -805,10 +810,22 @@ function showAchievementScreen(code) {
   const actions = document.createElement("div");
   actions.className = "achievement-actions";
   actions.append(button("Continue", "green-button", () => {
+    if (frogAnimationTimer) clearTimeout(frogAnimationTimer);
     if (code === "frog") sounds.stopTreeFrogSound();
     showNextQueuedAchievementOrGame();
   }));
   root.append(actions);
+  let frogAnimationTimer = null;
+  if (code === "frog") {
+    const cycle = () => {
+      setBg("treefrog_1.jpg");
+      frogAnimationTimer = setTimeout(() => {
+        setBg("treefrog.jpg");
+        frogAnimationTimer = setTimeout(cycle, 1000);
+      }, 400);
+    };
+    frogAnimationTimer = setTimeout(cycle, 500);
+  }
 }
 
 function showNextQueuedAchievementOrGame() {
@@ -895,22 +912,11 @@ function showHurricaneScreen() {
 }
 
 function finishHurricaneScreen() {
-  root.innerHTML = "";
-  renderMetrics();
+  if (root.querySelector(".hurricane-message")) return;
   const message = document.createElement("section");
-  message.className = "event-message";
+  message.className = "event-message hurricane-message";
   message.textContent = "A hurricane passed through your forest.\n\nYour forest is still living, but the storm changed your forest metrics.";
   root.append(message);
-  const actions = document.createElement("div");
-  actions.className = "event-actions";
-  actions.append(button("Continue", "green-button", () => {
-    sounds.stopHurricaneSound();
-    game.current_bg_img = game.event_return_bg || "Evenagestand.jpg";
-    game.event_return_bg = null;
-    if (game.stand.year >= 100) showClosingScreen();
-    else showGameScreen();
-  }));
-  root.append(actions);
 }
 
 function showWildfireScreen() {
