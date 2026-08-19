@@ -324,9 +324,39 @@ Reminder: ask the user before shutting this server down at session end.
 - Files changed: `js/screens.js`, `logs/promptlog.md`, `logs/processlog.md`.
 - Verification: `get_errors` reported no errors in `js/screens.js`.
 
+## 2026-08-19 Update: Removed Analysis Guide Graph Buttons
+
+- Summary: Kept bookshelf medals and summaries on the Analysis Definitions and Analysis Field Guide screens while suppressing graph controls there. The main Analysis Lab retains graph controls.
+- Files changed: `js/screens.js`, `logs/promptlog.md`, `logs/processlog.md`.
+- Verification: Pending focused JavaScript diagnostics.
+
+## 2026-08-19 Update: Analysis Guide Screen Overlays
+
+- Summary: Reused the Analysis Lab bookshelf medals, management summary, achievement summary, and graph controls on both Analysis Definitions and Analysis Field Guide screens.
+- Files changed: `js/screens.js`, `logs/promptlog.md`, `logs/processlog.md`.
+- Verification: `get_errors` reported no errors in `js/screens.js`.
+
+## 2026-08-19 Update: Analysis Field Guide Navigation
+
+- Summary: Added `analyze_fieldguide.jpg` as an Analysis Lab guide screen. The Analysis Lab now has artwork-scaled glossary and field-guide hotspots, and the two guide screens can toggle between each other or return to the lab through their matching source regions.
+- Files changed: `js/screens.js`, `logs/promptlog.md`, `logs/processlog.md`.
+- Verification: `get_errors` reported no errors in `js/screens.js`.
+
 ## 2026-08-19 Update: Event And Achievement Navigation
 
 - Summary: Added the shared Exit and Restart controls to achievement, hurricane, and non-losing wildfire screens, with a navigation layer above their temporary screen content.
+- Files changed: `js/screens.js`, `css/style.css`, `logs/promptlog.md`, `logs/processlog.md`.
+- Verification: `get_errors` reported no errors in `js/screens.js` or `css/style.css`.
+
+## 2026-08-19 Update: Bookshelf Medals On Guide Screens
+
+- Summary: Rendered the persistent bookshelf medal grid on the Definitions and Field Guide screens above their transparent artwork overlays.
+- Files changed: `js/screens.js`, `logs/promptlog.md`, `logs/processlog.md`.
+- Verification: `get_errors` reported no errors in `js/screens.js`.
+
+## 2026-08-19 Update: Bookshelf Medal Hover Labels
+
+- Summary: Added hover and keyboard-focus labels to each earned bookshelf medal, using the requested achievement names and brown `8px` text on a tan background.
 - Files changed: `js/screens.js`, `css/style.css`, `logs/promptlog.md`, `logs/processlog.md`.
 - Verification: `get_errors` reported no errors in `js/screens.js` or `css/style.css`.
 - Caveat / next step: Browser playback should be manually checked to confirm the decoded frame transitions look smooth at the 300 ms interval.
@@ -805,3 +835,16 @@ Reminder: ask the user before shutting this server down at session end.
 - Summary: Updated browser achievement, hurricane, non-losing wildfire, and loss-screen messages from `src/gui_event_messages.txt`, preserving the source paragraph breaks.
 - Files changed: `js/screens.js`, `logs/promptlog.md`, `logs/processlog.md`.
 - Verification: `get_errors` reported no errors in `js/screens.js`.
+
+## 2026-08-19 Update: Hurricane Message During Animation
+
+- Summary: Rendered the hurricane message before starting the lightning-and-rain background sequence, so it remains visible throughout the animation.
+- Files changed: `js/screens.js`, `logs/promptlog.md`, `logs/processlog.md`.
+- Verification: `get_errors` reported no errors in `js/screens.js`.
+
+## 2026-08-19 Update: Persistent Bookshelf Medal Grid
+
+- Summary: Added an achievement-ordered three-by-three bookshelf medal grid to gameplay, achievement, hurricane, wildfire, and loss screens. The grid is omitted from the winning screen.
+- Files changed: `js/screens.js`, `css/style.css`, `logs/promptlog.md`, `logs/processlog.md`.
+- Layout: Artwork-scaled slots use `bookshelf-medal-slot-1` through `bookshelf-medal-slot-9`, beginning at `75,2000`; medals are `150 x 200` artwork pixels.
+- Verification: `get_errors` reported no errors in `js/screens.js` or `css/style.css`.

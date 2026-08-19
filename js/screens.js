@@ -53,6 +53,16 @@ const endingMedals = [
   ["Shortleaf pine", "short_achieved", "short_colonized", "shortleaf_medal_end.png"]
 ];
 
+const bookshelfMedals = [
+  ["Pine snake", "pine_snake_achieved", "pine_snakes_colonized", "pinesnake_medal.png", "Northern Pinesnake"],
+  ["Gentian", "gentian_achieved", "gentian_colonized", "gentian_medal.png", "Pine Barrens Gentian"],
+  ["Summer Tanager", "summer_tanager_achieved", "summer_tanager_colonized", "tanager_medal.png", "Summer Tanager"],
+  ["Pine Barrens \n Tree Frog", "tree_frog_achieved", "pine_barrens_tree_frog_colonized", "treefrog_medal.png", "Pine Barrens\nTree Frog"],
+  ["Indigo Bunting", "indigo_bunting_achieved", "indigo_bunting_colonized", "bunting_medal.png", "Indigo Bunting"],
+  ["Turkey Beard", "turkey_beard_achieved", null, "turkeybeard_medal.png", "Turkeybeard"],
+  ["Shortleaf Pine", "short_achieved", "short_colonized", "shortleaf_medal.png", "Shortleaf Pine"]
+];
+
 function asset(name) {
   if (name.startsWith("../") || name.startsWith("http")) return name;
   return `${ASSET_BASE}${name.replace(/^assets\//, "")}`;
@@ -118,6 +128,14 @@ function updatePixelLayout() {
   point("field-guide", 276, 1863);
   point("field-guide-overlay", 0, 0);
   size("field-guide-overlay", ART_WIDTH, ART_HEIGHT);
+  point("bookshelf-medal-slot-1", 75, 2000);
+  point("bookshelf-medal-slot-2", 275, 2000);
+  point("bookshelf-medal-slot-3", 475, 2000);
+  point("bookshelf-medal-slot-4", 75, 2210);
+  point("bookshelf-medal-slot-5", 275, 2210);
+  point("bookshelf-medal-slot-6", 475, 2210);
+  point("bookshelf-medal-slot-7", 275, 2420);
+  size("bookshelf-medal", 150, 200);
   point("exit", 800, 65);
   point("hint", 3695, 81);
   point("summary", 4550, 280);
@@ -209,6 +227,32 @@ function renderMetrics(parent = root) {
   `;
   parent.append(panel);
   return panel;
+}
+
+function renderBookshelfMedals() {
+  const achievementOrder = new Map(
+    (game.achievements_history || []).map(([, name], index) => [name, index])
+  );
+  const earnedMedals = bookshelfMedals
+    .filter(([, achievementFlag, colonizedFlag]) => game[achievementFlag] || (colonizedFlag && game[colonizedFlag]))
+    .sort(([nameA], [nameB]) => (achievementOrder.get(nameA) ?? Number.MAX_SAFE_INTEGER)
+      - (achievementOrder.get(nameB) ?? Number.MAX_SAFE_INTEGER));
+
+  earnedMedals.forEach(([, , , imageName, label], index) => {
+    const slot = document.createElement("div");
+    slot.className = `bookshelf-medal-slot bookshelf-medal-slot-${index + 1}`;
+    slot.tabIndex = 0;
+    slot.setAttribute("aria-label", label);
+    const medal = document.createElement("img");
+    medal.className = "bookshelf-medal-overlay";
+    medal.src = asset(imageName);
+    medal.alt = "";
+    const tooltip = document.createElement("span");
+    tooltip.className = "bookshelf-medal-tooltip";
+    tooltip.textContent = label;
+    slot.append(medal, tooltip);
+    root.append(slot);
+  });
 }
 
 function renderCommonNav() {
@@ -696,10 +740,47 @@ function addAnalysisDefinitionsHotspot(label, onClick, text = "") {
   };
 }
 
+function addAnalysisFieldGuideHotspot(label, onClick, text = "") {
+  const x = 299;
+  const y = 1252;
+  const width = 304;
+  const height = 426;
+  const hotspot = document.createElement("div");
+  hotspot.className = "zoom-definitions-hotspot";
+  hotspot.tabIndex = 0;
+  hotspot.setAttribute("aria-label", label);
+  hotspot.addEventListener("click", onClick);
+  if (text) {
+    const popup = document.createElement("div");
+    popup.className = "zoom-definitions-popup";
+    popup.textContent = text;
+    hotspot.append(popup);
+  }
+  root.append(hotspot);
+
+  const positionHotspot = () => {
+    const scale = Math.max(root.clientWidth / ART_WIDTH, root.clientHeight / ART_HEIGHT);
+    const imageLeft = (root.clientWidth - ART_WIDTH * scale) / 2;
+    const imageTop = (root.clientHeight - ART_HEIGHT * scale) / 2;
+    hotspot.style.left = `${imageLeft + x * scale}px`;
+    hotspot.style.top = `${imageTop + y * scale}px`;
+    hotspot.style.width = `${width * scale}px`;
+    hotspot.style.height = `${height * scale}px`;
+  };
+
+  positionHotspot();
+  window.addEventListener("resize", positionHotspot);
+  return () => {
+    window.removeEventListener("resize", positionHotspot);
+    hotspot.remove();
+  };
+}
+
 function showGameScreen(narration = "") {
   const bg = game.current_bg_img?.startsWith("zoom_") ? "Evenagestand.jpg" : game.current_bg_img || "Evenagestand.jpg";
   clearScreen(bg);
   renderMetrics();
+  renderBookshelfMedals();
   const actions = document.createElement("section");
   actions.className = "action-panel";
   for (const [key, label] of Object.entries(ACTIONS).filter(([key]) => ["1", "2", "3", "4"].includes(key))) {
@@ -777,6 +858,7 @@ function showLossScreen(bg, text, soundFn) {
   soundFn?.();
   clearScreen(bg);
   renderMetrics();
+  renderBookshelfMedals();
   const message = document.createElement("section");
   message.className = "loss-message";
   message.textContent = text;
@@ -809,6 +891,7 @@ function showAchievementScreen(code) {
   clearScreen(info.image);
   info.sound?.();
   renderMetrics();
+  renderBookshelfMedals();
   const message = document.createElement("section");
   message.className = "achievement-message";
   message.textContent = info.title;
@@ -888,6 +971,7 @@ function showHurricaneScreen() {
   sounds.playHurricaneSound();
   clearScreen("hurricane_lightning.jpg");
   renderMetrics();
+  renderBookshelfMedals();
   let hurricaneTimer = null;
   const continueHurricane = () => {
     if (hurricaneTimer) clearTimeout(hurricaneTimer);
@@ -901,6 +985,7 @@ function showHurricaneScreen() {
   actions.append(button("Continue", "green-button", continueHurricane));
   root.append(actions);
   renderCommonNav();
+  finishHurricaneScreen();
   const sequence = [
     ["hurricane_lightning.jpg", 200],
     ["hurricane_rain.jpg", 2900],
@@ -923,7 +1008,7 @@ function finishHurricaneScreen() {
   if (root.querySelector(".hurricane-message")) return;
   const message = document.createElement("section");
   message.className = "event-message hurricane-message";
-  message.textContent = "Oh no! A hurricane passed through your forest.\n\nYour forest is still living but this may have significantly changes your forest metrics.";
+  message.textContent = "Oh no! A hurricane passed through your forest.\n\nYour forest is still living but this may have significantly changed your forest metrics.";
   root.append(message);
 }
 
@@ -934,9 +1019,10 @@ function showWildfireScreen() {
   sounds.playFireSound();
   clearScreen("nonlosing_fire.jpg");
   renderMetrics();
+  renderBookshelfMedals();
   const message = document.createElement("section");
   message.className = "event-message";
-  message.textContent = "Oh no! Your prescribed burn got out of control because your forest was already at high risk for fire.\n\nYour forest is still living but this may have significantly changes your forest metrics.";
+  message.textContent = "Oh no! Your prescribed burn got out of control! your forest was already at high fire risk...\n\nYour forest is still living but this may have changed your metrics.";
   root.append(message);
   const actions = document.createElement("div");
   actions.className = "event-actions";
@@ -961,6 +1047,7 @@ function showFieldGuideScreen() {
   fieldGuideOverlay.alt = "";
   root.append(fieldGuideOverlay);
   renderMetrics();
+  renderBookshelfMedals();
   const cleanupDefinitionsHotspot = addGameDefinitionsHotspot();
   const cleanupReturnHotspot = addGuideReturnHotspot(299, 1252, "Return from field guide", returnBg);
   zoomHotspotCleanup = () => {
@@ -979,6 +1066,7 @@ function showDefinitionsScreen() {
   definitionsOverlay.alt = "";
   root.append(definitionsOverlay);
   renderMetrics();
+  renderBookshelfMedals();
   const cleanupFieldGuideHotspot = addGameFieldGuideHotspot();
   const cleanupReturnHotspot = addGuideReturnHotspot(142, 714, "Return from glossary", returnBg);
   zoomHotspotCleanup = () => {
@@ -990,13 +1078,45 @@ function showDefinitionsScreen() {
 function showAnalysisDefinitions(prevBg, returnTarget) {
   sounds.playPageTurnSound();
   clearScreen("analyze_definitions.jpg");
-  zoomHotspotCleanup = addAnalysisDefinitionsHotspot(
+  renderAnalysisOverlays(game.getDecadalData(10), false);
+  const cleanupReturnHotspot = addAnalysisDefinitionsHotspot(
     "Return to Analysis Lab",
     () => {
       sounds.playPageCloseSound();
       showAnalysisLab(prevBg, false, returnTarget);
     }
   );
+  const cleanupFieldGuideHotspot = addAnalysisFieldGuideHotspot(
+    "Analysis field guide information",
+    () => showAnalysisFieldGuide(prevBg, returnTarget),
+    "Don't know what a plant or animal is? Click here for the Field Guide!"
+  );
+  zoomHotspotCleanup = () => {
+    cleanupReturnHotspot();
+    cleanupFieldGuideHotspot();
+  };
+}
+
+function showAnalysisFieldGuide(prevBg, returnTarget) {
+  sounds.playPageTurnSound();
+  clearScreen("analyze_fieldguide.jpg");
+  renderAnalysisOverlays(game.getDecadalData(10), false);
+  const cleanupDefinitionsHotspot = addAnalysisDefinitionsHotspot(
+    "Analysis definitions information",
+    () => showAnalysisDefinitions(prevBg, returnTarget),
+    "Don't know what a term means? Click here for the Glossary!"
+  );
+  const cleanupReturnHotspot = addAnalysisFieldGuideHotspot(
+    "Return to Analysis Lab",
+    () => {
+      sounds.playPageCloseSound();
+      showAnalysisLab(prevBg, false, returnTarget);
+    }
+  );
+  zoomHotspotCleanup = () => {
+    cleanupDefinitionsHotspot();
+    cleanupReturnHotspot();
+  };
 }
 
 function showHintOverlay() {
@@ -1130,50 +1250,26 @@ function showCertificateOverlay() {
 
 // Switches screen to Analysis Lab
 
-function showAnalysisLab(prevBg = game.current_bg_img, loading = true, returnTarget = "game") {
-  sounds.stopForestSound();
-  sounds.stopFireSound();
-  sounds.stopWindSound();
-  sounds.stopSpbEatingSound();
-  sounds.playAnalysisLabSound();
-  clearScreen(loading ? "analyze_load.jpg" : "analyze.jpg");
-  const build = () => {
-    clearScreen("analyze.jpg");
-    const rows = game.getDecadalData(10);
-    const table = document.createElement("pre");
-    table.className = "analysis-table";
-    table.textContent = renderDataTable(rows);
-    root.append(table);
-    const summary = document.createElement("section");
-    summary.className = "summary-panel";
-    summary.textContent = game.getActionSummary();
-    root.append(summary);
-    const achievements = document.createElement("section");
-    achievements.className = "achievement-list";
-    const grouped = new Map();
-    for (const [year, name] of game.getAchievementsList()) {
-      if (!grouped.has(year)) grouped.set(year, []);
-      grouped.get(year).push(name);
-    }
-    achievements.textContent = grouped.size
-      ? [...grouped.entries()].map(([year, names]) => `Year ${year}:\n${names.map((name) => `   ${name}`).join("\n")}`).join("\n")
-      : "No achievements.";
-    root.append(achievements);
-    root.append(button("Return to Game", "tan-button analysis-return", () => {
-      sounds.playComputerShutdown();
-      sounds.stopAnalysisLabSound();
-      setBg(prevBg);
-      if (returnTarget === "closing") showClosingScreen();
-      else if (returnTarget === "LowStocking.jpg") showLowTpaScreen();
-      else if (returnTarget === "LossByFire.jpg") showFireLossScreen();
-      else if (returnTarget === "LossBySPB.jpg") showSpbLossScreen();
-      else if (game.stand.year >= 100) showClosingScreen();
-      else showGameScreen();
-    }));
-    root.append(button("Save Data", "red-button save-data-button", () => {
-      sounds.playSaveSound();
-      exportCSV(game);
-    }));
+function renderAnalysisOverlays(rows, showGraphs = true) {
+  renderBookshelfMedals();
+  const summary = document.createElement("section");
+  summary.className = "summary-panel";
+  summary.textContent = game.getActionSummary();
+  root.append(summary);
+
+  const achievements = document.createElement("section");
+  achievements.className = "achievement-list";
+  const grouped = new Map();
+  for (const [year, name] of game.getAchievementsList()) {
+    if (!grouped.has(year)) grouped.set(year, []);
+    grouped.get(year).push(name);
+  }
+  achievements.textContent = grouped.size
+    ? [...grouped.entries()].map(([year, names]) => `Year ${year}:\n${names.map((name) => `   ${name}`).join("\n")}`).join("\n")
+    : "No achievements.";
+  root.append(achievements);
+
+  if (showGraphs) {
     const plotButtons = document.createElement("div");
     plotButtons.className = "plot-buttons";
     const labels = {
@@ -1189,11 +1285,54 @@ function showAnalysisLab(prevBg = game.current_bg_img, loading = true, returnTar
       plotButtons.append(button(labels[variable], "green-button", () => showChartOverlay(variable, rows)));
     }
     root.append(plotButtons);
+  }
+}
+
+function showAnalysisLab(prevBg = game.current_bg_img, loading = true, returnTarget = "game") {
+  sounds.stopForestSound();
+  sounds.stopFireSound();
+  sounds.stopWindSound();
+  sounds.stopSpbEatingSound();
+  sounds.playAnalysisLabSound();
+  clearScreen(loading ? "analyze_load.jpg" : "analyze.jpg");
+  const build = () => {
+    clearScreen("analyze.jpg");
+    const rows = game.getDecadalData(10);
+    const table = document.createElement("pre");
+    table.className = "analysis-table";
+    table.textContent = renderDataTable(rows);
+    root.append(table);
+    renderAnalysisOverlays(rows);
+    root.append(button("Return to Game", "tan-button analysis-return", () => {
+      sounds.playComputerShutdown();
+      sounds.stopAnalysisLabSound();
+      setBg(prevBg);
+      if (returnTarget === "closing") showClosingScreen();
+      else if (returnTarget === "LowStocking.jpg") showLowTpaScreen();
+      else if (returnTarget === "LossByFire.jpg") showFireLossScreen();
+      else if (returnTarget === "LossBySPB.jpg") showSpbLossScreen();
+      else if (game.stand.year >= 100) showClosingScreen();
+      else showGameScreen();
+    }));
+    root.append(button("Save Data", "red-button save-data-button", () => {
+      sounds.playSaveSound();
+      exportCSV(game);
+    }));
     zoomHotspotCleanup = addAnalysisDefinitionsHotspot(
       "Analysis definitions information",
       () => showAnalysisDefinitions(prevBg, returnTarget),
       "Don't know what a term means? Click here for the Glossary!"
     );
+    const cleanupFieldGuideHotspot = addAnalysisFieldGuideHotspot(
+      "Analysis field guide information",
+      () => showAnalysisFieldGuide(prevBg, returnTarget),
+      "Don't know what a plant or animal is? Click here for the Field Guide!"
+    );
+    const cleanupDefinitionsHotspot = zoomHotspotCleanup;
+    zoomHotspotCleanup = () => {
+      cleanupDefinitionsHotspot();
+      cleanupFieldGuideHotspot();
+    };
     startAnalysisBlink();
   };
   if (loading) setTimeout(build, 1000);

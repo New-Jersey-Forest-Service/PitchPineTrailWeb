@@ -70,20 +70,20 @@ input:focus-visible {
   top: var(--metrics-top);
   z-index: 2;
   width: var(--metrics-width);
-  min-width: 330px;
+  min-width: 100px;
   padding: clamp(10px, 1vw, 18px);
   background: var(--paper);
   color: var(--ink);
   text-align: center;
   line-height: 1.24;
   letter-spacing: -0.4px;
-  font-size: clamp(12px, 0.75vw, 18px);
+  font-size: clamp(9px, 0.75vw, 18px);
 }
 
 .metric-risk {
   display: block;
   margin-top: 14px;
-  font-size: clamp(12px, 1vw, 20px);
+  font-size: clamp(10px, 1vw, 20px);
 }
 
 /* text color for risk levels - green color for good */
@@ -137,11 +137,11 @@ input:focus-visible {
 /* This is for the actual blue buttons with the management options. */
 
 .action-button {
-  width: clamp(210px, 15vw, 300px);
+  width: clamp(100px, 15vw, 300px);
   padding: 8px 14px;
   background: var(--button);
   color: var(--green);
-  font-size: clamp(14px, 1vw, 20px);
+  font-size: clamp(9px, 1vw, 20px);
 }
 
 /* Is the hover effect for the management action buttons. They turn green when mouse is hovered over them. */
@@ -389,6 +389,51 @@ input:focus-visible {
 .ending-medal-slot-6 { left: var(--medal-slot-6-left); top: var(--medal-slot-6-top); }
 .ending-medal-slot-7 { left: var(--medal-slot-7-left); top: var(--medal-slot-7-top); }
 
+.bookshelf-medal-slot {
+  position: absolute;
+  z-index: 2;
+  width: var(--bookshelf-medal-width);
+  height: var(--bookshelf-medal-height);
+}
+
+.bookshelf-medal-overlay {
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.bookshelf-medal-tooltip {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 4px);
+  z-index: 4;
+  display: none;
+  padding: 3px 5px;
+  background: #f7d79e;
+  color: #663e1d;
+  font-size: 8px;
+  line-height: 1.2;
+  text-align: center;
+  white-space: nowrap;
+  transform: translateX(-50%);
+}
+
+.bookshelf-medal-slot:hover .bookshelf-medal-tooltip,
+.bookshelf-medal-slot:focus .bookshelf-medal-tooltip {
+  display: block;
+}
+
+.bookshelf-medal-slot-1 { left: var(--bookshelf-medal-slot-1-left); top: var(--bookshelf-medal-slot-1-top); }
+.bookshelf-medal-slot-2 { left: var(--bookshelf-medal-slot-2-left); top: var(--bookshelf-medal-slot-2-top); }
+.bookshelf-medal-slot-3 { left: var(--bookshelf-medal-slot-3-left); top: var(--bookshelf-medal-slot-3-top); }
+.bookshelf-medal-slot-4 { left: var(--bookshelf-medal-slot-4-left); top: var(--bookshelf-medal-slot-4-top); }
+.bookshelf-medal-slot-5 { left: var(--bookshelf-medal-slot-5-left); top: var(--bookshelf-medal-slot-5-top); }
+.bookshelf-medal-slot-6 { left: var(--bookshelf-medal-slot-6-left); top: var(--bookshelf-medal-slot-6-top); }
+.bookshelf-medal-slot-7 { left: var(--bookshelf-medal-slot-7-left); top: var(--bookshelf-medal-slot-7-top); }
+.bookshelf-medal-slot-8 { left: var(--bookshelf-medal-slot-8-left); top: var(--bookshelf-medal-slot-8-top); }
+.bookshelf-medal-slot-9 { left: var(--bookshelf-medal-slot-9-left); top: var(--bookshelf-medal-slot-9-top); }
+
 .closing-actions,
 .loss-actions,
 .event-actions{
@@ -405,6 +450,8 @@ input:focus-visible {
   z-index: 2;
   transform: translate(-50%, -50%);
   pointer-events: auto;
+  font-size: clamp(9px, 1vw, 24px);
+  width: clamp(50px, 9vw, 170px);
 }
 
 .achievement-actions {
@@ -414,6 +461,8 @@ input:focus-visible {
   display: flex;
   gap: 12px;
   align-items: center;
+  font-size: clamp(9px, 1vw, 24px);
+  width: clamp(50px, 9vw, 170px);
 }
 
 .closing-actions {
@@ -503,7 +552,7 @@ input:focus-visible {
   padding: 14px;
   background: var(--navy);
   color: var(--green);
-  font-size: clamp(15px, 1.15vw, 22px);
+  font-size: clamp(9px, 1.15vw, 22px);
   text-align: center;
   line-height: 1.25;
   white-space: pre-wrap;
