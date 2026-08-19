@@ -324,6 +324,37 @@ Reminder: ask the user before shutting this server down at session end.
 - Files changed: `js/screens.js`, `logs/promptlog.md`, `logs/processlog.md`.
 - Verification: `get_errors` reported no errors in `js/screens.js`.
 
+## 2026-08-19 Update: Unified Hover Artwork Positioning
+
+- Summary: Changed hover artwork placement to use the same root artwork transform as the zoom screen rather than rounded hotspot DOM offsets, aligning it across main play, guide, and analysis screens.
+- Files changed: `js/screens.js`, `logs/promptlog.md`, `logs/processlog.md`.
+- Verification: `get_errors` reported no errors in `js/screens.js`.
+
+## 2026-08-19 Update: Analysis Data Download Artwork
+
+- Summary: Replaced the Analysis Lab Save Data button with hoverable `downloaddata` artwork at `2668,1937`. Clicking exports CSV data and displays `floppy.png` at `3300,1420` with `358 x 157` artwork-scaled dimensions for five seconds.
+- Files changed: `js/screens.js`, `css/style.css`, `logs/promptlog.md`, `logs/processlog.md`.
+- Verification: `get_errors` reported no errors in `js/screens.js` or `css/style.css`.
+
+## 2026-08-19 Update: Suppressed Current Guide Hover Artwork
+
+- Summary: Removed the self-referential hover artwork from each Definitions and Field Guide screen's own return region, including their Analysis Lab variants. Opposite-guide toggle regions retain hover artwork.
+- Files changed: `js/screens.js`, `logs/promptlog.md`, `logs/processlog.md`.
+- Verification: `get_errors` reported no errors in `js/screens.js`.
+
+## 2026-08-19 Update: Hover Artwork For Navigation Regions
+
+- Summary: Added responsive hover artwork for all hint, glossary, and field-guide click regions across zoom, gameplay, guide, and analysis screens. Hover artwork is removed on mouse leave, focus loss, or screen navigation.
+- Files changed: `js/screens.js`, `css/style.css`, `logs/promptlog.md`, `logs/processlog.md`.
+- Verification: `get_errors` reported no errors in `js/screens.js` or `css/style.css`.
+
+## 2026-08-19 Update: Conditional Coloring Page Download
+
+- Summary: Added a hoverable coloring-page download image to winning and losing screens. It builds a combined PDF containing the standard page, the good-ending page when applicable, and available pages for earned achievements.
+- Files changed: `js/screens.js`, `css/style.css`, `logs/promptlog.md`, `logs/processlog.md`.
+- Caveat: `turkeybeard_coloringpage.pdf` is not present in `assets`, so Turkeybeard is not currently included in the download.
+- Verification: `get_errors` reported no errors in `js/screens.js` or `css/style.css`.
+
 ## 2026-08-19 Update: Removed Analysis Guide Graph Buttons
 
 - Summary: Kept bookshelf medals and summaries on the Analysis Definitions and Analysis Field Guide screens while suppressing graph controls there. The main Analysis Lab retains graph controls.

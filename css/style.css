@@ -175,6 +175,12 @@ input:focus-visible {
   cursor: help;
 }
 
+.hotspot-hover-image {
+  position: absolute;
+  z-index: 3;
+  pointer-events: none;
+}
+
 .zoom-definitions-popup {
   position: absolute;
   left: calc(100% + 10px);
@@ -434,6 +440,16 @@ input:focus-visible {
 .bookshelf-medal-slot-8 { left: var(--bookshelf-medal-slot-8-left); top: var(--bookshelf-medal-slot-8-top); }
 .bookshelf-medal-slot-9 { left: var(--bookshelf-medal-slot-9-left); top: var(--bookshelf-medal-slot-9-top); }
 
+.coloring-page-download {
+  position: absolute;
+  left: var(--coloring-page-left);
+  top: var(--coloring-page-top);
+  z-index: 2;
+  width: var(--coloring-page-width);
+  height: var(--coloring-page-height);
+  cursor: pointer;
+}
+
 .closing-actions,
 .loss-actions,
 .event-actions{
@@ -609,11 +625,26 @@ input:focus-visible {
   top: var(--analysis-definitions-top);
 }
 
-.save-data-button {
+.data-download,
+.floppy-confirmation {
   position: absolute;
-  left: var(--save-data-left);
-  top: var(--save-data-top);
-  transform: translate(-50%, -50%);
+}
+
+.data-download {
+  left: var(--download-data-left);
+  top: var(--download-data-top);
+  width: var(--download-data-width);
+  height: var(--download-data-height);
+  cursor: pointer;
+}
+
+.floppy-confirmation {
+  left: var(--floppy-left);
+  top: var(--floppy-top);
+  z-index: 3;
+  width: var(--floppy-width);
+  height: var(--floppy-height);
+  pointer-events: none;
 }
 
 .chart-overlay {

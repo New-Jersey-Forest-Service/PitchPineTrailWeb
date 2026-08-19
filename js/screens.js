@@ -63,6 +63,15 @@ const bookshelfMedals = [
   ["Shortleaf Pine", "short_achieved", "short_colonized", "shortleaf_medal.png", "Shortleaf Pine"]
 ];
 
+const coloringPageAchievements = [
+  ["pine_snake_achieved", "pine_snakes_colonized", "pinesnake_coloringpage.pdf"],
+  ["gentian_achieved", "gentian_colonized", "gentian_coloringpage.pdf"],
+  ["summer_tanager_achieved", "summer_tanager_colonized", "tanager_coloringpage.pdf"],
+  ["tree_frog_achieved", "pine_barrens_tree_frog_colonized", "treefrog_coloringpage.pdf"],
+  ["indigo_bunting_achieved", "indigo_bunting_colonized", "bunting_coloringpage.pdf"],
+  ["short_achieved", "short_colonized", "shortleaf_coloringpage.pdf"]
+];
+
 function asset(name) {
   if (name.startsWith("../") || name.startsWith("http")) return name;
   return `${ASSET_BASE}${name.replace(/^assets\//, "")}`;
@@ -136,6 +145,8 @@ function updatePixelLayout() {
   point("bookshelf-medal-slot-6", 475, 2210);
   point("bookshelf-medal-slot-7", 275, 2420);
   size("bookshelf-medal", 150, 200);
+  point("coloring-page", 90, 1990);
+  size("coloring-page", 510, 653);
   point("exit", 800, 65);
   point("hint", 3695, 81);
   point("summary", 4550, 280);
@@ -155,7 +166,10 @@ function updatePixelLayout() {
   point("achievement-list", 4500, 1200);
   size("achievement-list", 1380);
   point("analysis-return", 1650, 2025);
-  point("save-data", 3480, 1504);
+  point("download-data", 2668, 1937);
+  size("download-data", 1216, 206);
+  point("floppy", 3333, 1388);
+  size("floppy", 300, 221);
   point("chart-overlay", 1400, 603);
   size("chart-overlay", 1727, 1125);
   point("certificate", 3100, 200);
@@ -195,6 +209,43 @@ function button(text, className, onClick) {
   btn.textContent = text;
   btn.addEventListener("click", onClick);
   return btn;
+}
+
+function addHotspotHoverImage(hotspot, imageName, imageX, imageY, imageWidth, imageHeight) {
+  let hoverImage = null;
+  const showImage = () => {
+    if (hoverImage) return;
+    const contain = root.style.backgroundSize === "contain";
+    const scale = contain
+      ? Math.min(root.clientWidth / ART_WIDTH, root.clientHeight / ART_HEIGHT)
+      : Math.max(root.clientWidth / ART_WIDTH, root.clientHeight / ART_HEIGHT);
+    const imageLeft = (root.clientWidth - ART_WIDTH * scale) / 2;
+    const imageTop = (root.clientHeight - ART_HEIGHT * scale) / 2;
+    hoverImage = document.createElement("img");
+    hoverImage.className = "hotspot-hover-image";
+    hoverImage.src = asset(imageName);
+    hoverImage.alt = "";
+    hoverImage.style.left = `${imageLeft + imageX * scale}px`;
+    hoverImage.style.top = `${imageTop + imageY * scale}px`;
+    hoverImage.style.width = `${imageWidth * scale}px`;
+    hoverImage.style.height = `${imageHeight * scale}px`;
+    root.append(hoverImage);
+  };
+  const hideImage = () => {
+    hoverImage?.remove();
+    hoverImage = null;
+  };
+  hotspot.addEventListener("mouseenter", showImage);
+  hotspot.addEventListener("mouseleave", hideImage);
+  hotspot.addEventListener("focus", showImage);
+  hotspot.addEventListener("blur", hideImage);
+  return () => {
+    hotspot.removeEventListener("mouseenter", showImage);
+    hotspot.removeEventListener("mouseleave", hideImage);
+    hotspot.removeEventListener("focus", showImage);
+    hotspot.removeEventListener("blur", hideImage);
+    hideImage();
+  };
 }
 
 // Function for risk classes. This affects the text color in the clipboard panel for fire and SPB risk.
@@ -253,6 +304,59 @@ function renderBookshelfMedals() {
     slot.append(medal, tooltip);
     root.append(slot);
   });
+}
+
+async function downloadColoringPages(isGoodEnding) {
+  if (!window.PDFLib) return;
+  const templateNames = ["standard_coloringpage.pdf"];
+  if (isGoodEnding) templateNames.push("goodend_coloringpage.pdf");
+  coloringPageAchievements.forEach(([achievementFlag, colonizedFlag, pdfName]) => {
+    if (game[achievementFlag] || (colonizedFlag && game[colonizedFlag])) templateNames.push(pdfName);
+  });
+
+  const combinedPdf = await PDFLib.PDFDocument.create();
+  for (const templateName of templateNames) {
+    const response = await fetch(asset(templateName));
+    if (!response.ok) continue;
+    const sourcePdf = await PDFLib.PDFDocument.load(await response.arrayBuffer());
+    const pages = await combinedPdf.copyPages(sourcePdf, sourcePdf.getPageIndices());
+    pages.forEach((page) => combinedPdf.addPage(page));
+  }
+
+  const link = document.createElement("a");
+  link.download = "PitchPineTrailColoringPages.pdf";
+  link.href = URL.createObjectURL(new Blob([await combinedPdf.save()], { type: "application/pdf" }));
+  link.click();
+  URL.revokeObjectURL(link.href);
+}
+
+function renderColoringPageDownload(isGoodEnding) {
+  const coloringPage = document.createElement("img");
+  coloringPage.className = "coloring-page-download";
+  coloringPage.src = asset("coloringpage_click.png");
+  coloringPage.alt = "Download coloring pages";
+  coloringPage.tabIndex = 0;
+  coloringPage.addEventListener("mouseenter", () => {
+    coloringPage.src = asset("coloringpage_click_hover.png");
+  });
+  coloringPage.addEventListener("mouseleave", () => {
+    coloringPage.src = asset("coloringpage_click.png");
+  });
+  coloringPage.addEventListener("click", async () => {
+    coloringPage.style.pointerEvents = "none";
+    try {
+      await downloadColoringPages(isGoodEnding);
+    } finally {
+      coloringPage.style.pointerEvents = "auto";
+    }
+  });
+  coloringPage.addEventListener("keydown", (event) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      coloringPage.click();
+    }
+  });
+  root.append(coloringPage);
 }
 
 function renderCommonNav() {
@@ -545,7 +649,13 @@ function addZoomDefinitionsHotspot() {
     popup.textContent = text;
     hotspot.append(popup);
     root.append(hotspot);
-    return { hotspot, x, y, width, height };
+    const hoverAssets = {
+      142: ["definitions_hover.png", 126, 712, 349, 470],
+      299: ["fieldguide_hover.png", 284, 1251, 382, 541],
+      79: ["hint_hover.png", 63, 227, 282, 237]
+    };
+    const [imageName, imageX, imageY, imageWidth, imageHeight] = hoverAssets[x];
+    return { hotspot, x, y, width, height, cleanupHover: addHotspotHoverImage(hotspot, imageName, imageX, imageY, imageWidth, imageHeight) };
   });
 
   const positionHotspot = () => {
@@ -568,7 +678,10 @@ function addZoomDefinitionsHotspot() {
   window.addEventListener("resize", positionHotspot);
   return () => {
     window.removeEventListener("resize", positionHotspot);
-    hotspots.forEach(({ hotspot }) => hotspot.remove());
+    hotspots.forEach(({ hotspot, cleanupHover }) => {
+      cleanupHover();
+      hotspot.remove();
+    });
   };
 }
 
@@ -585,6 +698,7 @@ function addGameDefinitionsHotspot() {
   popup.textContent = "Don't know what a term means? Click here for the Glossary!";
   hotspot.append(popup);
   root.append(hotspot);
+  const cleanupHover = addHotspotHoverImage(hotspot, "definitions_hover.png", 126, 712, 349, 470);
 
   const positionHotspot = () => {
     const rootWidth = root.clientWidth;
@@ -602,6 +716,7 @@ function addGameDefinitionsHotspot() {
   window.addEventListener("resize", positionHotspot);
   return () => {
     window.removeEventListener("resize", positionHotspot);
+    cleanupHover();
     hotspot.remove();
   };
 }
@@ -619,6 +734,7 @@ function addGameFieldGuideHotspot() {
   popup.textContent = "Don't know what a plant or animal is? Click here for the Field Guide!";
   hotspot.append(popup);
   root.append(hotspot);
+  const cleanupHover = addHotspotHoverImage(hotspot, "fieldguide_hover.png", 284, 1251, 382, 541);
 
   const positionHotspot = () => {
     const rootWidth = root.clientWidth;
@@ -636,6 +752,7 @@ function addGameFieldGuideHotspot() {
   window.addEventListener("resize", positionHotspot);
   return () => {
     window.removeEventListener("resize", positionHotspot);
+    cleanupHover();
     hotspot.remove();
   };
 }
@@ -655,6 +772,7 @@ function addGameHintHotspot() {
   popup.textContent = "Stuck? Click for a hint!";
   hotspot.append(popup);
   root.append(hotspot);
+  const cleanupHover = addHotspotHoverImage(hotspot, "hint_hover.png", 63, 227, 282, 237);
 
   const positionHotspot = () => {
     const scale = Math.max(root.clientWidth / ART_WIDTH, root.clientHeight / ART_HEIGHT);
@@ -670,11 +788,12 @@ function addGameHintHotspot() {
   window.addEventListener("resize", positionHotspot);
   return () => {
     window.removeEventListener("resize", positionHotspot);
+    cleanupHover();
     hotspot.remove();
   };
 }
 
-function addGuideReturnHotspot(x, y, label, returnBg) {
+function addGuideReturnHotspot(x, y, label, returnBg, showHover = true) {
   const hotspot = document.createElement("div");
   hotspot.className = "guide-return-hotspot";
   hotspot.tabIndex = 0;
@@ -685,6 +804,12 @@ function addGuideReturnHotspot(x, y, label, returnBg) {
     showGameScreen();
   });
   root.append(hotspot);
+  const [imageName, imageX, imageY, imageWidth, imageHeight] = x === 142
+    ? ["definitions_hover.png", 126, 712, 349, 470]
+    : ["fieldguide_hover.png", 284, 1251, 382, 541];
+  const cleanupHover = showHover
+    ? addHotspotHoverImage(hotspot, imageName, imageX, imageY, imageWidth, imageHeight)
+    : () => {};
 
   const positionHotspot = () => {
     const scale = Math.max(root.clientWidth / ART_WIDTH, root.clientHeight / ART_HEIGHT);
@@ -700,11 +825,12 @@ function addGuideReturnHotspot(x, y, label, returnBg) {
   window.addEventListener("resize", positionHotspot);
   return () => {
     window.removeEventListener("resize", positionHotspot);
+    cleanupHover();
     hotspot.remove();
   };
 }
 
-function addAnalysisDefinitionsHotspot(label, onClick, text = "") {
+function addAnalysisDefinitionsHotspot(label, onClick, text = "", showHover = true) {
   const x = 142;
   const y = 714;
   const width = 304;
@@ -721,6 +847,9 @@ function addAnalysisDefinitionsHotspot(label, onClick, text = "") {
     hotspot.append(popup);
   }
   root.append(hotspot);
+  const cleanupHover = showHover
+    ? addHotspotHoverImage(hotspot, "definitions_hover.png", 126, 712, 349, 470)
+    : () => {};
 
   const positionHotspot = () => {
     const scale = Math.max(root.clientWidth / ART_WIDTH, root.clientHeight / ART_HEIGHT);
@@ -736,11 +865,12 @@ function addAnalysisDefinitionsHotspot(label, onClick, text = "") {
   window.addEventListener("resize", positionHotspot);
   return () => {
     window.removeEventListener("resize", positionHotspot);
+    cleanupHover();
     hotspot.remove();
   };
 }
 
-function addAnalysisFieldGuideHotspot(label, onClick, text = "") {
+function addAnalysisFieldGuideHotspot(label, onClick, text = "", showHover = true) {
   const x = 299;
   const y = 1252;
   const width = 304;
@@ -757,6 +887,9 @@ function addAnalysisFieldGuideHotspot(label, onClick, text = "") {
     hotspot.append(popup);
   }
   root.append(hotspot);
+  const cleanupHover = showHover
+    ? addHotspotHoverImage(hotspot, "fieldguide_hover.png", 284, 1251, 382, 541)
+    : () => {};
 
   const positionHotspot = () => {
     const scale = Math.max(root.clientWidth / ART_WIDTH, root.clientHeight / ART_HEIGHT);
@@ -772,6 +905,7 @@ function addAnalysisFieldGuideHotspot(label, onClick, text = "") {
   window.addEventListener("resize", positionHotspot);
   return () => {
     window.removeEventListener("resize", positionHotspot);
+    cleanupHover();
     hotspot.remove();
   };
 }
@@ -815,6 +949,7 @@ function showClosingScreen() {
   sounds.playTrumpetWinSound();
   clearScreen(getWinBgName());
   renderMetrics();
+  renderColoringPageDownload(getWinBgName() === "good.jpg");
   const achievementOrder = new Map(
     (game.achievements_history || []).map(([year, name], index) => [name, index])
   );
@@ -858,6 +993,7 @@ function showLossScreen(bg, text, soundFn) {
   soundFn?.();
   clearScreen(bg);
   renderMetrics();
+  renderColoringPageDownload(false);
   renderBookshelfMedals();
   const message = document.createElement("section");
   message.className = "loss-message";
@@ -1049,7 +1185,7 @@ function showFieldGuideScreen() {
   renderMetrics();
   renderBookshelfMedals();
   const cleanupDefinitionsHotspot = addGameDefinitionsHotspot();
-  const cleanupReturnHotspot = addGuideReturnHotspot(299, 1252, "Return from field guide", returnBg);
+  const cleanupReturnHotspot = addGuideReturnHotspot(299, 1252, "Return from field guide", returnBg, false);
   zoomHotspotCleanup = () => {
     cleanupDefinitionsHotspot();
     cleanupReturnHotspot();
@@ -1068,7 +1204,7 @@ function showDefinitionsScreen() {
   renderMetrics();
   renderBookshelfMedals();
   const cleanupFieldGuideHotspot = addGameFieldGuideHotspot();
-  const cleanupReturnHotspot = addGuideReturnHotspot(142, 714, "Return from glossary", returnBg);
+  const cleanupReturnHotspot = addGuideReturnHotspot(142, 714, "Return from glossary", returnBg, false);
   zoomHotspotCleanup = () => {
     cleanupFieldGuideHotspot();
     cleanupReturnHotspot();
@@ -1084,7 +1220,9 @@ function showAnalysisDefinitions(prevBg, returnTarget) {
     () => {
       sounds.playPageCloseSound();
       showAnalysisLab(prevBg, false, returnTarget);
-    }
+    },
+    "",
+    false
   );
   const cleanupFieldGuideHotspot = addAnalysisFieldGuideHotspot(
     "Analysis field guide information",
@@ -1111,7 +1249,9 @@ function showAnalysisFieldGuide(prevBg, returnTarget) {
     () => {
       sounds.playPageCloseSound();
       showAnalysisLab(prevBg, false, returnTarget);
-    }
+    },
+    "",
+    false
   );
   zoomHotspotCleanup = () => {
     cleanupDefinitionsHotspot();
@@ -1288,6 +1428,39 @@ function renderAnalysisOverlays(rows, showGraphs = true) {
   }
 }
 
+function renderDataDownload() {
+  const download = document.createElement("img");
+  download.className = "data-download";
+  download.src = asset("downloaddata.png");
+  download.alt = "Download data";
+  download.tabIndex = 0;
+  download.addEventListener("mouseenter", () => {
+    download.src = asset("downloaddata_hover.png");
+  });
+  download.addEventListener("mouseleave", () => {
+    download.src = asset("downloaddata.png");
+  });
+  const downloadData = () => {
+    sounds.playSaveSound();
+    exportCSV(game);
+    root.querySelector(".floppy-confirmation")?.remove();
+    const floppy = document.createElement("img");
+    floppy.className = "floppy-confirmation";
+    floppy.src = asset("floppy.png");
+    floppy.alt = "";
+    root.append(floppy);
+    setTimeout(() => floppy.remove(), 5000);
+  };
+  download.addEventListener("click", downloadData);
+  download.addEventListener("keydown", (event) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      downloadData();
+    }
+  });
+  root.append(download);
+}
+
 function showAnalysisLab(prevBg = game.current_bg_img, loading = true, returnTarget = "game") {
   sounds.stopForestSound();
   sounds.stopFireSound();
@@ -1314,10 +1487,7 @@ function showAnalysisLab(prevBg = game.current_bg_img, loading = true, returnTar
       else if (game.stand.year >= 100) showClosingScreen();
       else showGameScreen();
     }));
-    root.append(button("Save Data", "red-button save-data-button", () => {
-      sounds.playSaveSound();
-      exportCSV(game);
-    }));
+    renderDataDownload();
     zoomHotspotCleanup = addAnalysisDefinitionsHotspot(
       "Analysis definitions information",
       () => showAnalysisDefinitions(prevBg, returnTarget),
