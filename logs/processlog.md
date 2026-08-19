@@ -732,3 +732,64 @@ Reminder: ask the user before shutting this server down at session end.
 - Commands and tests: staged only the migration scope; ran `git diff --cached --check`; created commit `4235811` (`Move GitHub Pages site to repository root`).
 - Verification: Git identified the application files and 484 assets as renames from `web/` to the repository root.
 - Caveat / next step: Push `WZport` to `origin`, then verify the GitHub Pages Actions deployment.
+
+## 2026-08-19 Update: Transparent Glossary Overlay
+
+- Summary: Changed the glossary screen so `definitions.png` is rendered as a transparent foreground image over the active gameplay background instead of replacing it.
+- Files changed: `js/screens.js`, `css/style.css`, `logs/promptlog.md`, `logs/processlog.md`.
+- Verification: `get_errors` reported no errors in `js/screens.js` or `css/style.css`.
+
+## 2026-08-19 Update: Matched Glossary Overlay Bounds
+
+- Summary: Bound `definitions.png` to the same calculated cover rectangle and centered crop offsets used by the root background.
+- Files changed: `js/screens.js`, `css/style.css`, `logs/promptlog.md`, `logs/processlog.md`.
+- Verification: `get_errors` reported no errors in `js/screens.js` or `css/style.css`.
+
+## 2026-08-19 Update: Glossary Metrics Overlay
+
+- Summary: Rendered the game metrics on the glossary screen and layered the metrics panel above the transparent definitions artwork.
+- Files changed: `js/screens.js`, `css/style.css`, `logs/promptlog.md`, `logs/processlog.md`.
+- Verification: `get_errors` reported no errors in `js/screens.js` or `css/style.css`.
+
+## 2026-08-19 Update: Transparent Field Guide Overlay
+
+- Summary: Applied the glossary presentation pattern to the field guide: it now overlays `fieldguide.png` over the current background at the exact cover bounds and shows metrics above the artwork.
+- Files changed: `js/screens.js`, `css/style.css`, `logs/promptlog.md`, `logs/processlog.md`.
+- Verification: `get_errors` reported no errors in `js/screens.js` or `css/style.css`.
+
+## 2026-08-19 Update: Cross-Linked Guide Hotspots
+
+- Summary: Added the existing glossary hotspot to the field-guide screen and the existing field-guide hotspot to the glossary screen. Each screen retains its own Return hotspot.
+- Files changed: `js/screens.js`, `logs/promptlog.md`, `logs/processlog.md`.
+- Verification: `get_errors` reported no errors in `js/screens.js`.
+
+## 2026-08-19 Update: Adaptive Certificate Name Text
+
+- Summary: Added input-driven certificate name sizing that begins at the responsive CSS font size and reduces in half-pixel steps only when the entered name exceeds the input width, down to a 12px minimum.
+- Files changed: `js/screens.js`, `logs/promptlog.md`, `logs/processlog.md`.
+- Verification: `get_errors` reported no errors in `js/screens.js`.
+
+## 2026-08-19 Update: Certificate PDF Export
+
+- Summary: Replaced certificate JPG export with a `pdf-lib` export based on `certificate_blank.pdf`. Save temporarily hides the certificate overlay and all buttons, captures the gameplay screen, restores the UI, then embeds the image at the requested `3300 x 1638` pixel (300 DPI) layout bounds and adds a maximum-fit certificate name.
+- Files changed: `index.html`, `js/screens.js`, `logs/promptlog.md`, `logs/processlog.md`.
+- Behavior: Downloads are named `PitchPineTrailCertificate_<entered name>.pdf`; Windows-invalid filename characters are replaced with `_`.
+- Verification: `get_errors` reported no errors in `index.html` or `js/screens.js`.
+
+## 2026-08-19 Update: Centered Certificate PDF Name
+
+- Summary: Updated the PDF certificate name placement to center at `2066,430`, with Courier Bold as the PDF-safe Courier New equivalent and `#004B1C` text color.
+- Files changed: `js/screens.js`, `logs/promptlog.md`, `logs/processlog.md`.
+- Verification: `get_errors` reported no errors in `js/screens.js`.
+
+## 2026-08-19 Update: Independent Certificate Save Button
+
+- Summary: Moved the certificate Save button out of the certificate overlay and into the game root, with its own responsive artwork-pixel position at `4128,314`.
+- Files changed: `js/screens.js`, `css/style.css`, `logs/promptlog.md`, `logs/processlog.md`.
+- Verification: `get_errors` reported no errors in `js/screens.js` or `css/style.css`.
+
+## 2026-08-19 Update: One Certificate Per Run
+
+- Summary: Added a per-run certificate export flag. After a successful PDF download, the Save button remains removed; reopening the certificate does not recreate it. Restarting the game resets the allowance.
+- Files changed: `js/screens.js`, `logs/promptlog.md`, `logs/processlog.md`.
+- Verification: `get_errors` reported no errors in `js/screens.js`.

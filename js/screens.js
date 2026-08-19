@@ -25,6 +25,7 @@ Object.assign(game, {
   wildfire_pending: false,
   wildfire_last_shown_year: null,
   hurricane_last_shown_year: null,
+  certificate_saved: false,
   hint_index: 0
 });
 
@@ -112,10 +113,14 @@ function updatePixelLayout() {
   point("intro", 4429, 2403);
   point("intro-second", 3309, 1917);
   point("definitions", 276, 2592);
+  point("definitions-overlay", 0, 0);
+  size("definitions-overlay", ART_WIDTH, ART_HEIGHT);
   point("field-guide", 276, 1863);
+  point("field-guide-overlay", 0, 0);
+  size("field-guide-overlay", ART_WIDTH, ART_HEIGHT);
   point("exit", 800, 65);
   point("hint", 3695, 81);
-  point("summary", 4500, 280);
+  point("summary", 4550, 280);
   size("summary", 1000);
   point("closing-analyze", 3600, 2200);
   point("closing-certificate", 3600, 400);
@@ -135,8 +140,9 @@ function updatePixelLayout() {
   point("save-data", 3480, 1504);
   point("chart-overlay", 1400, 603);
   size("chart-overlay", 1727, 1125);
-  point("certificate", 331, 216);
-  size("certificate", 2640);
+  point("certificate", 3100, 200);
+  size("certificate", 1400);
+  point("certificate-save", 4400, 770);
   point("hint-overlay", 2758, 54);
   size("hint-overlay", 2640);
   point("survey-overlay", 800, 65);
@@ -150,7 +156,7 @@ function updatePixelLayout() {
   point("medal-slot-4", 2482, 324);
   point("medal-slot-5", 2482, 972);
   point("medal-slot-6", 2482, 1620);
-  point("medal-slot-7", 3802, 972);
+  point("medal-slot-7", 3589, 972);
   size("medal", 950);
 }
 
@@ -945,15 +951,37 @@ function showWildfireScreen() {
 function showFieldGuideScreen() {
   sounds.playPageTurnSound();
   const returnBg = game.current_bg_img;
-  clearScreen("fieldguide.jpg");
-  zoomHotspotCleanup = addGuideReturnHotspot(299, 1252, "Return from field guide", returnBg);
+  clearScreen();
+  const fieldGuideOverlay = document.createElement("img");
+  fieldGuideOverlay.className = "field-guide-overlay";
+  fieldGuideOverlay.src = asset("fieldguide.png");
+  fieldGuideOverlay.alt = "";
+  root.append(fieldGuideOverlay);
+  renderMetrics();
+  const cleanupDefinitionsHotspot = addGameDefinitionsHotspot();
+  const cleanupReturnHotspot = addGuideReturnHotspot(299, 1252, "Return from field guide", returnBg);
+  zoomHotspotCleanup = () => {
+    cleanupDefinitionsHotspot();
+    cleanupReturnHotspot();
+  };
 }
 
 function showDefinitionsScreen() {
   sounds.playPageTurnSound();
   const returnBg = game.current_bg_img;
-  clearScreen("definitions.jpg");
-  zoomHotspotCleanup = addGuideReturnHotspot(142, 714, "Return from glossary", returnBg);
+  clearScreen();
+  const definitionsOverlay = document.createElement("img");
+  definitionsOverlay.className = "definitions-overlay";
+  definitionsOverlay.src = asset("definitions.png");
+  definitionsOverlay.alt = "";
+  root.append(definitionsOverlay);
+  renderMetrics();
+  const cleanupFieldGuideHotspot = addGameFieldGuideHotspot();
+  const cleanupReturnHotspot = addGuideReturnHotspot(142, 714, "Return from glossary", returnBg);
+  zoomHotspotCleanup = () => {
+    cleanupFieldGuideHotspot();
+    cleanupReturnHotspot();
+  };
 }
 
 function showAnalysisDefinitions(prevBg, returnTarget) {
@@ -1025,20 +1053,76 @@ function showCertificateOverlay() {
   const input = document.createElement("input");
   input.className = "certificate-name";
   input.placeholder = "Your name";
-  const save = button("Save", "green-button certificate-save", () => {
+  const fitCertificateName = () => {
+    input.style.fontSize = "";
+    const maximumFontSize = Number.parseFloat(getComputedStyle(input).fontSize);
+    const minimumFontSize = 12;
+    let fontSize = maximumFontSize;
+    while (input.scrollWidth > input.clientWidth && fontSize > minimumFontSize) {
+      fontSize -= 0.5;
+      input.style.fontSize = `${fontSize}px`;
+    }
+  };
+  input.addEventListener("input", fitCertificateName);
+  const save = button("Save", "green-button certificate-save", async () => {
     sounds.playSaveSound();
-    if (!window.html2canvas) return;
-    save.classList.add("hidden");
-    html2canvas(root).then((canvas) => {
+    if (!window.html2canvas || !window.PDFLib) return;
+    const enteredName = input.value.trim();
+    const hiddenElements = [overlay, ...root.querySelectorAll("button")];
+    hiddenElements.forEach((element) => element.classList.add("hidden"));
+    try {
+      const canvas = await html2canvas(root);
+      const pdfBytes = await fetch(asset("certificate_blank.pdf")).then((response) => {
+        if (!response.ok) throw new Error("Unable to load certificate PDF template.");
+        return response.arrayBuffer();
+      });
+      const pdf = await PDFLib.PDFDocument.load(pdfBytes);
+      const page = pdf.getPages()[0];
+      const pixelsToPoints = 72 / 300;
+      const screenshot = await pdf.embedPng(canvas.toDataURL("image/png"));
+      const screenshotWidth = 3300 * pixelsToPoints;
+      const screenshotHeight = 1638 * pixelsToPoints;
+      page.drawImage(screenshot, {
+        x: 0,
+        y: page.getHeight() - (913 + 1638) * pixelsToPoints,
+        width: screenshotWidth,
+        height: screenshotHeight
+      });
+
+      if (enteredName) {
+        const font = await pdf.embedFont(PDFLib.StandardFonts.CourierBold);
+        const maximumNameWidth = 2279 * pixelsToPoints;
+        const maximumNameHeight = 321 * pixelsToPoints;
+        let fontSize = maximumNameHeight / font.heightAtSize(1, { descender: false });
+        while (font.widthOfTextAtSize(enteredName, fontSize) > maximumNameWidth) fontSize -= 0.5;
+        const textWidth = font.widthOfTextAtSize(enteredName, fontSize);
+        const textHeight = font.heightAtSize(fontSize, { descender: false });
+        page.drawText(enteredName, {
+          x: 2066 * pixelsToPoints - textWidth / 2,
+          y: page.getHeight() - 430 * pixelsToPoints - textHeight / 2,
+          size: fontSize,
+          font,
+          color: PDFLib.rgb(0, 75 / 255, 28 / 255)
+        });
+      }
+
+      const downloadName = enteredName.replace(/[\\/:*?"<>|]/g, "_") || "Certificate";
       const link = document.createElement("a");
-      link.download = `PitchPineTrail_certificate_${Date.now()}.jpg`;
-      link.href = canvas.toDataURL("image/jpeg");
+      link.download = `PitchPineTrailCertificate_${downloadName}.pdf`;
+      link.href = URL.createObjectURL(new Blob([await pdf.save()], { type: "application/pdf" }));
       link.click();
-      save.classList.remove("hidden");
-    }).catch(() => save.classList.remove("hidden"));
+      URL.revokeObjectURL(link.href);
+      game.certificate_saved = true;
+    } finally {
+      hiddenElements.forEach((element) => {
+        if (element === save && game.certificate_saved) element.remove();
+        else element.classList.remove("hidden");
+      });
+    }
   });
-  overlay.append(input, save);
+  overlay.append(input);
   root.append(overlay);
+  if (!game.certificate_saved) root.append(save);
 }
 
 // Switches screen to Analysis Lab
@@ -1169,7 +1253,8 @@ function resetGameState() {
     hurricane_pending: false,
     wildfire_pending: false,
     wildfire_last_shown_year: null,
-    hurricane_last_shown_year: null
+    hurricane_last_shown_year: null,
+    certificate_saved: false
   });
 }
 

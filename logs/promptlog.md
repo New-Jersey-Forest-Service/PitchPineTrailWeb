@@ -73,6 +73,7 @@ the 4 buttons that are on the different ending screens that are possitioned with
 can we make that achievement-actions point using the 4800, 800
 the closing buttons shpould be near the bottom right based on the point pixel area but they are all the way in the top left. why is that
 please make this change
+once the certificate save button is clicked I would like to remove all the button from the screen and the nameplate.jpg and take a screenshot. Then I want all buttons and nameplate.jpg to return. I would then like to add that screen shot to the certificate_blank.pdf. I would like the top left corner to be placed at X:0 and Y:913. The image should be 3300 pixels wide and 1638 pixels tall. I then want the text typed in the certificate-name to be placed top center at X:2066, Y:289. The size of the text should scale so it is the largest possible font size without being larger than a width of 2279px and a height of 321px. The PDF should with a custom name begining with "PitchPineTrailCertificate_" and ending with whatever was typed in the certificate-name.
 this didn't seem to work. They are still in the upper left corner
 please do the same fix for the achievement action "contunue button so it's position is controled by point
 how do I wrap the BA collum in the chart so that it is a set width
@@ -81,6 +82,15 @@ the continue button is behaving differently on the hurrican screen then on the a
 the closing buttons behave different on the loss screen vs the winning screen. I want them all to be the same and manupulated by the same lines of code
 I want to create and animation similar to the huricane snimation for the treefrog achievment. treefrog.jpg should appear followed by treefrog_1.jpg for a shorter ammount of time and then return to treefrog.jpg for a longer ammount of time. This animation should cycle indefintely until the continue button is pressed
 Okay, I'll take care of the, uh, pull request then.
+I can to change how the text appears on the PDF, instead of top center can we place the center center at X:2066, Y:430. Can we make the text color hex: #004B1C and the font Courier New
+can I remove the certificate save button from the certificate overlay and make it be placed and controled independently
+after the certificate save button is taken away for the screenshot I don't want it to reload. I want a player to only be able to save one certificate per run
+please make this change
+can we load the definitions.png image on top of the background screen so it's transparency shows the screen below
+the definitions .png is laoding slightly larger than the background image. can we constrasin it to the same size as the background image
+can we make sure the metrics load on top of the defintions screen
+Can we make all the same changes with the fieldguide screen
+can we add the hover and click hot spot for the definitionsscreen to the fieldguide screen and add the hover and click hot spot for the field guide screen to the definitions screen
 So when I went to run this project on GitHub Pages, it appears the project needs to be run through root. So, can we move files appropriately from the web folder and assets in a way that this site will run from the root instead of from the web folder? It appears to be having problems with that.
 Can you check and let me know what branch we're working on right now?
 Excellent. Can we commit and push these changes?
