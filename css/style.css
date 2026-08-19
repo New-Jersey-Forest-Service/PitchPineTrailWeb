@@ -286,6 +286,7 @@ input:focus-visible {
   position: absolute;
   left: var(--exit-left);
   top: var(--exit-top);
+  z-index: 3;
   display: flex;
   gap: 10px;
 }
@@ -505,6 +506,7 @@ input:focus-visible {
   font-size: clamp(15px, 1.15vw, 22px);
   text-align: center;
   line-height: 1.25;
+  white-space: pre-wrap;
 }
 
 .analysis-table {

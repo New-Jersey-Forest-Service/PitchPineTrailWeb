@@ -82,9 +82,12 @@ the continue button is behaving differently on the hurrican screen then on the a
 the closing buttons behave different on the loss screen vs the winning screen. I want them all to be the same and manupulated by the same lines of code
 I want to create and animation similar to the huricane snimation for the treefrog achievment. treefrog.jpg should appear followed by treefrog_1.jpg for a shorter ammount of time and then return to treefrog.jpg for a longer ammount of time. This animation should cycle indefintely until the continue button is pressed
 Okay, I'll take care of the, uh, pull request then.
+can we make the exit and restart button also appear overtop the achievment and event screens?
+can you make this change
 I can to change how the text appears on the PDF, instead of top center can we place the center center at X:2066, Y:430. Can we make the text color hex: #004B1C and the font Courier New
 can I remove the certificate save button from the certificate overlay and make it be placed and controled independently
 after the certificate save button is taken away for the screenshot I don't want it to reload. I want a player to only be able to save one certificate per run
+please use the gui_event_messages.txt file to update what the event text messaged say in the screen.js. Be sure to include line breaks.
 please make this change
 can we load the definitions.png image on top of the background screen so it's transparency shows the screen below
 the definitions .png is laoding slightly larger than the background image. can we constrasin it to the same size as the background image

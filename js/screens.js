@@ -34,13 +34,13 @@ window.pitchPineTrailGame = game;
 // Achievement Screen images with sound and text description.
 
 const achievementScreens = {
-  snake: { image: "Pinesnake.jpg", sound: sounds.playPineSnakeSound, title: "Pine snakes are utilizing this stand!" },
-  gentian: { image: "gentian.jpg", sound: sounds.playGentianSound, title: "Gentian is now growing in this stand!" },
-  short: { image: "shortleaf.jpg", sound: sounds.playPageTurnSound, title: "Shortleaf pine has established in this stand!" },
-  turkey: { image: "turkeybeard.jpg", sound: sounds.playPageTurnSound, title: "Turkey Beard is now growing in this stand!" },
-  tanager: { image: "Tanager.jpg", sound: sounds.playTanagerSound, title: "Summer tanager has colonized this stand!" },
-  bunting: { image: "bunting.jpg", sound: sounds.playBuntingSound, title: "Indigo bunting has colonized this stand!" },
-  frog: { image: "treefrog.jpg", sound: sounds.playTreeFrogSound, title: "Pine Barrens tree frog has colonized this stand!" }
+  snake: { image: "Pinesnake.jpg", sound: sounds.playPineSnakeSound, title: "Congratulations! This forest is excellent northern pine snake habitat.\n\nPine snakes are utilizing the stand!" },
+  gentian: { image: "gentian.jpg", sound: sounds.playGentianSound, title: "Congratulations! This forest now supports rare Pine Barrens gentian!\n\nGentian is growing in the stand!" },
+  short: { image: "shortleaf.jpg", sound: sounds.playPageTurnSound, title: "Congratulations! You created sunny spots in your forest & received funding to plant seedlings...\n\nYou earned the Shortleaf Pine achievement!" },
+  turkey: { image: "turkeybeard.jpg", sound: sounds.playPageTurnSound, title: "Congratulations! Turkey Beard is now growing in this stand!\n\nYou earned the Turkey Beard achievement!" },
+  tanager: { image: "Tanager.jpg", sound: sounds.playTanagerSound, title: "Congratulations! This forest is being visited by Summer Tanagers.\n\nThese neotropical birds are migrating through the stand!" },
+  bunting: { image: "bunting.jpg", sound: sounds.playBuntingSound, title: "Congratulations! This forest is being visited by Indigo Buntings.\n\nThese neotropical birds are migrating through the stand!" },
+  frog: { image: "treefrog.jpg", sound: sounds.playTreeFrogSound, title: "Congratulations! Pine Barrens tree frogs have colonized this forest.\n\nTree frogs are calling from the stand!" }
 };
 
 const endingMedals = [
@@ -127,8 +127,8 @@ function updatePixelLayout() {
   size("closing-certificate", 500);
   point("closing-restart", 3400, 2400);
   point("closing-exit", 3800, 2400);
-  point("achievement-actions", 4900, 900);
-  point("event-actions", 4900, 900);
+  point("achievement-actions", 5175, 1050);
+  point("event-actions", 5175, 1050);
   point("loss-message", 4450, 280);
   size("loss-message", 1000);
   point("analysis-table", 1500, 700);
@@ -792,15 +792,15 @@ function showLossScreen(bg, text, soundFn) {
 }
 
 function showLowTpaScreen() {
-  showLossScreen("LowStocking.jpg", "Your stand stocking is too low to continue growing a mature pitch pine forest.", sounds.playLosingTromboneSound);
+  showLossScreen("LowStocking.jpg", "The forest's growing stock trees have been depleted!\n\nWe're supposed to be growing a forest!", sounds.playLosingTromboneSound);
 }
 
 function showFireLossScreen() {
-  showLossScreen("LossByFire.jpg", "A catastrophic wildfire has occurred.\n\nA new pitch pine stand may begin, but the mature stand management goal was lost.", sounds.playLosingTromboneSound);
+  showLossScreen("LossByFire.jpg", "A catastrophic wildfire has occurred!\n\nWe might get a new stand of pitch pine, but we're trying to grow a mature stand!", sounds.playLosingTromboneSound);
 }
 
 function showSpbLossScreen() {
-  showLossScreen("LossBySPB.jpg", "Southern pine beetle caused a stand-level loss while SPB risk was High.", sounds.playSpbEatingSound);
+  showLossScreen("LossBySPB.jpg", "A Southern Pine Beetle outbreak has devastated your stand!\n\nWe're trying to grow a healthy forest!", sounds.playSpbEatingSound);
 }
 
 function showAchievementScreen(code) {
@@ -821,6 +821,7 @@ function showAchievementScreen(code) {
     showNextQueuedAchievementOrGame();
   }));
   root.append(actions);
+  renderCommonNav();
   let frogAnimationTimer = null;
   if (code === "frog") {
     const cycle = () => {
@@ -899,6 +900,7 @@ function showHurricaneScreen() {
   actions.className = "event-actions";
   actions.append(button("Continue", "green-button", continueHurricane));
   root.append(actions);
+  renderCommonNav();
   const sequence = [
     ["hurricane_lightning.jpg", 200],
     ["hurricane_rain.jpg", 2900],
@@ -921,7 +923,7 @@ function finishHurricaneScreen() {
   if (root.querySelector(".hurricane-message")) return;
   const message = document.createElement("section");
   message.className = "event-message hurricane-message";
-  message.textContent = "A hurricane passed through your forest.\n\nYour forest is still living, but the storm changed your forest metrics.";
+  message.textContent = "Oh no! A hurricane passed through your forest.\n\nYour forest is still living but this may have significantly changes your forest metrics.";
   root.append(message);
 }
 
@@ -934,7 +936,7 @@ function showWildfireScreen() {
   renderMetrics();
   const message = document.createElement("section");
   message.className = "event-message";
-  message.textContent = "A wildfire burned through the stand.\n\nThe forest survived, but the event changed your stand metrics.";
+  message.textContent = "Oh no! Your prescribed burn got out of control because your forest was already at high risk for fire.\n\nYour forest is still living but this may have significantly changes your forest metrics.";
   root.append(message);
   const actions = document.createElement("div");
   actions.className = "event-actions";
@@ -946,6 +948,7 @@ function showWildfireScreen() {
     else showGameScreen();
   }));
   root.append(actions);
+  renderCommonNav();
 }
 
 function showFieldGuideScreen() {

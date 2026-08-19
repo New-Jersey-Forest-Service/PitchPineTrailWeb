@@ -323,6 +323,12 @@ Reminder: ask the user before shutting this server down at session end.
 - Summary: Updated the intro zoom sequence to preload and decode all ten frames before beginning the timed background swaps, preventing progressive JPEG rendering over the navy root background.
 - Files changed: `js/screens.js`, `logs/promptlog.md`, `logs/processlog.md`.
 - Verification: `get_errors` reported no errors in `js/screens.js`.
+
+## 2026-08-19 Update: Event And Achievement Navigation
+
+- Summary: Added the shared Exit and Restart controls to achievement, hurricane, and non-losing wildfire screens, with a navigation layer above their temporary screen content.
+- Files changed: `js/screens.js`, `css/style.css`, `logs/promptlog.md`, `logs/processlog.md`.
+- Verification: `get_errors` reported no errors in `js/screens.js` or `css/style.css`.
 - Caveat / next step: Browser playback should be manually checked to confirm the decoded frame transitions look smooth at the 300 ms interval.
 
 ## 2026-08-18 Update: Decode All Background Images Before Swap
@@ -791,5 +797,11 @@ Reminder: ask the user before shutting this server down at session end.
 ## 2026-08-19 Update: One Certificate Per Run
 
 - Summary: Added a per-run certificate export flag. After a successful PDF download, the Save button remains removed; reopening the certificate does not recreate it. Restarting the game resets the allowance.
+- Files changed: `js/screens.js`, `logs/promptlog.md`, `logs/processlog.md`.
+- Verification: `get_errors` reported no errors in `js/screens.js`.
+
+## 2026-08-19 Update: GUI-Consistent Event Messages
+
+- Summary: Updated browser achievement, hurricane, non-losing wildfire, and loss-screen messages from `src/gui_event_messages.txt`, preserving the source paragraph breaks.
 - Files changed: `js/screens.js`, `logs/promptlog.md`, `logs/processlog.md`.
 - Verification: `get_errors` reported no errors in `js/screens.js`.
