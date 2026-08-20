@@ -69,7 +69,8 @@ const coloringPageAchievements = [
   ["summer_tanager_achieved", "summer_tanager_colonized", "tanager_coloringpage.pdf"],
   ["tree_frog_achieved", "pine_barrens_tree_frog_colonized", "treefrog_coloringpage.pdf"],
   ["indigo_bunting_achieved", "indigo_bunting_colonized", "bunting_coloringpage.pdf"],
-  ["short_achieved", "short_colonized", "shortleaf_coloringpage.pdf"]
+  ["short_achieved", "short_colonized", "shortleaf_coloringpage.pdf"],
+  ["turkey_beard_achieved", null, "turkeybeard_coloringpage.pdf"]
 ];
 
 function asset(name) {
@@ -1356,7 +1357,7 @@ function showCertificateOverlay() {
         const font = await pdf.embedFont(PDFLib.StandardFonts.CourierBold);
         const maximumNameWidth = 2279 * pixelsToPoints;
         const maximumNameHeight = 321 * pixelsToPoints;
-        let fontSize = maximumNameHeight / font.heightAtSize(1, { descender: false });
+        let fontSize = maximumNameHeight / font.heightAtSize(1.5, { descender: false });
         while (font.widthOfTextAtSize(enteredName, fontSize) > maximumNameWidth) fontSize -= 0.5;
         const textWidth = font.widthOfTextAtSize(enteredName, fontSize);
         const textHeight = font.heightAtSize(fontSize, { descender: false });
