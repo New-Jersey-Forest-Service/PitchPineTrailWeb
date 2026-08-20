@@ -4,12 +4,18 @@ import { sounds, stopAllLoops } from "./sounds.js";
 
 const root = document.getElementById("game-root");
 const ASSET_BASE = "assets/";
+const ART_WIDTH = 5515;
+const ART_HEIGHT = 2700;
 
 const game = new Game();
+const decodedBackgrounds = new Map();
+let backgroundRequest = 0;
+let zoomHotspotCleanup = null;
 Object.assign(game, {
   current_bg_img: "Evenagestand.jpg", //Standard background image
   achievement_queue: [],
   achievement_final_bg: null,
+  event_return_bg: null,
   thin_lightly_event: false,
   prescribed_burn_event: false,
   pb_after_first_heavythin_shown: false,
@@ -19,6 +25,7 @@ Object.assign(game, {
   wildfire_pending: false,
   wildfire_last_shown_year: null,
   hurricane_last_shown_year: null,
+  certificate_saved: false,
   hint_index: 0
 });
 
@@ -27,14 +34,44 @@ window.pitchPineTrailGame = game;
 // Achievement Screen images with sound and text description.
 
 const achievementScreens = {
-  snake: { image: "Pinesnake.jpg", sound: sounds.playPineSnakeSound, title: "Pine snakes are utilizing this stand!" },
-  gentian: { image: "gentian.jpg", sound: sounds.playGentianSound, title: "Gentian is now growing in this stand!" },
-  short: { image: "shortleaf.jpg", sound: sounds.playPageTurnSound, title: "Shortleaf pine has established in this stand!" },
-  turkey: { image: "turkeybeard.jpg", sound: sounds.playPageTurnSound, title: "Turkey Beard is now growing in this stand!" },
-  tanager: { image: "Tanager.jpg", sound: sounds.playTanagerSound, title: "Summer tanager has colonized this stand!" },
-  bunting: { image: "bunting.jpg", sound: sounds.playBuntingSound, title: "Indigo bunting has colonized this stand!" },
-  frog: { image: "treefrog.jpg", sound: sounds.playTreeFrogSound, title: "Pine Barrens tree frog has colonized this stand!" }
+  snake: { image: "Pinesnake.jpg", sound: sounds.playPineSnakeSound, title: "Congratulations! This forest is excellent northern pine snake habitat.\n\nPine snakes are utilizing the stand!" },
+  gentian: { image: "gentian.jpg", sound: sounds.playGentianSound, title: "Congratulations! This forest now supports rare Pine Barrens gentian!\n\nGentian is growing in the stand!" },
+  short: { image: "shortleaf.jpg", sound: sounds.playPageTurnSound, title: "Congratulations! You created sunny spots in your forest & received funding to plant seedlings...\n\nYou earned the Shortleaf Pine achievement!" },
+  turkey: { image: "turkeybeard.jpg", sound: sounds.playPageTurnSound, title: "Congratulations! Turkey Beard is now growing in this stand!\n\nYou earned the Turkey Beard achievement!" },
+  tanager: { image: "Tanager.jpg", sound: sounds.playTanagerSound, title: "Congratulations! This forest is being visited by Summer Tanagers.\n\nThese neotropical birds are migrating through the stand!" },
+  bunting: { image: "bunting.jpg", sound: sounds.playBuntingSound, title: "Congratulations! This forest is being visited by Indigo Buntings.\n\nThese neotropical birds are migrating through the stand!" },
+  frog: { image: "treefrog.jpg", sound: sounds.playTreeFrogSound, title: "Congratulations! Pine Barrens tree frogs have colonized this forest.\n\nTree frogs are calling from the stand!" }
 };
+
+const endingMedals = [
+  ["Pine snake", "pine_snake_achieved", "pine_snakes_colonized", "pinesnake_medal_end.png"],
+  ["Gentian", "gentian_achieved", "gentian_colonized", "gentian_medal_end.png"],
+  ["Summer Tanager", "summer_tanager_achieved", "summer_tanager_colonized", "tanager_medal_end.png"],
+  ["Pine Barrens tree frog", "tree_frog_achieved", "pine_barrens_tree_frog_colonized", "treefrog_medal_end.png"],
+  ["Indigo Bunting", "indigo_bunting_achieved", "indigo_bunting_colonized", "bunting_medal_end.png"],
+  ["Turkey Beard", "turkey_beard_achieved", null, "turkeybeard_medal_end.png"],
+  ["Shortleaf pine", "short_achieved", "short_colonized", "shortleaf_medal_end.png"]
+];
+
+const bookshelfMedals = [
+  ["Pine snake", "pine_snake_achieved", "pine_snakes_colonized", "pinesnake_medal.png", "Northern Pinesnake"],
+  ["Gentian", "gentian_achieved", "gentian_colonized", "gentian_medal.png", "Pine Barrens Gentian"],
+  ["Summer Tanager", "summer_tanager_achieved", "summer_tanager_colonized", "tanager_medal.png", "Summer Tanager"],
+  ["Pine Barrens \n Tree Frog", "tree_frog_achieved", "pine_barrens_tree_frog_colonized", "treefrog_medal.png", "Pine Barrens\nTree Frog"],
+  ["Indigo Bunting", "indigo_bunting_achieved", "indigo_bunting_colonized", "bunting_medal.png", "Indigo Bunting"],
+  ["Turkey Beard", "turkey_beard_achieved", null, "turkeybeard_medal.png", "Turkeybeard"],
+  ["Shortleaf Pine", "short_achieved", "short_colonized", "shortleaf_medal.png", "Shortleaf Pine"]
+];
+
+const coloringPageAchievements = [
+  ["pine_snake_achieved", "pine_snakes_colonized", "pinesnake_coloringpage.pdf"],
+  ["gentian_achieved", "gentian_colonized", "gentian_coloringpage.pdf"],
+  ["summer_tanager_achieved", "summer_tanager_colonized", "tanager_coloringpage.pdf"],
+  ["tree_frog_achieved", "pine_barrens_tree_frog_colonized", "treefrog_coloringpage.pdf"],
+  ["indigo_bunting_achieved", "indigo_bunting_colonized", "bunting_coloringpage.pdf"],
+  ["short_achieved", "short_colonized", "shortleaf_coloringpage.pdf"],
+  ["turkey_beard_achieved", null, "turkeybeard_coloringpage.pdf"]
+];
 
 function asset(name) {
   if (name.startsWith("../") || name.startsWith("http")) return name;
@@ -43,11 +80,126 @@ function asset(name) {
 
 function setBg(name) {
   game.current_bg_img = name.replace(/^assets\//, "");
-  root.style.backgroundImage = `url("${asset(name)}")`;
+  const imageName = game.current_bg_img;
+  const request = ++backgroundRequest;
+  const apply = () => {
+    if (request === backgroundRequest) {
+      root.style.backgroundImage = `url("${asset(imageName)}")`;
+    }
+  };
+  if (decodedBackgrounds.has(imageName)) {
+    apply();
+    return;
+  }
+  const image = new Image();
+  image.onload = async () => {
+    try {
+      await image.decode();
+    } catch {
+      // The loaded image is still usable when decode() is unavailable.
+    }
+    decodedBackgrounds.set(imageName, true);
+    apply();
+  };
+  image.onerror = apply;
+  image.src = asset(imageName);
 }
 
+function updatePixelLayout() {
+  const rootWidth = root.clientWidth;
+  const rootHeight = root.clientHeight;
+  const contain = root.style.backgroundSize === "contain";
+  const scale = contain
+    ? Math.min(rootWidth / ART_WIDTH, rootHeight / ART_HEIGHT)
+    : Math.max(rootWidth / ART_WIDTH, rootHeight / ART_HEIGHT);
+  const imageWidth = ART_WIDTH * scale;
+  const imageHeight = ART_HEIGHT * scale;
+  const imageLeft = (rootWidth - imageWidth) / 2;
+  const imageTop = (rootHeight - imageHeight) / 2;
+  const set = (name, value) => root.style.setProperty(`--${name}`, `${value}px`);
+  const point = (name, x, y) => {
+    set(`${name}-left`, imageLeft + x * scale);
+    set(`${name}-top`, imageTop + y * scale);
+  };
+  const size = (name, width, height) => {
+    if (width != null) set(`${name}-width`, width * scale);
+    if (height != null) set(`${name}-height`, height * scale);
+  };
+
+  point("metrics", 4190, 1490);
+  size("metrics", 1100);
+  point("actions", 4550, 350);
+  size("actions", 720);
+  point("intro", 4429, 2403);
+  point("intro-second", 3309, 1917);
+  point("definitions", 276, 2592);
+  point("definitions-overlay", 0, 0);
+  size("definitions-overlay", ART_WIDTH, ART_HEIGHT);
+  point("field-guide", 276, 1863);
+  point("field-guide-overlay", 0, 0);
+  size("field-guide-overlay", ART_WIDTH, ART_HEIGHT);
+  point("bookshelf-medal-slot-1", 75, 2000);
+  point("bookshelf-medal-slot-2", 275, 2000);
+  point("bookshelf-medal-slot-3", 475, 2000);
+  point("bookshelf-medal-slot-4", 75, 2210);
+  point("bookshelf-medal-slot-5", 275, 2210);
+  point("bookshelf-medal-slot-6", 475, 2210);
+  point("bookshelf-medal-slot-7", 275, 2420);
+  size("bookshelf-medal", 150, 200);
+  point("coloring-page", 90, 1990);
+  size("coloring-page", 510, 653);
+  point("exit", 800, 65);
+  point("hint", 3695, 81);
+  point("summary", 4550, 280);
+  size("summary", 1000);
+  point("closing-analyze", 3600, 2200);
+  point("closing-certificate", 3600, 400);
+  size("closing-certificate", 500);
+  point("closing-restart", 3400, 2400);
+  point("closing-exit", 3800, 2400);
+  point("achievement-actions", 5175, 1050);
+  point("event-actions", 5175, 1050);
+  point("loss-message", 4450, 280);
+  size("loss-message", 1000);
+  point("analysis-table", 1500, 700);
+  size("analysis-table", 1498, 851);
+  point("plot-buttons", 4500, 1960);
+  point("achievement-list", 4500, 1200);
+  size("achievement-list", 1380);
+  point("analysis-return", 1650, 2025);
+  point("download-data", 2668, 1937);
+  size("download-data", 1216, 206);
+  point("floppy", 3333, 1388);
+  size("floppy", 300, 221);
+  point("chart-overlay", 1400, 603);
+  size("chart-overlay", 1727, 1125);
+  point("certificate", 3100, 200);
+  size("certificate", 1400);
+  point("certificate-save", 4400, 770);
+  point("hint-overlay", 2758, 54);
+  size("hint-overlay", 2640);
+  point("survey-overlay", 800, 65);
+  size("survey-overlay", 2000);
+  point("survey-open", 2100, 800);
+  point("survey-exit", 1950, 950);
+  point("survey-cancel", 2250, 950);
+  point("medal-slot-1", 1379, 324);
+  point("medal-slot-2", 1379, 972);
+  point("medal-slot-3", 1379, 1620);
+  point("medal-slot-4", 2482, 324);
+  point("medal-slot-5", 2482, 972);
+  point("medal-slot-6", 2482, 1620);
+  point("medal-slot-7", 3589, 972);
+  size("medal", 950);
+}
+
+window.addEventListener("resize", updatePixelLayout);
+
 function clearScreen(bgName) {
+  zoomHotspotCleanup?.();
+  zoomHotspotCleanup = null;
   root.innerHTML = "";
+  updatePixelLayout();
   if (bgName) setBg(bgName);
 }
 
@@ -58,6 +210,43 @@ function button(text, className, onClick) {
   btn.textContent = text;
   btn.addEventListener("click", onClick);
   return btn;
+}
+
+function addHotspotHoverImage(hotspot, imageName, imageX, imageY, imageWidth, imageHeight) {
+  let hoverImage = null;
+  const showImage = () => {
+    if (hoverImage) return;
+    const contain = root.style.backgroundSize === "contain";
+    const scale = contain
+      ? Math.min(root.clientWidth / ART_WIDTH, root.clientHeight / ART_HEIGHT)
+      : Math.max(root.clientWidth / ART_WIDTH, root.clientHeight / ART_HEIGHT);
+    const imageLeft = (root.clientWidth - ART_WIDTH * scale) / 2;
+    const imageTop = (root.clientHeight - ART_HEIGHT * scale) / 2;
+    hoverImage = document.createElement("img");
+    hoverImage.className = "hotspot-hover-image";
+    hoverImage.src = asset(imageName);
+    hoverImage.alt = "";
+    hoverImage.style.left = `${imageLeft + imageX * scale}px`;
+    hoverImage.style.top = `${imageTop + imageY * scale}px`;
+    hoverImage.style.width = `${imageWidth * scale}px`;
+    hoverImage.style.height = `${imageHeight * scale}px`;
+    root.append(hoverImage);
+  };
+  const hideImage = () => {
+    hoverImage?.remove();
+    hoverImage = null;
+  };
+  hotspot.addEventListener("mouseenter", showImage);
+  hotspot.addEventListener("mouseleave", hideImage);
+  hotspot.addEventListener("focus", showImage);
+  hotspot.addEventListener("blur", hideImage);
+  return () => {
+    hotspot.removeEventListener("mouseenter", showImage);
+    hotspot.removeEventListener("mouseleave", hideImage);
+    hotspot.removeEventListener("focus", showImage);
+    hotspot.removeEventListener("blur", hideImage);
+    hideImage();
+  };
 }
 
 // Function for risk classes. This affects the text color in the clipboard panel for fire and SPB risk.
@@ -76,33 +265,109 @@ function renderMetrics(parent = root) {
   panel.innerHTML = `
     <div>Year: ${status.year}</div>
     <br>
-    <div>Basal Area (BA): ${Number(status.BA).toFixed(1)} sqft/acre</div>
+    <div>Basal Area(BA): ${Number(status.BA).toFixed(1)} sqft/acre</div>
     <br>
-    <div>Trees Per Acre (TPA): ${status.TPA}</div>
+    <div>Trees Per Acre(TPA): ${status.TPA}</div>
     <br>
-    <div>Quadratic Mean Diameter (QMD): ${Number(status.QMD).toFixed(1)} inches</div>
+    <div>Quadratic Mean Diameter(QMD): ${Number(status.QMD).toFixed(1)} inches</div>
     <br>
     <div>Carbon per Acre: ${Number(status.carbon).toFixed(1)} Metric Tons/acre</div>
     <br>
     <div>Crowning Index: ${Number(status.CI).toFixed(1)}</div>
-    <span class="metric-risk ${riskClass(status.fire_risk)}">Fire Risk: ${status.fire_risk}</span>
-    <span class="metric-risk ${riskClass(status.SPB_risk)}">Southern Pine Beetle Risk: ${status.SPB_risk}</span>
+    <span class="metric-risk ${riskClass(status.fire_risk)}">Fire Risk:<br>${status.fire_risk}</span>
+    <span class="metric-risk ${riskClass(status.SPB_risk)}">Southern Pine Beetle Risk:<br>${status.SPB_risk}</span>
   `;
   parent.append(panel);
   return panel;
 }
 
+function renderBookshelfMedals() {
+  const achievementOrder = new Map(
+    (game.achievements_history || []).map(([, name], index) => [name, index])
+  );
+  const earnedMedals = bookshelfMedals
+    .filter(([, achievementFlag, colonizedFlag]) => game[achievementFlag] || (colonizedFlag && game[colonizedFlag]))
+    .sort(([nameA], [nameB]) => (achievementOrder.get(nameA) ?? Number.MAX_SAFE_INTEGER)
+      - (achievementOrder.get(nameB) ?? Number.MAX_SAFE_INTEGER));
+
+  earnedMedals.forEach(([, , , imageName, label], index) => {
+    const slot = document.createElement("div");
+    slot.className = `bookshelf-medal-slot bookshelf-medal-slot-${index + 1}`;
+    slot.tabIndex = 0;
+    slot.setAttribute("aria-label", label);
+    const medal = document.createElement("img");
+    medal.className = "bookshelf-medal-overlay";
+    medal.src = asset(imageName);
+    medal.alt = "";
+    const tooltip = document.createElement("span");
+    tooltip.className = "bookshelf-medal-tooltip";
+    tooltip.textContent = label;
+    slot.append(medal, tooltip);
+    root.append(slot);
+  });
+}
+
+async function downloadColoringPages(isGoodEnding) {
+  if (!window.PDFLib) return;
+  const templateNames = ["standard_coloringpage.pdf"];
+  if (isGoodEnding) templateNames.push("goodend_coloringpage.pdf");
+  coloringPageAchievements.forEach(([achievementFlag, colonizedFlag, pdfName]) => {
+    if (game[achievementFlag] || (colonizedFlag && game[colonizedFlag])) templateNames.push(pdfName);
+  });
+
+  const combinedPdf = await PDFLib.PDFDocument.create();
+  for (const templateName of templateNames) {
+    const response = await fetch(asset(templateName));
+    if (!response.ok) continue;
+    const sourcePdf = await PDFLib.PDFDocument.load(await response.arrayBuffer());
+    const pages = await combinedPdf.copyPages(sourcePdf, sourcePdf.getPageIndices());
+    pages.forEach((page) => combinedPdf.addPage(page));
+  }
+
+  const link = document.createElement("a");
+  link.download = "PitchPineTrailColoringPages.pdf";
+  link.href = URL.createObjectURL(new Blob([await combinedPdf.save()], { type: "application/pdf" }));
+  link.click();
+  URL.revokeObjectURL(link.href);
+}
+
+function renderColoringPageDownload(isGoodEnding) {
+  const coloringPage = document.createElement("img");
+  coloringPage.className = "coloring-page-download";
+  coloringPage.src = asset("coloringpage_click.png");
+  coloringPage.alt = "Download coloring pages";
+  coloringPage.tabIndex = 0;
+  coloringPage.addEventListener("mouseenter", () => {
+    coloringPage.src = asset("coloringpage_click_hover.png");
+  });
+  coloringPage.addEventListener("mouseleave", () => {
+    coloringPage.src = asset("coloringpage_click.png");
+  });
+  coloringPage.addEventListener("click", async () => {
+    coloringPage.style.pointerEvents = "none";
+    try {
+      await downloadColoringPages(isGoodEnding);
+    } finally {
+      coloringPage.style.pointerEvents = "auto";
+    }
+  });
+  coloringPage.addEventListener("keydown", (event) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      coloringPage.click();
+    }
+  });
+  root.append(coloringPage);
+}
+
 function renderCommonNav() {
   root.append(
-    Object.assign(document.createElement("div"), { className: "field-guide-link" }),
-    Object.assign(document.createElement("div"), { className: "definitions-link" }),
-    Object.assign(document.createElement("div"), { className: "exit-link" }),
-    Object.assign(document.createElement("div"), { className: "hint-link" })
+    Object.assign(document.createElement("div"), { className: "exit-link" })
   );
-  root.querySelector(".field-guide-link").append(button("Click for Field Guide", "dark-button", showFieldGuideScreen));
-  root.querySelector(".definitions-link").append(button("Click for Definitions", "dark-button", showDefinitionsScreen));
-  root.querySelector(".exit-link").append(button("Exit", "red-button", () => showExitSurveyOverlay()));
-  root.querySelector(".hint-link").append(button("Click for a Hint", "blue-button", () => showHintOverlay()));
+  root.querySelector(".exit-link").append(
+    button("Exit", "red-button main-exit-button", () => showExitSurveyOverlay()),
+    button("Restart", "blue-button main-restart-button", restartGameToZoom)
+  );
 }
 
 function lastEventNamed(name) {
@@ -280,7 +545,8 @@ function nextTurn(action) {
 }
 
 function startAnimation(during, durationMs, final) {
-  clearScreen(during);
+  showGameScreen();
+  setBg(during);
   setTimeout(() => {
     setBg(final);
     showGameScreen();
@@ -290,11 +556,11 @@ function startAnimation(during, durationMs, final) {
 function showIntroScreen() {
   root.style.backgroundSize = "cover";
   clearScreen("introscreen.jpg");
+  sounds.playForestSound();
   const buttons = document.createElement("div");
   buttons.className = "intro-buttons";
   buttons.append(
     button("Begin", "tan-button", () => {
-      sounds.playForestSound();
       startZoomSequence();
     }),
     button("Exit", "tan-button", () => showExitSurveyOverlay())
@@ -308,32 +574,348 @@ function showIntroScreen() {
 function startZoomSequence() {
   root.style.backgroundSize = "contain";
   sounds.playZoomSound();
-  clearScreen("zoom_1.jpg");
-  let frame = 1;
-  const timer = setInterval(() => {
-    frame += 1;
-    if (frame <= 10) setBg(`zoom_${frame}.jpg`);
-    if (frame >= 10) {
-      clearInterval(timer);
-      const buttons = document.createElement("div");
-      buttons.className = "intro-buttons-second";
-      buttons.append(button("Let's Play!", "tan-button", () => {
-        sounds.playLetsPlaySound();
-        showGameScreen();
-      }));
-      root.append(buttons);
-      const defs = document.createElement("div");
-      defs.className = "intro-definitions-link";
-      defs.append(button("Click for Definitions", "dark-button", showDefinitionsScreen));
-      root.append(defs);
+  const frames = Array.from({ length: 10 }, (_, index) => `zoom_${index + 1}.jpg`);
+  const preload = frames.map((name) => new Promise((resolve) => {
+    const image = new Image();
+    image.onload = async () => {
+      try {
+        await image.decode();
+      } catch {
+        // The loaded image is still usable when decode() is unavailable.
+      }
+      resolve();
+    };
+    image.onerror = resolve;
+    image.src = asset(name);
+  }));
+
+  Promise.all(preload).then(() => {
+    clearScreen(frames[0]);
+    let frame = 1;
+    const timer = setInterval(() => {
+      frame += 1;
+      setBg(frames[frame - 1]);
+      if (frame >= frames.length) {
+        clearInterval(timer);
+        showZoomFinalScreen();
+      }
+    }, 300);
+  });
+}
+
+function showZoomFinalScreen() {
+  root.style.backgroundSize = "contain";
+  clearScreen("zoom_10.jpg");
+  zoomHotspotCleanup = addZoomDefinitionsHotspot();
+  const buttons = document.createElement("div");
+  buttons.className = "intro-buttons-second";
+  buttons.append(button("Let's Play!", "tan-button", () => {
+    sounds.playLetsPlaySound();
+    showGameScreen();
+  }));
+  root.append(buttons);
+}
+
+function addZoomDefinitionsHotspot() {
+  const imageWidth = 5515;
+  const imageHeight = 2700;
+  const hotspots = [
+    {
+      x: 142,
+      y: 714,
+      text: "When playing the game, click here to help understand what different terms and management decisions mean!",
+      label: "Definitions book information"
+    },
+    {
+      x: 299,
+      y: 1252,
+      text: "When playing the game, click here for the field guide of rare plants and animals that could come live in your forest!",
+      label: "Rare plants and animals field guide information"
+    },
+    {
+      x: 79,
+      y: 226,
+      width: 250,
+      height: 237,
+      text: "You don't need a hint yet! You haven't even started!",
+      label: "Hint information"
     }
-  }, 10);
+  ].map(({ x, y, width = 304, height = 426, text, label }) => {
+    const hotspot = document.createElement("div");
+    hotspot.className = "zoom-definitions-hotspot";
+    hotspot.tabIndex = 0;
+    hotspot.setAttribute("aria-label", label);
+    const popup = document.createElement("div");
+    popup.className = "zoom-definitions-popup";
+    popup.textContent = text;
+    hotspot.append(popup);
+    root.append(hotspot);
+    const hoverAssets = {
+      142: ["definitions_hover.png", 126, 712, 349, 470],
+      299: ["fieldguide_hover.png", 284, 1251, 382, 541],
+      79: ["hint_hover.png", 63, 227, 282, 237]
+    };
+    const [imageName, imageX, imageY, imageWidth, imageHeight] = hoverAssets[x];
+    return { hotspot, x, y, width, height, cleanupHover: addHotspotHoverImage(hotspot, imageName, imageX, imageY, imageWidth, imageHeight) };
+  });
+
+  const positionHotspot = () => {
+    const rootWidth = root.clientWidth;
+    const rootHeight = root.clientHeight;
+    const scale = Math.min(rootWidth / imageWidth, rootHeight / imageHeight);
+    const displayedWidth = imageWidth * scale;
+    const displayedHeight = imageHeight * scale;
+    const imageLeft = (rootWidth - displayedWidth) / 2;
+    const imageTop = (rootHeight - displayedHeight) / 2;
+    for (const { hotspot, x, y, width, height } of hotspots) {
+      hotspot.style.left = `${imageLeft + x * scale}px`;
+      hotspot.style.top = `${imageTop + y * scale}px`;
+      hotspot.style.width = `${width * scale}px`;
+      hotspot.style.height = `${height * scale}px`;
+    }
+  };
+
+  positionHotspot();
+  window.addEventListener("resize", positionHotspot);
+  return () => {
+    window.removeEventListener("resize", positionHotspot);
+    hotspots.forEach(({ hotspot, cleanupHover }) => {
+      cleanupHover();
+      hotspot.remove();
+    });
+  };
+}
+
+function addGameDefinitionsHotspot() {
+  const imageWidth = ART_WIDTH;
+  const imageHeight = ART_HEIGHT;
+  const hotspot = document.createElement("div");
+  hotspot.className = "zoom-definitions-hotspot";
+  hotspot.tabIndex = 0;
+  hotspot.setAttribute("aria-label", "Glossary information");
+  hotspot.addEventListener("click", showDefinitionsScreen);
+  const popup = document.createElement("div");
+  popup.className = "zoom-definitions-popup";
+  popup.textContent = "Don't know what a term means? Click here for the Glossary!";
+  hotspot.append(popup);
+  root.append(hotspot);
+  const cleanupHover = addHotspotHoverImage(hotspot, "definitions_hover.png", 126, 712, 349, 470);
+
+  const positionHotspot = () => {
+    const rootWidth = root.clientWidth;
+    const rootHeight = root.clientHeight;
+    const scale = Math.max(rootWidth / imageWidth, rootHeight / imageHeight);
+    const imageLeft = (rootWidth - imageWidth * scale) / 2;
+    const imageTop = (rootHeight - imageHeight * scale) / 2;
+    hotspot.style.left = `${imageLeft + 142 * scale}px`;
+    hotspot.style.top = `${imageTop + 714 * scale}px`;
+    hotspot.style.width = `${304 * scale}px`;
+    hotspot.style.height = `${426 * scale}px`;
+  };
+
+  positionHotspot();
+  window.addEventListener("resize", positionHotspot);
+  return () => {
+    window.removeEventListener("resize", positionHotspot);
+    cleanupHover();
+    hotspot.remove();
+  };
+}
+
+function addGameFieldGuideHotspot() {
+  const imageWidth = ART_WIDTH;
+  const imageHeight = ART_HEIGHT;
+  const hotspot = document.createElement("div");
+  hotspot.className = "zoom-definitions-hotspot";
+  hotspot.tabIndex = 0;
+  hotspot.setAttribute("aria-label", "Field guide information");
+  hotspot.addEventListener("click", showFieldGuideScreen);
+  const popup = document.createElement("div");
+  popup.className = "zoom-definitions-popup";
+  popup.textContent = "Don't know what a plant or animal is? Click here for the Field Guide!";
+  hotspot.append(popup);
+  root.append(hotspot);
+  const cleanupHover = addHotspotHoverImage(hotspot, "fieldguide_hover.png", 284, 1251, 382, 541);
+
+  const positionHotspot = () => {
+    const rootWidth = root.clientWidth;
+    const rootHeight = root.clientHeight;
+    const scale = Math.max(rootWidth / imageWidth, rootHeight / imageHeight);
+    const imageLeft = (rootWidth - imageWidth * scale) / 2;
+    const imageTop = (rootHeight - imageHeight * scale) / 2;
+    hotspot.style.left = `${imageLeft + 299 * scale}px`;
+    hotspot.style.top = `${imageTop + 1252 * scale}px`;
+    hotspot.style.width = `${304 * scale}px`;
+    hotspot.style.height = `${426 * scale}px`;
+  };
+
+  positionHotspot();
+  window.addEventListener("resize", positionHotspot);
+  return () => {
+    window.removeEventListener("resize", positionHotspot);
+    cleanupHover();
+    hotspot.remove();
+  };
+}
+
+function addGameHintHotspot() {
+  const x = 79;
+  const y = 226;
+  const width = 250;
+  const height = 237;
+  const hotspot = document.createElement("div");
+  hotspot.className = "zoom-definitions-hotspot";
+  hotspot.tabIndex = 0;
+  hotspot.setAttribute("aria-label", "Hint information");
+  hotspot.addEventListener("click", showHintOverlay);
+  const popup = document.createElement("div");
+  popup.className = "zoom-definitions-popup";
+  popup.textContent = "Stuck? Click for a hint!";
+  hotspot.append(popup);
+  root.append(hotspot);
+  const cleanupHover = addHotspotHoverImage(hotspot, "hint_hover.png", 63, 227, 282, 237);
+
+  const positionHotspot = () => {
+    const scale = Math.max(root.clientWidth / ART_WIDTH, root.clientHeight / ART_HEIGHT);
+    const imageLeft = (root.clientWidth - ART_WIDTH * scale) / 2;
+    const imageTop = (root.clientHeight - ART_HEIGHT * scale) / 2;
+    hotspot.style.left = `${imageLeft + x * scale}px`;
+    hotspot.style.top = `${imageTop + y * scale}px`;
+    hotspot.style.width = `${width * scale}px`;
+    hotspot.style.height = `${height * scale}px`;
+  };
+
+  positionHotspot();
+  window.addEventListener("resize", positionHotspot);
+  return () => {
+    window.removeEventListener("resize", positionHotspot);
+    cleanupHover();
+    hotspot.remove();
+  };
+}
+
+function addGuideReturnHotspot(x, y, label, returnBg, showHover = true) {
+  const hotspot = document.createElement("div");
+  hotspot.className = "guide-return-hotspot";
+  hotspot.tabIndex = 0;
+  hotspot.setAttribute("aria-label", label);
+  hotspot.addEventListener("click", () => {
+    sounds.playPageCloseSound();
+    game.current_bg_img = returnBg;
+    showGameScreen();
+  });
+  root.append(hotspot);
+  const [imageName, imageX, imageY, imageWidth, imageHeight] = x === 142
+    ? ["definitions_hover.png", 126, 712, 349, 470]
+    : ["fieldguide_hover.png", 284, 1251, 382, 541];
+  const cleanupHover = showHover
+    ? addHotspotHoverImage(hotspot, imageName, imageX, imageY, imageWidth, imageHeight)
+    : () => {};
+
+  const positionHotspot = () => {
+    const scale = Math.max(root.clientWidth / ART_WIDTH, root.clientHeight / ART_HEIGHT);
+    const imageLeft = (root.clientWidth - ART_WIDTH * scale) / 2;
+    const imageTop = (root.clientHeight - ART_HEIGHT * scale) / 2;
+    hotspot.style.left = `${imageLeft + x * scale}px`;
+    hotspot.style.top = `${imageTop + y * scale}px`;
+    hotspot.style.width = `${304 * scale}px`;
+    hotspot.style.height = `${426 * scale}px`;
+  };
+
+  positionHotspot();
+  window.addEventListener("resize", positionHotspot);
+  return () => {
+    window.removeEventListener("resize", positionHotspot);
+    cleanupHover();
+    hotspot.remove();
+  };
+}
+
+function addAnalysisDefinitionsHotspot(label, onClick, text = "", showHover = true) {
+  const x = 142;
+  const y = 714;
+  const width = 304;
+  const height = 426;
+  const hotspot = document.createElement("div");
+  hotspot.className = "zoom-definitions-hotspot";
+  hotspot.tabIndex = 0;
+  hotspot.setAttribute("aria-label", label);
+  hotspot.addEventListener("click", onClick);
+  if (text) {
+    const popup = document.createElement("div");
+    popup.className = "zoom-definitions-popup";
+    popup.textContent = text;
+    hotspot.append(popup);
+  }
+  root.append(hotspot);
+  const cleanupHover = showHover
+    ? addHotspotHoverImage(hotspot, "definitions_hover.png", 126, 712, 349, 470)
+    : () => {};
+
+  const positionHotspot = () => {
+    const scale = Math.max(root.clientWidth / ART_WIDTH, root.clientHeight / ART_HEIGHT);
+    const imageLeft = (root.clientWidth - ART_WIDTH * scale) / 2;
+    const imageTop = (root.clientHeight - ART_HEIGHT * scale) / 2;
+    hotspot.style.left = `${imageLeft + x * scale}px`;
+    hotspot.style.top = `${imageTop + y * scale}px`;
+    hotspot.style.width = `${width * scale}px`;
+    hotspot.style.height = `${height * scale}px`;
+  };
+
+  positionHotspot();
+  window.addEventListener("resize", positionHotspot);
+  return () => {
+    window.removeEventListener("resize", positionHotspot);
+    cleanupHover();
+    hotspot.remove();
+  };
+}
+
+function addAnalysisFieldGuideHotspot(label, onClick, text = "", showHover = true) {
+  const x = 299;
+  const y = 1252;
+  const width = 304;
+  const height = 426;
+  const hotspot = document.createElement("div");
+  hotspot.className = "zoom-definitions-hotspot";
+  hotspot.tabIndex = 0;
+  hotspot.setAttribute("aria-label", label);
+  hotspot.addEventListener("click", onClick);
+  if (text) {
+    const popup = document.createElement("div");
+    popup.className = "zoom-definitions-popup";
+    popup.textContent = text;
+    hotspot.append(popup);
+  }
+  root.append(hotspot);
+  const cleanupHover = showHover
+    ? addHotspotHoverImage(hotspot, "fieldguide_hover.png", 284, 1251, 382, 541)
+    : () => {};
+
+  const positionHotspot = () => {
+    const scale = Math.max(root.clientWidth / ART_WIDTH, root.clientHeight / ART_HEIGHT);
+    const imageLeft = (root.clientWidth - ART_WIDTH * scale) / 2;
+    const imageTop = (root.clientHeight - ART_HEIGHT * scale) / 2;
+    hotspot.style.left = `${imageLeft + x * scale}px`;
+    hotspot.style.top = `${imageTop + y * scale}px`;
+    hotspot.style.width = `${width * scale}px`;
+    hotspot.style.height = `${height * scale}px`;
+  };
+
+  positionHotspot();
+  window.addEventListener("resize", positionHotspot);
+  return () => {
+    window.removeEventListener("resize", positionHotspot);
+    cleanupHover();
+    hotspot.remove();
+  };
 }
 
 function showGameScreen(narration = "") {
   const bg = game.current_bg_img?.startsWith("zoom_") ? "Evenagestand.jpg" : game.current_bg_img || "Evenagestand.jpg";
   clearScreen(bg);
   renderMetrics();
+  renderBookshelfMedals();
   const actions = document.createElement("section");
   actions.className = "action-panel";
   for (const [key, label] of Object.entries(ACTIONS).filter(([key]) => ["1", "2", "3", "4"].includes(key))) {
@@ -353,6 +935,14 @@ function showGameScreen(narration = "") {
     root.append(note);
   }
   renderCommonNav();
+  const cleanupDefinitionsHotspot = addGameDefinitionsHotspot();
+  const cleanupFieldGuideHotspot = addGameFieldGuideHotspot();
+  const cleanupHintHotspot = addGameHintHotspot();
+  zoomHotspotCleanup = () => {
+    cleanupDefinitionsHotspot();
+    cleanupFieldGuideHotspot();
+    cleanupHintHotspot();
+  };
 }
 
 function showClosingScreen() {
@@ -360,6 +950,21 @@ function showClosingScreen() {
   sounds.playTrumpetWinSound();
   clearScreen(getWinBgName());
   renderMetrics();
+  renderColoringPageDownload(getWinBgName() === "good.jpg");
+  const achievementOrder = new Map(
+    (game.achievements_history || []).map(([year, name], index) => [name, index])
+  );
+  const earnedMedals = endingMedals
+    .filter(([, achievementFlag, colonizedFlag]) => game[achievementFlag] || (colonizedFlag && game[colonizedFlag]))
+    .sort(([nameA], [nameB]) => (achievementOrder.get(nameA) ?? Number.MAX_SAFE_INTEGER)
+      - (achievementOrder.get(nameB) ?? Number.MAX_SAFE_INTEGER));
+  earnedMedals.forEach(([, , , imageName], index) => {
+      const medal = document.createElement("img");
+      medal.className = `ending-medal-overlay ending-medal-slot-${index + 1}`;
+      medal.src = asset(imageName);
+      medal.alt = "";
+      root.append(medal);
+  });
   const summary = document.createElement("section");
   summary.className = "summary-panel";
   summary.textContent = game.getActionSummary();
@@ -367,34 +972,21 @@ function showClosingScreen() {
   const actions = document.createElement("div");
   actions.className = "closing-actions";
   actions.append(
-    button("Analyze My Management", "blue-button", () => {
+    button("Analyze My Management", "blue-button closing-analyze-button", () => {
       sounds.playComputerStartup();
       showAnalysisLab(getWinBgName(), true, "closing");
     }),
-    button("Save your successful management certificate", "blue-button", showCertificateOverlay),
-    button("Try Again", "green-button", restartGame),
-    button("Exit", "red-button", () => showExitSurveyOverlay())
+    button("Save your successful management certificate", "blue-button closing-certificate-button", showCertificateOverlay),
+    button("Try Again", "green-button closing-restart-button", restartGame),
+    button("Exit", "red-button closing-exit-button", () => showExitSurveyOverlay())
   );
   root.append(actions);
 }
 
 function getWinBgName() {
   const status = game.getStatusDict();
-  const base = status.QMD < 13 || status.fire_risk === "High" || status.SPB_risk === "High"
-    ? "bad"
-    : status.QMD < 15
-      ? "okay"
-      : "good";
-  const medals = [
-    ["snake", game.pine_snake_achieved || game.pine_snakes_colonized],
-    ["gentian", game.gentian_achieved || game.gentian_colonized],
-    ["tanager", game.summer_tanager_achieved || game.summer_tanager_colonized],
-    ["frog", game.tree_frog_achieved || game.pine_barrens_tree_frog_colonized],
-    ["bunting", game.indigo_bunting_achieved || game.indigo_bunting_colonized],
-    ["turkey", game.turkey_beard_achieved],
-    ["short", game.short_achieved || game.short_colonized]
-  ].filter(([, present]) => present).map(([name]) => name).join("-");
-  return `${base}_${medals ? `${medals}medal` : "nomedal"}.jpg`;
+  const rating = status.QMD < 13 ? "bad" : status.QMD < 15 ? "okay" : "good";
+  return `${rating}.jpg`;
 }
 
 function showLossScreen(bg, text, soundFn) {
@@ -402,30 +994,32 @@ function showLossScreen(bg, text, soundFn) {
   soundFn?.();
   clearScreen(bg);
   renderMetrics();
+  renderColoringPageDownload(false);
+  renderBookshelfMedals();
   const message = document.createElement("section");
   message.className = "loss-message";
   message.textContent = text;
   root.append(message);
   const actions = document.createElement("div");
-  actions.className = "loss-actions";
+  actions.className = "closing-actions";
   actions.append(
-    button("Analyze My Management", "blue-button", () => showAnalysisLab(bg, true, bg)),
-    button("Try Again", "green-button", restartGame),
-    button("Exit", "red-button", () => showExitSurveyOverlay())
+    button("Analyze My Management", "blue-button closing-analyze-button", () => showAnalysisLab(bg, true, bg)),
+    button("Try Again", "green-button closing-restart-button", restartGame),
+    button("Exit", "red-button closing-exit-button", () => showExitSurveyOverlay())
   );
   root.append(actions);
 }
 
 function showLowTpaScreen() {
-  showLossScreen("LowStocking.jpg", "Your stand stocking is too low to continue growing a mature pitch pine forest.", sounds.playLosingTromboneSound);
+  showLossScreen("LowStocking.jpg", "The forest's growing stock trees have been depleted!\n\nWe're supposed to be growing a forest!", sounds.playLosingTromboneSound);
 }
 
 function showFireLossScreen() {
-  showLossScreen("LossByFire.jpg", "A catastrophic wildfire has occurred.\n\nA new pitch pine stand may begin, but the mature stand management goal was lost.", sounds.playLosingTromboneSound);
+  showLossScreen("LossByFire.jpg", "A catastrophic wildfire has occurred!\n\nWe might get a new stand of pitch pine, but we're trying to grow a mature stand!", sounds.playLosingTromboneSound);
 }
 
 function showSpbLossScreen() {
-  showLossScreen("LossBySPB.jpg", "Southern pine beetle caused a stand-level loss while SPB risk was High.", sounds.playSpbEatingSound);
+  showLossScreen("LossBySPB.jpg", "A Southern Pine Beetle outbreak has devastated your stand!\n\nWe're trying to grow a healthy forest!", sounds.playSpbEatingSound);
 }
 
 function showAchievementScreen(code) {
@@ -434,6 +1028,7 @@ function showAchievementScreen(code) {
   clearScreen(info.image);
   info.sound?.();
   renderMetrics();
+  renderBookshelfMedals();
   const message = document.createElement("section");
   message.className = "achievement-message";
   message.textContent = info.title;
@@ -441,10 +1036,23 @@ function showAchievementScreen(code) {
   const actions = document.createElement("div");
   actions.className = "achievement-actions";
   actions.append(button("Continue", "green-button", () => {
+    if (frogAnimationTimer) clearTimeout(frogAnimationTimer);
     if (code === "frog") sounds.stopTreeFrogSound();
     showNextQueuedAchievementOrGame();
   }));
   root.append(actions);
+  renderCommonNav();
+  let frogAnimationTimer = null;
+  if (code === "frog") {
+    const cycle = () => {
+      setBg("treefrog_1.jpg");
+      frogAnimationTimer = setTimeout(() => {
+        setBg("treefrog.jpg");
+        frogAnimationTimer = setTimeout(cycle, 1000);
+      }, 400);
+    };
+    frogAnimationTimer = setTimeout(cycle, 500);
+  }
 }
 
 function showNextQueuedAchievementOrGame() {
@@ -477,6 +1085,10 @@ function showNextQueuedAchievementOrGame() {
     }
     return showAchievementScreen(code);
   }
+  if (game.achievement_final_bg) {
+    game.current_bg_img = game.achievement_final_bg;
+    game.achievement_final_bg = null;
+  }
   if (game.hurricane_pending) {
     game.hurricane_pending = false;
     return showHurricaneScreen();
@@ -491,9 +1103,26 @@ function showNextQueuedAchievementOrGame() {
 
 function showHurricaneScreen() {
   if (game.hurricane_screen_shown) return showGameScreen();
+  game.event_return_bg = game.current_bg_img;
   game.hurricane_screen_shown = true;
   sounds.playHurricaneSound();
   clearScreen("hurricane_lightning.jpg");
+  renderMetrics();
+  renderBookshelfMedals();
+  let hurricaneTimer = null;
+  const continueHurricane = () => {
+    if (hurricaneTimer) clearTimeout(hurricaneTimer);
+    sounds.stopHurricaneSound();
+    game.current_bg_img = game.event_return_bg || "Evenagestand.jpg";
+    game.event_return_bg = null;
+    showGameScreen();
+  };
+  const actions = document.createElement("div");
+  actions.className = "event-actions";
+  actions.append(button("Continue", "green-button", continueHurricane));
+  root.append(actions);
+  renderCommonNav();
+  finishHurricaneScreen();
   const sequence = [
     ["hurricane_lightning.jpg", 200],
     ["hurricane_rain.jpg", 2900],
@@ -507,64 +1136,128 @@ function showHurricaneScreen() {
     setBg(image);
     if (delay == null) return finishHurricaneScreen();
     index += 1;
-    setTimeout(step, delay);
+    hurricaneTimer = setTimeout(step, delay);
   };
   step();
 }
 
 function finishHurricaneScreen() {
-  root.innerHTML = "";
-  renderMetrics();
+  if (root.querySelector(".hurricane-message")) return;
   const message = document.createElement("section");
-  message.className = "event-message";
-  message.textContent = "A hurricane passed through your forest.\n\nYour forest is still living, but the storm changed your forest metrics.";
+  message.className = "event-message hurricane-message";
+  message.textContent = "Oh no! A hurricane passed through your forest.\n\nYour forest is still living but this may have significantly changed your forest metrics.";
   root.append(message);
-  const actions = document.createElement("div");
-  actions.className = "event-actions";
-  actions.append(button("Continue", "green-button", () => {
-    sounds.stopHurricaneSound();
-    if (game.stand.year >= 100) showClosingScreen();
-    else showGameScreen();
-  }));
-  root.append(actions);
 }
 
 function showWildfireScreen() {
   if (game.wildfire_screen_shown) return showGameScreen();
+  game.event_return_bg = game.current_bg_img;
   game.wildfire_screen_shown = true;
   sounds.playFireSound();
   clearScreen("nonlosing_fire.jpg");
   renderMetrics();
+  renderBookshelfMedals();
   const message = document.createElement("section");
   message.className = "event-message";
-  message.textContent = "A wildfire burned through the stand.\n\nThe forest survived, but the event changed your stand metrics.";
+  message.textContent = "Oh no! Your prescribed burn got out of control! your forest was already at high fire risk...\n\nYour forest is still living but this may have changed your metrics.";
   root.append(message);
   const actions = document.createElement("div");
   actions.className = "event-actions";
   actions.append(button("Continue", "green-button", () => {
     sounds.stopFireSound();
+    game.current_bg_img = game.event_return_bg || "Evenagestand.jpg";
+    game.event_return_bg = null;
     if (game.stand.year >= 100) showClosingScreen();
     else showGameScreen();
   }));
   root.append(actions);
+  renderCommonNav();
 }
 
 function showFieldGuideScreen() {
   sounds.playPageTurnSound();
-  clearScreen("fieldguide.jpg");
-  root.append(button("Return", "green-button exit-link", () => showGameScreen()));
+  const returnBg = game.current_bg_img;
+  clearScreen();
+  const fieldGuideOverlay = document.createElement("img");
+  fieldGuideOverlay.className = "field-guide-overlay";
+  fieldGuideOverlay.src = asset("fieldguide.png");
+  fieldGuideOverlay.alt = "";
+  root.append(fieldGuideOverlay);
+  renderMetrics();
+  renderBookshelfMedals();
+  const cleanupDefinitionsHotspot = addGameDefinitionsHotspot();
+  const cleanupReturnHotspot = addGuideReturnHotspot(299, 1252, "Return from field guide", returnBg, false);
+  zoomHotspotCleanup = () => {
+    cleanupDefinitionsHotspot();
+    cleanupReturnHotspot();
+  };
 }
 
 function showDefinitionsScreen() {
   sounds.playPageTurnSound();
-  clearScreen("definitions.jpg");
-  root.append(button("Return", "green-button exit-link", () => showGameScreen()));
+  const returnBg = game.current_bg_img;
+  clearScreen();
+  const definitionsOverlay = document.createElement("img");
+  definitionsOverlay.className = "definitions-overlay";
+  definitionsOverlay.src = asset("definitions.png");
+  definitionsOverlay.alt = "";
+  root.append(definitionsOverlay);
+  renderMetrics();
+  renderBookshelfMedals();
+  const cleanupFieldGuideHotspot = addGameFieldGuideHotspot();
+  const cleanupReturnHotspot = addGuideReturnHotspot(142, 714, "Return from glossary", returnBg, false);
+  zoomHotspotCleanup = () => {
+    cleanupFieldGuideHotspot();
+    cleanupReturnHotspot();
+  };
 }
 
 function showAnalysisDefinitions(prevBg, returnTarget) {
   sounds.playPageTurnSound();
   clearScreen("analyze_definitions.jpg");
-  root.append(button("Return", "green-button exit-link", () => showAnalysisLab(prevBg, false, returnTarget)));
+  renderAnalysisOverlays(game.getDecadalData(10), false);
+  const cleanupReturnHotspot = addAnalysisDefinitionsHotspot(
+    "Return to Analysis Lab",
+    () => {
+      sounds.playPageCloseSound();
+      showAnalysisLab(prevBg, false, returnTarget);
+    },
+    "",
+    false
+  );
+  const cleanupFieldGuideHotspot = addAnalysisFieldGuideHotspot(
+    "Analysis field guide information",
+    () => showAnalysisFieldGuide(prevBg, returnTarget),
+    "Don't know what a plant or animal is? Click here for the Field Guide!"
+  );
+  zoomHotspotCleanup = () => {
+    cleanupReturnHotspot();
+    cleanupFieldGuideHotspot();
+  };
+}
+
+function showAnalysisFieldGuide(prevBg, returnTarget) {
+  sounds.playPageTurnSound();
+  clearScreen("analyze_fieldguide.jpg");
+  renderAnalysisOverlays(game.getDecadalData(10), false);
+  const cleanupDefinitionsHotspot = addAnalysisDefinitionsHotspot(
+    "Analysis definitions information",
+    () => showAnalysisDefinitions(prevBg, returnTarget),
+    "Don't know what a term means? Click here for the Glossary!"
+  );
+  const cleanupReturnHotspot = addAnalysisFieldGuideHotspot(
+    "Return to Analysis Lab",
+    () => {
+      sounds.playPageCloseSound();
+      showAnalysisLab(prevBg, false, returnTarget);
+    },
+    "",
+    false
+  );
+  zoomHotspotCleanup = () => {
+    cleanupDefinitionsHotspot();
+    cleanupReturnHotspot();
+  };
 }
 
 function showHintOverlay() {
@@ -574,6 +1267,15 @@ function showHintOverlay() {
   const images = Array.from({ length: 12 }, (_, index) => `hint${index + 1}.jpg`);
   const overlay = document.createElement("div");
   overlay.className = "hint-overlay";
+  const scale = Math.max(root.clientWidth / ART_WIDTH, root.clientHeight / ART_HEIGHT);
+  const imageLeft = (root.clientWidth - ART_WIDTH * scale) / 2;
+  const imageTop = (root.clientHeight - ART_HEIGHT * scale) / 2;
+  const hotspotRight = imageLeft + (79 + 250) * scale;
+  const availableWidth = root.clientWidth - hotspotRight - 20;
+  overlay.style.left = `${hotspotRight + 20}px`;
+  overlay.style.top = `${imageTop + 226 * scale}px`;
+  overlay.style.width = `${Math.max(0, Math.min(2200 * scale, availableWidth))}px`;
+  overlay.style.transform = "none";
   overlay.innerHTML = `<img src="${asset(images[game.hint_index % images.length])}" alt="">`;
   game.hint_index = (game.hint_index + 1) % images.length;
   overlay.append(button("Close Hint", "red-button hint-close", () => {
@@ -593,13 +1295,14 @@ function showExitSurveyOverlay() {
   const actions = document.createElement("div");
   actions.className = "survey-actions";
   actions.append(
-    button("Open Feedback Survey", "tan-button", () => window.open("https://forms.office.com/g/N38DQhPe2V", "_blank", "noopener")),
-    button("Exit", "red-button", () => {
+    button("Open Feedback Survey", "tan-button survey-open-button", () => window.open("https://forms.office.com/g/N38DQhPe2V", "_blank", "noopener")),
+    button("Exit", "red-button survey-exit-button", () => {
       stopAllLoops();
+      window.close();
       clearScreen(null);
       root.style.backgroundImage = "";
     }),
-    button("Cancel", "green-button", () => overlay.remove())
+    button("Cancel", "green-button survey-cancel-button", () => overlay.remove())
   );
   overlay.append(actions);
   root.append(overlay);
@@ -614,68 +1317,100 @@ function showCertificateOverlay() {
   const input = document.createElement("input");
   input.className = "certificate-name";
   input.placeholder = "Your name";
-  const save = button("Save", "green-button certificate-save", () => {
+  const fitCertificateName = () => {
+    input.style.fontSize = "";
+    const maximumFontSize = Number.parseFloat(getComputedStyle(input).fontSize);
+    const minimumFontSize = 12;
+    let fontSize = maximumFontSize;
+    while (input.scrollWidth > input.clientWidth && fontSize > minimumFontSize) {
+      fontSize -= 0.5;
+      input.style.fontSize = `${fontSize}px`;
+    }
+  };
+  input.addEventListener("input", fitCertificateName);
+  const save = button("Save", "green-button certificate-save", async () => {
     sounds.playSaveSound();
-    if (!window.html2canvas) return;
-    save.classList.add("hidden");
-    html2canvas(root).then((canvas) => {
+    if (!window.html2canvas || !window.PDFLib) return;
+    const enteredName = input.value.trim();
+    const hiddenElements = [overlay, ...root.querySelectorAll("button")];
+    hiddenElements.forEach((element) => element.classList.add("hidden"));
+    try {
+      const canvas = await html2canvas(root);
+      const pdfBytes = await fetch(asset("certificate_blank.pdf")).then((response) => {
+        if (!response.ok) throw new Error("Unable to load certificate PDF template.");
+        return response.arrayBuffer();
+      });
+      const pdf = await PDFLib.PDFDocument.load(pdfBytes);
+      const page = pdf.getPages()[0];
+      const pixelsToPoints = 72 / 300;
+      const screenshot = await pdf.embedPng(canvas.toDataURL("image/png"));
+      const screenshotWidth = 3300 * pixelsToPoints;
+      const screenshotHeight = 1638 * pixelsToPoints;
+      page.drawImage(screenshot, {
+        x: 0,
+        y: page.getHeight() - (913 + 1638) * pixelsToPoints,
+        width: screenshotWidth,
+        height: screenshotHeight
+      });
+
+      if (enteredName) {
+        const font = await pdf.embedFont(PDFLib.StandardFonts.CourierBold);
+        const maximumNameWidth = 2279 * pixelsToPoints;
+        const maximumNameHeight = 321 * pixelsToPoints;
+        let fontSize = maximumNameHeight / font.heightAtSize(1.5, { descender: false });
+        while (font.widthOfTextAtSize(enteredName, fontSize) > maximumNameWidth) fontSize -= 0.5;
+        const textWidth = font.widthOfTextAtSize(enteredName, fontSize);
+        const textHeight = font.heightAtSize(fontSize, { descender: false });
+        page.drawText(enteredName, {
+          x: 2066 * pixelsToPoints - textWidth / 2,
+          y: page.getHeight() - 430 * pixelsToPoints - textHeight / 2,
+          size: fontSize,
+          font,
+          color: PDFLib.rgb(0, 75 / 255, 28 / 255)
+        });
+      }
+
+      const downloadName = enteredName.replace(/[\\/:*?"<>|]/g, "_") || "Certificate";
       const link = document.createElement("a");
-      link.download = `PitchPineTrail_certificate_${Date.now()}.jpg`;
-      link.href = canvas.toDataURL("image/jpeg");
+      link.download = `PitchPineTrailCertificate_${downloadName}.pdf`;
+      link.href = URL.createObjectURL(new Blob([await pdf.save()], { type: "application/pdf" }));
       link.click();
-      save.classList.remove("hidden");
-    }).catch(() => save.classList.remove("hidden"));
+      URL.revokeObjectURL(link.href);
+      game.certificate_saved = true;
+    } finally {
+      hiddenElements.forEach((element) => {
+        if (element === save && game.certificate_saved) element.remove();
+        else element.classList.remove("hidden");
+      });
+    }
   });
-  overlay.append(input, save);
+  overlay.append(input);
   root.append(overlay);
+  if (!game.certificate_saved) root.append(save);
 }
 
 // Switches screen to Analysis Lab
 
-function showAnalysisLab(prevBg = game.current_bg_img, loading = true, returnTarget = "game") {
-  sounds.stopForestSound();
-  sounds.stopFireSound();
-  sounds.stopWindSound();
-  sounds.stopSpbEatingSound();
-  sounds.playAnalysisLabSound();
-  clearScreen(loading ? "analyze_load.jpg" : "analyze.jpg");
-  const build = () => {
-    clearScreen("analyze.jpg");
-    const rows = game.getDecadalData(10);
-    const table = document.createElement("pre");
-    table.className = "analysis-table";
-    table.textContent = renderDataTable(rows);
-    root.append(table);
-    const summary = document.createElement("section");
-    summary.className = "summary-panel";
-    summary.textContent = game.getActionSummary();
-    root.append(summary);
-    const achievements = document.createElement("section");
-    achievements.className = "achievement-list";
-    const grouped = new Map();
-    for (const [year, name] of game.getAchievementsList()) {
-      if (!grouped.has(year)) grouped.set(year, []);
-      grouped.get(year).push(name);
-    }
-    achievements.textContent = grouped.size
-      ? [...grouped.entries()].map(([year, names]) => `Year ${year}:\n${names.map((name) => `   ${name}`).join("\n")}`).join("\n")
-      : "No achievements.";
-    root.append(achievements);
-    root.append(button("Return to Game", "tan-button analysis-return", () => {
-      sounds.playComputerShutdown();
-      sounds.stopAnalysisLabSound();
-      setBg(prevBg);
-      if (returnTarget === "closing") showClosingScreen();
-      else if (returnTarget === "LowStocking.jpg") showLowTpaScreen();
-      else if (returnTarget === "LossByFire.jpg") showFireLossScreen();
-      else if (returnTarget === "LossBySPB.jpg") showSpbLossScreen();
-      else if (game.stand.year >= 100) showClosingScreen();
-      else showGameScreen();
-    }));
-    root.append(button("Save Data", "red-button save-data-button", () => {
-      sounds.playSaveSound();
-      exportCSV(game);
-    }));
+function renderAnalysisOverlays(rows, showGraphs = true) {
+  renderBookshelfMedals();
+  const summary = document.createElement("section");
+  summary.className = "summary-panel";
+  summary.textContent = game.getActionSummary();
+  root.append(summary);
+
+  const achievements = document.createElement("section");
+  achievements.className = "achievement-list";
+  const grouped = new Map();
+  for (const [year, name] of game.getAchievementsList()) {
+    if (!grouped.has(year)) grouped.set(year, []);
+    grouped.get(year).push(name);
+  }
+  achievements.textContent = grouped.size
+    ? [...grouped.entries()].map(([year, names]) => `Year ${year}:\n${names.map((name) => `   ${name}`).join("\n")}`).join("\n")
+    : "No achievements.";
+  root.append(achievements);
+
+  if (showGraphs) {
     const plotButtons = document.createElement("div");
     plotButtons.className = "plot-buttons";
     const labels = {
@@ -691,10 +1426,84 @@ function showAnalysisLab(prevBg = game.current_bg_img, loading = true, returnTar
       plotButtons.append(button(labels[variable], "green-button", () => showChartOverlay(variable, rows)));
     }
     root.append(plotButtons);
-    const defs = document.createElement("div");
-    defs.className = "analysis-definitions-link";
-    defs.append(button("Click for Definitions", "dark-button", () => showAnalysisDefinitions(prevBg, returnTarget)));
-    root.append(defs);
+  }
+}
+
+function renderDataDownload() {
+  const download = document.createElement("img");
+  download.className = "data-download";
+  download.src = asset("downloaddata.png");
+  download.alt = "Download data";
+  download.tabIndex = 0;
+  download.addEventListener("mouseenter", () => {
+    download.src = asset("downloaddata_hover.png");
+  });
+  download.addEventListener("mouseleave", () => {
+    download.src = asset("downloaddata.png");
+  });
+  const downloadData = () => {
+    sounds.playSaveSound();
+    exportCSV(game);
+    root.querySelector(".floppy-confirmation")?.remove();
+    const floppy = document.createElement("img");
+    floppy.className = "floppy-confirmation";
+    floppy.src = asset("floppy.png");
+    floppy.alt = "";
+    root.append(floppy);
+    setTimeout(() => floppy.remove(), 5000);
+  };
+  download.addEventListener("click", downloadData);
+  download.addEventListener("keydown", (event) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      downloadData();
+    }
+  });
+  root.append(download);
+}
+
+function showAnalysisLab(prevBg = game.current_bg_img, loading = true, returnTarget = "game") {
+  sounds.stopForestSound();
+  sounds.stopFireSound();
+  sounds.stopWindSound();
+  sounds.stopSpbEatingSound();
+  sounds.playAnalysisLabSound();
+  clearScreen(loading ? "analyze_load.jpg" : "analyze.jpg");
+  const build = () => {
+    clearScreen("analyze.jpg");
+    const rows = game.getDecadalData(10);
+    const table = document.createElement("pre");
+    table.className = "analysis-table";
+    table.textContent = renderDataTable(rows);
+    root.append(table);
+    renderAnalysisOverlays(rows);
+    root.append(button("Return to Game", "tan-button analysis-return", () => {
+      sounds.playComputerShutdown();
+      sounds.stopAnalysisLabSound();
+      setBg(prevBg);
+      if (returnTarget === "closing") showClosingScreen();
+      else if (returnTarget === "LowStocking.jpg") showLowTpaScreen();
+      else if (returnTarget === "LossByFire.jpg") showFireLossScreen();
+      else if (returnTarget === "LossBySPB.jpg") showSpbLossScreen();
+      else if (game.stand.year >= 100) showClosingScreen();
+      else showGameScreen();
+    }));
+    renderDataDownload();
+    zoomHotspotCleanup = addAnalysisDefinitionsHotspot(
+      "Analysis definitions information",
+      () => showAnalysisDefinitions(prevBg, returnTarget),
+      "Don't know what a term means? Click here for the Glossary!"
+    );
+    const cleanupFieldGuideHotspot = addAnalysisFieldGuideHotspot(
+      "Analysis field guide information",
+      () => showAnalysisFieldGuide(prevBg, returnTarget),
+      "Don't know what a plant or animal is? Click here for the Field Guide!"
+    );
+    const cleanupDefinitionsHotspot = zoomHotspotCleanup;
+    zoomHotspotCleanup = () => {
+      cleanupDefinitionsHotspot();
+      cleanupFieldGuideHotspot();
+    };
     startAnalysisBlink();
   };
   if (loading) setTimeout(build, 1000);
@@ -741,13 +1550,14 @@ function startAnalysisBlink() {
   }, blink ? 500 : 1000);
 }
 
-function restartGame() {
+function resetGameState() {
   stopAllLoops();
   game.resetGame();
   Object.assign(game, {
     current_bg_img: "Evenagestand.jpg",
     achievement_queue: [],
     achievement_final_bg: null,
+    event_return_bg: null,
     thin_lightly_event: false,
     prescribed_burn_event: false,
     pb_after_first_heavythin_shown: false,
@@ -756,10 +1566,21 @@ function restartGame() {
     hurricane_pending: false,
     wildfire_pending: false,
     wildfire_last_shown_year: null,
-    hurricane_last_shown_year: null
+    hurricane_last_shown_year: null,
+    certificate_saved: false
   });
+}
+
+function restartGame() {
+  resetGameState();
   sounds.playForestSound();
   showGameScreen();
+}
+
+function restartGameToZoom() {
+  resetGameState();
+  sounds.playForestSound();
+  showZoomFinalScreen();
 }
 
 showIntroScreen();

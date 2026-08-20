@@ -26,6 +26,8 @@ export function renderDataTable(rows) {
     header.length,
     ...data.map((row) => String(row[index] ?? "").length)
   ));
+  widths[3] = 5;
+  widths[4] = 5;
   const format = (row) => row.map((value, index) => String(value ?? "").padEnd(widths[index])).join("  ");
   return [format(headers), format(headers.map((header) => "-".repeat(header.length))), ...data.map(format)].join("\n");
 }
