@@ -14,6 +14,19 @@ Let's create a branch off of the branch that we're currently using, because we'r
 
 WZPagesPortPlan
 
+I am going to use google analytics to track engagement on the website. I have this code to include and it says to include it on every page of the website immediately after the <head> element. and to not add mroe that one google tag per page. Can you add this correctly so engagement will be tracked?
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-GGW42FVZ05"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-GGW42FVZ05');
+</script>
+
+
 Great. Um, can you publish this branch now?
 
 Okay, let's implement our yet-to-be-implemented plan and tasks/.

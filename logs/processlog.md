@@ -13,6 +13,31 @@ Important context files:
 - `context/LocalAnaconda.md` documents this computer's preferred Python interpreter:
   `C:\Users\wzipse\AppData\Local\anaconda3\python.exe`
 - `context/webplan.md` describes the intended static web port.
+
+## Date
+
+2026-08-20
+
+## Summary
+
+Added the Google Analytics (gtag.js) tag for property `G-GGW42FVZ05` immediately after the `<head>` opening tag in `index.html`, per Google's snippet placement instructions. This is a single-page static app, so only one file needed the tag.
+
+## Files Changed
+
+- `index.html`
+
+## Commands / Tests Run
+
+None; markup-only change, verified by inspection.
+
+## Verification
+
+Confirmed the tag is the first content inside `<head>` and appears only once in the file.
+
+## Caveats / Next Steps
+
+None.
+
 - `src/game_logic.py` is the source of truth for simulation behavior.
 - `src/gui.py` is the source of truth for screen flow, animations, sounds, overlays, analysis lab behavior, and certificate/export behavior.
 
