@@ -40,6 +40,29 @@ function stopLoop(key) {
   }
 }
 
+// Fade out and stop a looping audio entry
+function stopLoopWithFade(key, duration = 800) {
+  const audio = loops.get(key);
+  if (!audio) return;
+  const startVol = audio.volume || 1;
+  const steps = 12;
+  const stepTime = Math.max(10, Math.floor(duration / steps));
+  const volStep = startVol / steps;
+  let current = 0;
+  const t = setInterval(() => {
+    current += 1;
+    try {
+      audio.volume = Math.max(0, audio.volume - volStep);
+    } catch (e) {
+      // ignore if modifying volume fails
+    }
+    if (current >= steps) {
+      clearInterval(t);
+      stopLoop(key);
+    }
+  }, stepTime);
+}
+
 export function stopAllLoops() {
   for (const key of [...loops.keys()]) stopLoop(key);
 }
@@ -79,5 +102,10 @@ export const sounds = {
   playBuntingSound: () => playOne("bunting.wav"),
   playSaveSound: () => playOne("save.wav"),
   playComputerStartup: () => playOne("computer_startup.wav"),
-  playComputerShutdown: () => playOne("computer_shutdown.wav")
+  playComputerShutdown: () => playOne("computer_shutdown.wav"),
+  playJerseyDevilSound: () => playOne("jerseydevilgrowl.wav")
+  ,
+  // Loop controls for Jersey Devil background sound
+  playJerseyDevilBackground: () => playLoop("jerseybg", "jerseydevilbackground.wav", 0.8),
+  stopJerseyDevilBackground: (duration = 800) => stopLoopWithFade("jerseybg", duration)
 };

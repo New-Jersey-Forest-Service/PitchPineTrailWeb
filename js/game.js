@@ -68,6 +68,7 @@ export class Game {
   indigo_bunting_achieved = false;           // Flag for if Indigo Bunting has been achieved
   short_achieved = false;                    // Flag for if Shortleaf Pine has been achieved
   turkey_beard_achieved = false;             // Flag for if Turkey Beard has been achieved
+  jersey_devil_achieved = false;             // Flag for if the Jersey Devil achievement has been earned
   achievements_history = [];                 // List of achievements with year achieved
   recruitment_pending = [];         
   recruitment_handled = new Set();
@@ -77,6 +78,7 @@ export class Game {
   indigo_bunting_screen_shown = false;
   short_screen_shown = false;
   turkey_beard_screen_shown = false;
+  jersey_devil_screen_shown = false;
   hurricane_occurred = false;
   hurricane_screen_shown = false;
   hurricane_years = new Set();
@@ -126,6 +128,7 @@ export class Game {
     this.indigo_bunting_achieved = false;
     this.short_achieved = false;
     this.turkey_beard_achieved = false;
+    this.jersey_devil_achieved = false;
     this.achievements_history = [];
     this.recruitment_pending = [];
     this.recruitment_handled = new Set();
@@ -135,6 +138,7 @@ export class Game {
     this.indigo_bunting_screen_shown = false;
     this.short_screen_shown = false;
     this.turkey_beard_screen_shown = false;
+    this.jersey_devil_screen_shown = false;
     this.hurricane_occurred = false;
     this.hurricane_screen_shown = false;
     this.hurricane_years = new Set();
@@ -326,6 +330,38 @@ export class Game {
       }
     }
 
+    const colonizedCount = [
+      this.pine_snakes_colonized,
+      this.gentian_colonized,
+      this.summer_tanager_colonized,
+      this.indigo_bunting_colonized,
+      this.pine_barrens_tree_frog_colonized,
+      this.short_colonized,
+      this.turkey_beard_achieved
+    ].filter(Boolean).length;
+
+    const recentActions = this.action_history.map(([, a]) => a).concat(action);
+    let consecutiveBurns = 0;
+    for (let i = recentActions.length - 1; i >= 0; i -= 1) {
+      if (recentActions[i] === "4") consecutiveBurns += 1;
+      else break;
+    }
+
+    const survivableWildfireAlreadyOccurred = (this.stand.events || []).some((event) => {
+      if (Array.isArray(event)) return event[1] === "WILDFIRE";
+      return event === "WILDFIRE";
+    });
+
+    if (!this.jersey_devil_achieved
+      && action === "4"
+      && consecutiveBurns >= 5
+      && survivableWildfireAlreadyOccurred
+      && colonizedCount >= 2
+      && this.random() < 0.95) {
+      this.jersey_devil_achieved = true;
+      this.addAchievement("Jersey Devil", this.stand.year);
+    }
+
     // Survivable Hurricane event
 
     let hurricaneOccurred = false;
@@ -469,6 +505,7 @@ export class Game {
     if (this.indigo_bunting_colonized) summary += "\nIndigo bunting has colonized this stand!\n";
     if (this.pine_barrens_tree_frog_colonized) summary += "\nPine Barrens tree frog has colonized this stand!\n";
     if (this.turkey_beard_achieved) summary += "\nTurkey Beard is now growing in this stand!\n";
+    if (this.jersey_devil_achieved) summary += "\nThe Jersey Devil now calls this forest home!\n";
     return summary;
   }
 

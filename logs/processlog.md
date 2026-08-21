@@ -904,3 +904,11 @@ Reminder: ask the user before shutting this server down at session end.
 - Files changed: `js/screens.js`, `css/style.css`, `logs/promptlog.md`, `logs/processlog.md`.
 - Layout: Artwork-scaled slots use `bookshelf-medal-slot-1` through `bookshelf-medal-slot-9`, beginning at `75,2000`; medals are `150 x 200` artwork pixels.
 - Verification: `get_errors` reported no errors in `js/screens.js` or `css/style.css`.
+
+## 2026-08-21 Update: Jersey Devil Achievement Fix
+
+- Summary: Restored the missing tail of `js/game.js` after an accidental truncated edit and kept the Jersey Devil as a no-medal achievement entry in the normal achievement queue. It is now tracked in `achievements_history` and shown in the achievement flow without appearing in the medal grids.
+- Files changed: `js/game.js`, `js/screens.js`, `logs/processlog.md`.
+- Commands / tests run: `get_errors` on both JavaScript files.
+- Verification: `get_errors` reports no syntax errors in `js/game.js` or `js/screens.js`.
+- Caveat / next step: If you want the Jersey Devil to appear in a different ordering or a custom text label in the achievement list, I can adjust the naming there without adding a medal asset.

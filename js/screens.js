@@ -40,7 +40,8 @@ const achievementScreens = {
   turkey: { image: "turkeybeard.jpg", sound: sounds.playPageTurnSound, title: "Turkeybeard is now growing in this stand!\n\nYou earned the Turkeybeard achievement!" },
   tanager: { image: "Tanager.jpg", sound: sounds.playTanagerSound, title: "This forest is being visited by Summer Tanagers.\n\nThese neotropical birds are migrating through the stand!" },
   bunting: { image: "bunting.jpg", sound: sounds.playBuntingSound, title: "This forest is being visited by Indigo Buntings.\n\nThese neotropical birds are migrating through the stand!" },
-  frog: { image: "treefrog.jpg", sound: sounds.playTreeFrogSound, title: " Pine Barrens tree frogs have colonized this forest.\n\nTree frogs are calling from the stand!" }
+  frog: { image: "treefrog.jpg", sound: sounds.playTreeFrogSound, title: " Pine Barrens tree frogs have colonized this forest.\n\nTree frogs are calling from the stand!" },
+  jerseyDevil: { image: "jerseydevil blink1.jpeg", sound: sounds.playJerseyDevilSound, title: "This forest is now home to the Jersey Devil!\n\nThis legendary creature is said to inhabit the Pine Barrens! He seems friendly!" }
 };
 
 const endingMedals = [
@@ -409,6 +410,7 @@ function queueAchievements(before, finalBg) {
   if (!before.frog && game.pine_barrens_tree_frog_colonized && !game.tree_frog_screen_shown) queue.push("frog");
   if (!before.turkey && game.turkey_beard_achieved && !game.turkey_beard_screen_shown) queue.push("turkey");
   if (!before.short && game.short_colonized && !game.short_screen_shown) queue.push("short");
+  if (!before.jerseyDevil && game.jersey_devil_achieved && !game.jersey_devil_screen_shown) queue.push("jerseyDevil");
   consumeNewModalEvents();
   if (queue.length) {
     game.current_bg_img = finalBg.replace(/^assets\//, "");
@@ -428,7 +430,8 @@ function applyTurn(action) {
     bunting: game.indigo_bunting_colonized,
     frog: game.pine_barrens_tree_frog_colonized,
     turkey: game.turkey_beard_achieved,
-    short: game.short_colonized
+    short: game.short_colonized,
+    jerseyDevil: game.jersey_devil_achieved
   };
   game.updateStand(action);
   const event = game.simulateEvent();
@@ -1026,7 +1029,15 @@ function showAchievementScreen(code) {
   const info = achievementScreens[code];
   if (!info) return showNextQueuedAchievementOrGame();
   clearScreen(info.image);
-  info.sound?.();
+  // Play the one-shot sound for this achievement. For the Jersey Devil,
+  // start the background loop immediately so the growl and the loop overlap.
+  let _jerseyGrowlAudio = null;
+  const _play = info.sound?.();
+  if (code === "jerseyDevil") {
+    _jerseyGrowlAudio = _play || null;
+    // Start the background loop immediately so sounds overlap.
+    sounds.playJerseyDevilBackground();
+  }
   renderMetrics();
   renderBookshelfMedals();
   const message = document.createElement("section");
@@ -1037,12 +1048,20 @@ function showAchievementScreen(code) {
   actions.className = "achievement-actions";
   actions.append(button("Continue", "green-button", () => {
     if (frogAnimationTimer) clearTimeout(frogAnimationTimer);
+    if (jerseyBlinkTimer) clearTimeout(jerseyBlinkTimer);
     if (code === "frog") sounds.stopTreeFrogSound();
+    if (code === "jerseyDevil") {
+      if (_jerseyGrowlAudio && !_jerseyGrowlAudio.ended) {
+        try { _jerseyGrowlAudio.pause(); _jerseyGrowlAudio.currentTime = 0; } catch (e) {}
+      }
+      sounds.stopJerseyDevilBackground();
+    }
     showNextQueuedAchievementOrGame();
   }));
   root.append(actions);
   renderCommonNav();
   let frogAnimationTimer = null;
+  let jerseyBlinkTimer = null;
   if (code === "frog") {
     const cycle = () => {
       setBg("treefrog_1.jpg");
@@ -1052,6 +1071,18 @@ function showAchievementScreen(code) {
       }, 400);
     };
     frogAnimationTimer = setTimeout(cycle, 500);
+  }
+  if (code === "jerseyDevil") {
+    // Start a slow blink cycle: show blink2 briefly every 5 seconds
+    const blinkDuration = 400; // ms the blink image is shown
+    const cycle = () => {
+      setBg("jerseydevilblink2.jpeg");
+      jerseyBlinkTimer = setTimeout(() => {
+        setBg("jerseydevil blink1.jpeg");
+        jerseyBlinkTimer = setTimeout(cycle, 5000);
+      }, blinkDuration);
+    };
+    jerseyBlinkTimer = setTimeout(cycle, 5000);
   }
 }
 
@@ -1082,6 +1113,10 @@ function showNextQueuedAchievementOrGame() {
     if (code === "short") {
       game.short_screen_shown = true;
       game.short_achieved = true;
+    }
+    if (code === "jerseyDevil") {
+      game.jersey_devil_screen_shown = true;
+      game.jersey_devil_achieved = true;
     }
     return showAchievementScreen(code);
   }
