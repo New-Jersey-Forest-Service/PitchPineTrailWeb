@@ -34,13 +34,13 @@ window.pitchPineTrailGame = game;
 // Achievement Screen images with sound and text description.
 
 const achievementScreens = {
-  snake: { image: "Pinesnake.jpg", sound: sounds.playPineSnakeSound, title: "Congratulations! This forest is excellent northern pine snake habitat.\n\nPine snakes are utilizing the stand!" },
-  gentian: { image: "gentian.jpg", sound: sounds.playGentianSound, title: "Congratulations! This forest now supports rare Pine Barrens gentian!\n\nGentian is growing in the stand!" },
-  short: { image: "shortleaf.jpg", sound: sounds.playPageTurnSound, title: "Congratulations! You created sunny spots in your forest & received funding to plant seedlings...\n\nYou earned the Shortleaf Pine achievement!" },
-  turkey: { image: "turkeybeard.jpg", sound: sounds.playPageTurnSound, title: "Congratulations! Turkey Beard is now growing in this stand!\n\nYou earned the Turkey Beard achievement!" },
-  tanager: { image: "Tanager.jpg", sound: sounds.playTanagerSound, title: "Congratulations! This forest is being visited by Summer Tanagers.\n\nThese neotropical birds are migrating through the stand!" },
-  bunting: { image: "bunting.jpg", sound: sounds.playBuntingSound, title: "Congratulations! This forest is being visited by Indigo Buntings.\n\nThese neotropical birds are migrating through the stand!" },
-  frog: { image: "treefrog.jpg", sound: sounds.playTreeFrogSound, title: "Congratulations! Pine Barrens tree frogs have colonized this forest.\n\nTree frogs are calling from the stand!" }
+  snake: { image: "Pinesnake.jpg", sound: sounds.playPineSnakeSound, title: "This forest is excellent northern pine snake habitat.\n\nPine snakes are utilizing the stand!" },
+  gentian: { image: "gentian.jpg", sound: sounds.playGentianSound, title: "This forest now supports rare Pine Barrens gentian!\n\nGentian is growing in the stand!" },
+  short: { image: "shortleaf.jpg", sound: sounds.playPageTurnSound, title: "You created sunny spots in your forest & received funding to plant seedlings...\n\nYou earned the Shortleaf Pine achievement!" },
+  turkey: { image: "turkeybeard.jpg", sound: sounds.playPageTurnSound, title: "Turkeybeard is now growing in this stand!\n\nYou earned the Turkeybeard achievement!" },
+  tanager: { image: "Tanager.jpg", sound: sounds.playTanagerSound, title: "This forest is being visited by Summer Tanagers.\n\nThese neotropical birds are migrating through the stand!" },
+  bunting: { image: "bunting.jpg", sound: sounds.playBuntingSound, title: "This forest is being visited by Indigo Buntings.\n\nThese neotropical birds are migrating through the stand!" },
+  frog: { image: "treefrog.jpg", sound: sounds.playTreeFrogSound, title: " Pine Barrens tree frogs have colonized this forest.\n\nTree frogs are calling from the stand!" }
 };
 
 const endingMedals = [
@@ -49,7 +49,7 @@ const endingMedals = [
   ["Summer Tanager", "summer_tanager_achieved", "summer_tanager_colonized", "tanager_medal_end.png"],
   ["Pine Barrens tree frog", "tree_frog_achieved", "pine_barrens_tree_frog_colonized", "treefrog_medal_end.png"],
   ["Indigo Bunting", "indigo_bunting_achieved", "indigo_bunting_colonized", "bunting_medal_end.png"],
-  ["Turkey Beard", "turkey_beard_achieved", null, "turkeybeard_medal_end.png"],
+  ["Turkeybeard", "turkey_beard_achieved", null, "turkeybeard_medal_end.png"],
   ["Shortleaf pine", "short_achieved", "short_colonized", "shortleaf_medal_end.png"]
 ];
 
@@ -59,7 +59,7 @@ const bookshelfMedals = [
   ["Summer Tanager", "summer_tanager_achieved", "summer_tanager_colonized", "tanager_medal.png", "Summer Tanager"],
   ["Pine Barrens \n Tree Frog", "tree_frog_achieved", "pine_barrens_tree_frog_colonized", "treefrog_medal.png", "Pine Barrens\nTree Frog"],
   ["Indigo Bunting", "indigo_bunting_achieved", "indigo_bunting_colonized", "bunting_medal.png", "Indigo Bunting"],
-  ["Turkey Beard", "turkey_beard_achieved", null, "turkeybeard_medal.png", "Turkeybeard"],
+  ["Turkeybeard", "turkey_beard_achieved", null, "turkeybeard_medal.png", "Turkeybeard"],
   ["Shortleaf Pine", "short_achieved", "short_colonized", "shortleaf_medal.png", "Shortleaf Pine"]
 ];
 
@@ -1145,7 +1145,7 @@ function finishHurricaneScreen() {
   if (root.querySelector(".hurricane-message")) return;
   const message = document.createElement("section");
   message.className = "event-message hurricane-message";
-  message.textContent = "Oh no! A hurricane passed through your forest.\n\nYour forest is still living but this may have significantly changed your forest metrics.";
+  message.textContent = "A hurricane passed through your forest.\n\nYour forest is still living but this may have significantly changed your forest metrics.";
   root.append(message);
 }
 
@@ -1159,7 +1159,7 @@ function showWildfireScreen() {
   renderBookshelfMedals();
   const message = document.createElement("section");
   message.className = "event-message";
-  message.textContent = "Oh no! Your prescribed burn got out of control! your forest was already at high fire risk...\n\nYour forest is still living but this may have changed your metrics.";
+  message.textContent = "Your prescribed burn got out of control! Your forest was already at high fire risk...\n\nYour forest is still living but this may have changed your metrics.";
   root.append(message);
   const actions = document.createElement("div");
   actions.className = "event-actions";
