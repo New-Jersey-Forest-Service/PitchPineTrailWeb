@@ -78,6 +78,37 @@ function asset(name) {
   return `${ASSET_BASE}${name.replace(/^assets\//, "")}`;
 }
 
+// Computes the current background image's on-screen scale/offset, matching whatever background-size mode is active.
+function getArtLayout(imageWidth = ART_WIDTH, imageHeight = ART_HEIGHT) {
+  const contain = root.style.backgroundSize === "contain";
+  const scale = contain
+    ? Math.min(root.clientWidth / imageWidth, root.clientHeight / imageHeight)
+    : Math.max(root.clientWidth / imageWidth, root.clientHeight / imageHeight);
+  const imageLeft = (root.clientWidth - imageWidth * scale) / 2;
+  const imageTop = (root.clientHeight - imageHeight * scale) / 2;
+  return { scale, imageLeft, imageTop };
+}
+
+// Resolves once an image has fully loaded (and decoded, when supported), caching the result.
+function preloadImage(name) {
+  const imageName = name.replace(/^assets\//, "");
+  if (decodedBackgrounds.has(imageName)) return Promise.resolve();
+  return new Promise((resolve) => {
+    const image = new Image();
+    image.onload = async () => {
+      try {
+        await image.decode();
+      } catch {
+        // The loaded image is still usable when decode() is unavailable.
+      }
+      decodedBackgrounds.set(imageName, true);
+      resolve();
+    };
+    image.onerror = resolve;
+    image.src = asset(imageName);
+  });
+}
+
 function setBg(name) {
   game.current_bg_img = name.replace(/^assets\//, "");
   const imageName = game.current_bg_img;
@@ -125,13 +156,26 @@ function updatePixelLayout() {
     if (width != null) set(`${name}-width`, width * scale);
     if (height != null) set(`${name}-height`, height * scale);
   };
+  // Scales a font/spacing value (defined in artwork pixels) by the same factor used for positioning.
+  const scalePx = (name, value) => set(name, value * scale);
 
   point("metrics", 4190, 1490);
-  size("metrics", 1100);
-  point("actions", 4550, 350);
-  size("actions", 720);
+  size("metrics", 1100, 1044);
+  scalePx("metrics-font-size", 42);
+  scalePx("metric-risk-font-size", 52);
+  scalePx("metrics-line-height", 50);
+  point("actions", 4550, 300);
+  size("actions", 720, 590);
+  scalePx("actions-font-size", 50);
+  scalePx("actions-width", 750);
+  scalePx("actions-height", 590);
+  scalePx("actions-gap", 20);
+  scalePx("actions-padding", 8, 14);
   point("intro", 4429, 2403);
   point("intro-second", 3309, 1917);
+  scalePx("button-font-size", 48);
+  scalePx("button-width", 400);
+  scalePx("button-padding", 20, 30);
   point("definitions", 276, 2592);
   point("definitions-overlay", 0, 0);
   size("definitions-overlay", ART_WIDTH, ART_HEIGHT);
@@ -148,37 +192,66 @@ function updatePixelLayout() {
   size("bookshelf-medal", 150, 200);
   point("coloring-page", 90, 1990);
   size("coloring-page", 510, 653);
-  point("exit", 800, 65);
+  point("main-exit", 783, 40);
+  size("main-exit", 303.39, 171);
+  point("main-restart", 1124, 40);
+  size("main-restart", 527.25, 171);
   point("hint", 3695, 81);
-  point("summary", 4550, 280);
+  point("summary", 4550, 260);
   size("summary", 1000);
-  point("closing-analyze", 3600, 2200);
-  point("closing-certificate", 3600, 400);
-  size("closing-certificate", 500);
-  point("closing-restart", 3400, 2400);
-  point("closing-exit", 3800, 2400);
+  scalePx("summary-font-size", 48);
+  scalePx("summary-width", 900);
+  point("closing-analyze", 3236, 2098);
+  size("closing-analyze", 814, 643);
+  point("closing-certificate", 3560, 43);
+  size("closing-certificate", 613, 490);
+  point("closing-restart", 3394, 1295);
+  size("closing-restart", 500, 500);
+  point("closing-exit", 3394, 1800);
+  size("closing-exit", 495, 279);
+  point("closing-pocketprez", 3000, 1650);
+  size("closing-pocketprez", 350, 464);
   point("achievement-actions", 5175, 1050);
+  scalePx("achievement-actions-font-size", 48);
   point("event-actions", 5175, 1050);
+  scalePx("event-actions-font-size", 48);
   point("loss-message", 4450, 280);
   size("loss-message", 1000);
-  point("analysis-table", 1500, 700);
-  size("analysis-table", 1498, 851);
-  point("plot-buttons", 4500, 1960);
-  point("achievement-list", 4500, 1200);
+  scalePx("loss-message-font-size", 60);
+  point("event-message", 4450, 200);
+  size("event-message", 1000);
+  scalePx("event-message-font-size", 60);
+  point("analysis-table", 1500, 650);
+  size("analysis-table", 1498, 950);
+  scalePx("analysis-table-font-size", 43);
+  scalePx("analysis-table-width", 1500);
+  point("plot-buttons", 4700, 1960);
+  scalePx("plot-buttons-font-size", 48);
+  point("achievement-list", 4570, 1180);
   size("achievement-list", 1380);
-  point("analysis-return", 1650, 2025);
-  point("download-data", 2668, 1937);
-  size("download-data", 1216, 206);
+  scalePx("achievement-list-font-size", 45);
+  point("analysis-return", 1378, 1923);
+  size("analysis-return", 896, 198);
+  point("analysis-return-hotspot", 1378, 1923);
+  size("analysis-return-hotspot", 200, 200);
+  point("download-data", 3185, 1923);
+  size("download-data", 789, 198);
+  point("download-data-hotspot", 3774, 1923);
+  size("download-data-hotspot", 200, 200);
   point("floppy", 3333, 1388);
   size("floppy", 300, 221);
   point("chart-overlay", 1400, 603);
-  size("chart-overlay", 1727, 1125);
-  point("certificate", 3100, 200);
+  size("chart-overlay", 1727, 1100);
+  point("chart-close", 2760, 600);
+  size("chart-close", 320, 75);
+  point("chart-faq", 1400, 1660);
+  size("chart-faq", 800, 75);
+  point("certificate", 3100, 150);
   size("certificate", 1400);
   point("certificate-save", 4400, 770);
   point("hint-overlay", 2758, 54);
   size("hint-overlay", 2640);
-  point("survey-overlay", 800, 65);
+  point("survey-overlay", 780, 40);
   size("survey-overlay", 2000);
   point("survey-open", 2100, 800);
   point("survey-exit", 1950, 950);
@@ -212,16 +285,99 @@ function button(text, className, onClick) {
   return btn;
 }
 
+function imageButton(imageName, hoverImageName, className, altText, onClick) {
+  const img = document.createElement("img");
+  img.className = className;
+  img.src = asset(imageName);
+  img.alt = altText;
+  img.tabIndex = 0;
+  img.addEventListener("mouseenter", () => {
+    img.src = asset(hoverImageName);
+  });
+  img.addEventListener("mouseleave", () => {
+    img.src = asset(imageName);
+  });
+  img.addEventListener("click", onClick);
+  img.addEventListener("keydown", (event) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      onClick(event);
+    }
+  });
+  return img;
+}
+
+// Image button whose hover/click region is an independently sized hotspot instead of the image's own bounds.
+function imageButtonWithHotspot(imageName, hoverImageName, imageClassName, hotspotClassName, altText, onClick) {
+  const img = document.createElement("img");
+  img.className = imageClassName;
+  img.src = asset(imageName);
+  img.alt = altText;
+  const hotspot = document.createElement("div");
+  hotspot.className = hotspotClassName;
+  hotspot.tabIndex = 0;
+  hotspot.setAttribute("role", "button");
+  hotspot.setAttribute("aria-label", altText);
+  const showHover = () => {
+    img.src = asset(hoverImageName);
+  };
+  const hideHover = () => {
+    img.src = asset(imageName);
+  };
+  hotspot.addEventListener("mouseenter", showHover);
+  hotspot.addEventListener("mouseleave", hideHover);
+  hotspot.addEventListener("focus", showHover);
+  hotspot.addEventListener("blur", hideHover);
+  hotspot.addEventListener("click", onClick);
+  hotspot.addEventListener("keydown", (event) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      onClick(event);
+    }
+  });
+  return [img, hotspot];
+}
+
+// Image button wrapped in a positioned container so a hover popup can appear to its left.
+function imageButtonWithPopup(imageName, hoverImageName, className, altText, onClick, popupText) {
+  const wrapper = document.createElement("div");
+  wrapper.className = `${className} image-button-wrapper`;
+  wrapper.tabIndex = 0;
+  wrapper.setAttribute("role", "button");
+  wrapper.setAttribute("aria-label", altText);
+  const img = document.createElement("img");
+  img.className = "image-button-img";
+  img.src = asset(imageName);
+  img.alt = "";
+  const popup = document.createElement("div");
+  popup.className = "image-button-popup";
+  popup.textContent = popupText;
+  wrapper.append(img, popup);
+  const showHover = () => {
+    img.src = asset(hoverImageName);
+  };
+  const hideHover = () => {
+    img.src = asset(imageName);
+  };
+  wrapper.addEventListener("mouseenter", showHover);
+  wrapper.addEventListener("mouseleave", hideHover);
+  wrapper.addEventListener("focus", showHover);
+  wrapper.addEventListener("blur", hideHover);
+  wrapper.addEventListener("click", onClick);
+  wrapper.addEventListener("keydown", (event) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      onClick(event);
+    }
+  });
+  return wrapper;
+}
+
 function addHotspotHoverImage(hotspot, imageName, imageX, imageY, imageWidth, imageHeight) {
   let hoverImage = null;
   const showImage = () => {
     if (hoverImage) return;
-    const contain = root.style.backgroundSize === "contain";
-    const scale = contain
-      ? Math.min(root.clientWidth / ART_WIDTH, root.clientHeight / ART_HEIGHT)
-      : Math.max(root.clientWidth / ART_WIDTH, root.clientHeight / ART_HEIGHT);
-    const imageLeft = (root.clientWidth - ART_WIDTH * scale) / 2;
-    const imageTop = (root.clientHeight - ART_HEIGHT * scale) / 2;
+    const { scale, imageLeft, imageTop } = getArtLayout();
     hoverImage = document.createElement("img");
     hoverImage.className = "hotspot-hover-image";
     hoverImage.src = asset(imageName);
@@ -362,11 +518,8 @@ function renderColoringPageDownload(isGoodEnding) {
 
 function renderCommonNav() {
   root.append(
-    Object.assign(document.createElement("div"), { className: "exit-link" })
-  );
-  root.querySelector(".exit-link").append(
-    button("Exit", "red-button main-exit-button", () => showExitSurveyOverlay()),
-    button("Restart", "blue-button main-restart-button", restartGameToZoom)
+    imageButton("exitbutton.png", "exitbutton_hover.png", "main-exit-button", "Exit", () => showExitSurveyOverlay()),
+    imageButton("restart.png", "restart_hover.png", "main-restart-button", "Restart", restartGameToZoom)
   );
 }
 
@@ -555,17 +708,19 @@ function startAnimation(during, durationMs, final) {
 
 function showIntroScreen() {
   root.style.backgroundSize = "cover";
-  clearScreen("introscreen.jpg");
-  sounds.playForestSound();
-  const buttons = document.createElement("div");
-  buttons.className = "intro-buttons";
-  buttons.append(
-    button("Begin", "tan-button", () => {
-      startZoomSequence();
-    }),
-    button("Exit", "tan-button", () => showExitSurveyOverlay())
-  );
-  root.append(buttons);
+  preloadImage("introscreen.jpg").then(() => {
+    clearScreen("introscreen.jpg");
+    sounds.playForestSound();
+    const buttons = document.createElement("div");
+    buttons.className = "intro-buttons";
+    buttons.append(
+      button("Begin", "tan-button", () => {
+        startZoomSequence();
+      }),
+      button("Exit", "tan-button", () => showExitSurveyOverlay())
+    );
+    root.append(buttons);
+  });
 }
 
 // Function for the intro zoom sequence from the title screen to the about screen.
@@ -609,11 +764,23 @@ function showZoomFinalScreen() {
   zoomHotspotCleanup = addZoomDefinitionsHotspot();
   const buttons = document.createElement("div");
   buttons.className = "intro-buttons-second";
-  buttons.append(button("Let's Play!", "tan-button", () => {
+  buttons.append(button("Let's Play!", "tan-button", showGameDisclaimerOverlay));
+  root.append(buttons);
+}
+
+function showGameDisclaimerOverlay() {
+  const overlay = document.createElement("div");
+  overlay.className = "disclaimer-overlay";
+  const text = document.createElement("p");
+  text.className = "disclaimer-text";
+  text.textContent = "PLEASE NOTE: This game is based on real NJ forest data, tree growth and forest management concepts! However, in order to make this game playable and to best communicate the decision making and tradeoffs that go into real world forestry, adjustments have been made to growth and regeneration equations to mimic exaggerated scenarios that don't necessarily represent the real world and it's complexities. Ultimately this is a game, not a tool to plan or predict management! If you would like more details on actual forests metrics in NJ and how we actually plan management in our forests, please reach out at askaforester@dep.nj.gov";
+  const gotIt = button("Got it!", "disclaimer-button", () => {
+    overlay.remove();
     sounds.playLetsPlaySound();
     showGameScreen();
-  }));
-  root.append(buttons);
+  });
+  overlay.append(text, gotIt);
+  root.append(overlay);
 }
 
 function addZoomDefinitionsHotspot() {
@@ -702,11 +869,7 @@ function addGameDefinitionsHotspot() {
   const cleanupHover = addHotspotHoverImage(hotspot, "definitions_hover.png", 126, 712, 349, 470);
 
   const positionHotspot = () => {
-    const rootWidth = root.clientWidth;
-    const rootHeight = root.clientHeight;
-    const scale = Math.max(rootWidth / imageWidth, rootHeight / imageHeight);
-    const imageLeft = (rootWidth - imageWidth * scale) / 2;
-    const imageTop = (rootHeight - imageHeight * scale) / 2;
+    const { scale, imageLeft, imageTop } = getArtLayout(imageWidth, imageHeight);
     hotspot.style.left = `${imageLeft + 142 * scale}px`;
     hotspot.style.top = `${imageTop + 714 * scale}px`;
     hotspot.style.width = `${304 * scale}px`;
@@ -738,11 +901,7 @@ function addGameFieldGuideHotspot() {
   const cleanupHover = addHotspotHoverImage(hotspot, "fieldguide_hover.png", 284, 1251, 382, 541);
 
   const positionHotspot = () => {
-    const rootWidth = root.clientWidth;
-    const rootHeight = root.clientHeight;
-    const scale = Math.max(rootWidth / imageWidth, rootHeight / imageHeight);
-    const imageLeft = (rootWidth - imageWidth * scale) / 2;
-    const imageTop = (rootHeight - imageHeight * scale) / 2;
+    const { scale, imageLeft, imageTop } = getArtLayout(imageWidth, imageHeight);
     hotspot.style.left = `${imageLeft + 299 * scale}px`;
     hotspot.style.top = `${imageTop + 1252 * scale}px`;
     hotspot.style.width = `${304 * scale}px`;
@@ -776,9 +935,7 @@ function addGameHintHotspot() {
   const cleanupHover = addHotspotHoverImage(hotspot, "hint_hover.png", 63, 227, 282, 237);
 
   const positionHotspot = () => {
-    const scale = Math.max(root.clientWidth / ART_WIDTH, root.clientHeight / ART_HEIGHT);
-    const imageLeft = (root.clientWidth - ART_WIDTH * scale) / 2;
-    const imageTop = (root.clientHeight - ART_HEIGHT * scale) / 2;
+    const { scale, imageLeft, imageTop } = getArtLayout();
     hotspot.style.left = `${imageLeft + x * scale}px`;
     hotspot.style.top = `${imageTop + y * scale}px`;
     hotspot.style.width = `${width * scale}px`;
@@ -813,9 +970,7 @@ function addGuideReturnHotspot(x, y, label, returnBg, showHover = true) {
     : () => {};
 
   const positionHotspot = () => {
-    const scale = Math.max(root.clientWidth / ART_WIDTH, root.clientHeight / ART_HEIGHT);
-    const imageLeft = (root.clientWidth - ART_WIDTH * scale) / 2;
-    const imageTop = (root.clientHeight - ART_HEIGHT * scale) / 2;
+    const { scale, imageLeft, imageTop } = getArtLayout();
     hotspot.style.left = `${imageLeft + x * scale}px`;
     hotspot.style.top = `${imageTop + y * scale}px`;
     hotspot.style.width = `${304 * scale}px`;
@@ -853,9 +1008,7 @@ function addAnalysisDefinitionsHotspot(label, onClick, text = "", showHover = tr
     : () => {};
 
   const positionHotspot = () => {
-    const scale = Math.max(root.clientWidth / ART_WIDTH, root.clientHeight / ART_HEIGHT);
-    const imageLeft = (root.clientWidth - ART_WIDTH * scale) / 2;
-    const imageTop = (root.clientHeight - ART_HEIGHT * scale) / 2;
+    const { scale, imageLeft, imageTop } = getArtLayout();
     hotspot.style.left = `${imageLeft + x * scale}px`;
     hotspot.style.top = `${imageTop + y * scale}px`;
     hotspot.style.width = `${width * scale}px`;
@@ -893,9 +1046,7 @@ function addAnalysisFieldGuideHotspot(label, onClick, text = "", showHover = tru
     : () => {};
 
   const positionHotspot = () => {
-    const scale = Math.max(root.clientWidth / ART_WIDTH, root.clientHeight / ART_HEIGHT);
-    const imageLeft = (root.clientWidth - ART_WIDTH * scale) / 2;
-    const imageTop = (root.clientHeight - ART_HEIGHT * scale) / 2;
+    const { scale, imageLeft, imageTop } = getArtLayout();
     hotspot.style.left = `${imageLeft + x * scale}px`;
     hotspot.style.top = `${imageTop + y * scale}px`;
     hotspot.style.width = `${width * scale}px`;
@@ -946,7 +1097,7 @@ function showGameScreen(narration = "") {
 }
 
 function showClosingScreen() {
-  stopAllLoops();
+  stopAllLoops(["forest"]);
   sounds.playTrumpetWinSound();
   clearScreen(getWinBgName());
   renderMetrics();
@@ -972,13 +1123,14 @@ function showClosingScreen() {
   const actions = document.createElement("div");
   actions.className = "closing-actions";
   actions.append(
-    button("Analyze My Management", "blue-button closing-analyze-button", () => {
+    imageButtonWithPopup("analysislab_button.png", "analysislab_button_hover.png", "closing-analyze-button", "Analyze My Management", () => {
       sounds.playComputerStartup();
       showAnalysisLab(getWinBgName(), true, "closing");
-    }),
-    button("Save your successful management certificate", "blue-button closing-certificate-button", showCertificateOverlay),
-    button("Try Again", "green-button closing-restart-button", restartGame),
-    button("Exit", "red-button closing-exit-button", () => showExitSurveyOverlay())
+    }, "To the computer lab!"),
+    imageButton("savecert.png", "savecert_hover.png", "closing-certificate-button", "Save your successful management certificate", showCertificateOverlay),
+    imageButtonWithPopup("tryagain.png", "tryagain_hover.png", "closing-restart-button", "Try Again", restartGame, "Whoo Hoo! Let's go!"),
+    imageButtonWithPopup("exitbutton.png", "exitbutton_hover.png", "closing-exit-button", "Exit", () => showExitSurveyOverlay(), "Hope to see you again soon!"),
+    imageButtonWithPopup("pocketprez.png", "pocketprez_hover.png", "closing-pocketprez-button", "Learn more about forestry concepts", () => window.open("https://dep.nj.gov/parksandforests/conservation/pocket-presentations/", "_blank", "noopener,noreferrer"), "Click here to learn more about the Forestry concepts presented in this game!")
   );
   root.append(actions);
 }
@@ -995,7 +1147,6 @@ function showLossScreen(bg, text, soundFn) {
   clearScreen(bg);
   renderMetrics();
   renderColoringPageDownload(false);
-  renderBookshelfMedals();
   const message = document.createElement("section");
   message.className = "loss-message";
   message.textContent = text;
@@ -1003,19 +1154,23 @@ function showLossScreen(bg, text, soundFn) {
   const actions = document.createElement("div");
   actions.className = "closing-actions";
   actions.append(
-    button("Analyze My Management", "blue-button closing-analyze-button", () => showAnalysisLab(bg, true, bg)),
-    button("Try Again", "green-button closing-restart-button", restartGame),
-    button("Exit", "red-button closing-exit-button", () => showExitSurveyOverlay())
+    imageButtonWithPopup("analysislab_button.png", "analysislab_button_hover.png", "closing-analyze-button", "Analyze My Management", () => showAnalysisLab(bg, true, bg), "To the computer lab!"),
+    imageButtonWithPopup("tryagain.png", "tryagain_hover.png", "closing-restart-button", "Try Again", restartGame, "Whoo Hoo! Let's go!"),
+    imageButtonWithPopup("exitbutton.png", "exitbutton_hover.png", "closing-exit-button", "Exit", () => showExitSurveyOverlay(), "Hope to see you again soon!"),
+    imageButtonWithPopup("pocketprez.png", "pocketprez_hover.png", "closing-pocketprez-button", "Learn more about forestry concepts", () => window.open("https://dep.nj.gov/parksandforests/conservation/pocket-presentations/", "_blank", "noopener,noreferrer"), "Click here to learn more about the Forestry concepts presented in this game!")
   );
   root.append(actions);
 }
 
 function showLowTpaScreen() {
-  showLossScreen("LowStocking.jpg", "The forest's growing stock trees have been depleted!\n\nWe're supposed to be growing a forest!", sounds.playLosingTromboneSound);
+  showLossScreen("LowStocking.jpg", "The forest's growing stock trees have been depleted!\n\nWe're supposed to be growing a forest!", () => {
+    sounds.playLosingTromboneSound();
+    sounds.playWindSound();
+  });
 }
 
 function showFireLossScreen() {
-  showLossScreen("LossByFire.jpg", "A catastrophic wildfire has occurred!\n\nWe might get a new stand of pitch pine, but we're trying to grow a mature stand!", sounds.playLosingTromboneSound);
+  showLossScreen("LossByFire.jpg", "A catastrophic wildfire has occurred!\n\nWe might get a new stand of pitch pine, but we're trying to grow a mature stand!", sounds.playFireSound);
 }
 
 function showSpbLossScreen() {
@@ -1267,9 +1422,7 @@ function showHintOverlay() {
   const images = Array.from({ length: 12 }, (_, index) => `hint${index + 1}.jpg`);
   const overlay = document.createElement("div");
   overlay.className = "hint-overlay";
-  const scale = Math.max(root.clientWidth / ART_WIDTH, root.clientHeight / ART_HEIGHT);
-  const imageLeft = (root.clientWidth - ART_WIDTH * scale) / 2;
-  const imageTop = (root.clientHeight - ART_HEIGHT * scale) / 2;
+  const { scale, imageLeft, imageTop } = getArtLayout();
   const hotspotRight = imageLeft + (79 + 250) * scale;
   const availableWidth = root.clientWidth - hotspotRight - 20;
   overlay.style.left = `${hotspotRight + 20}px`;
@@ -1430,17 +1583,6 @@ function renderAnalysisOverlays(rows, showGraphs = true) {
 }
 
 function renderDataDownload() {
-  const download = document.createElement("img");
-  download.className = "data-download";
-  download.src = asset("downloaddata.png");
-  download.alt = "Download data";
-  download.tabIndex = 0;
-  download.addEventListener("mouseenter", () => {
-    download.src = asset("downloaddata_hover.png");
-  });
-  download.addEventListener("mouseleave", () => {
-    download.src = asset("downloaddata.png");
-  });
   const downloadData = () => {
     sounds.playSaveSound();
     exportCSV(game);
@@ -1452,14 +1594,10 @@ function renderDataDownload() {
     root.append(floppy);
     setTimeout(() => floppy.remove(), 5000);
   };
-  download.addEventListener("click", downloadData);
-  download.addEventListener("keydown", (event) => {
-    if (event.key === "Enter" || event.key === " ") {
-      event.preventDefault();
-      downloadData();
-    }
-  });
-  root.append(download);
+  const [download, hotspot] = imageButtonWithHotspot(
+    "downloaddata.png", "downloaddata_hover.png", "data-download", "download-data-hotspot", "Download data", downloadData
+  );
+  root.append(download, hotspot);
 }
 
 function showAnalysisLab(prevBg = game.current_bg_img, loading = true, returnTarget = "game") {
@@ -1477,17 +1615,28 @@ function showAnalysisLab(prevBg = game.current_bg_img, loading = true, returnTar
     table.textContent = renderDataTable(rows);
     root.append(table);
     renderAnalysisOverlays(rows);
-    root.append(button("Return to Game", "tan-button analysis-return", () => {
-      sounds.playComputerShutdown();
-      sounds.stopAnalysisLabSound();
-      setBg(prevBg);
-      if (returnTarget === "closing") showClosingScreen();
-      else if (returnTarget === "LowStocking.jpg") showLowTpaScreen();
-      else if (returnTarget === "LossByFire.jpg") showFireLossScreen();
-      else if (returnTarget === "LossBySPB.jpg") showSpbLossScreen();
-      else if (game.stand.year >= 100) showClosingScreen();
-      else showGameScreen();
-    }));
+    const [returnImage, returnHotspot] = imageButtonWithHotspot(
+      "returntogame.png", "returntogame_hover.png", "analysis-return", "analysis-return-hotspot", "Return to Game", () => {
+        sounds.playComputerShutdown();
+        sounds.stopAnalysisLabSound();
+        setBg(prevBg);
+        if (returnTarget === "closing") {
+          showClosingScreen();
+          sounds.playForestSound();
+        } else if (returnTarget === "LowStocking.jpg") {
+          showLowTpaScreen();
+          sounds.playForestSound();
+        } else if (returnTarget === "LossByFire.jpg") {
+          showFireLossScreen();
+          sounds.playForestSound();
+        } else if (returnTarget === "LossBySPB.jpg") {
+          showSpbLossScreen();
+          sounds.playForestSound();
+        } else if (game.stand.year >= 100) showClosingScreen();
+        else showGameScreen();
+      }
+    );
+    root.append(returnImage, returnHotspot);
     renderDataDownload();
     zoomHotspotCleanup = addAnalysisDefinitionsHotspot(
       "Analysis definitions information",
@@ -1513,26 +1662,36 @@ function showAnalysisLab(prevBg = game.current_bg_img, loading = true, returnTar
 function showChartOverlay(variable, rows) {
   const existing = root.querySelector(".chart-overlay");
   if (existing) existing.remove();
+  root.querySelector(".chart-close")?.remove();
+  root.querySelector(".chart-faq")?.remove();
   const overlay = document.createElement("section");
   overlay.className = "chart-overlay";
   const chartBody = document.createElement("div");
   chartBody.className = "screen-fill";
-  overlay.append(
-    button("Close Graph", "blue-button chart-close", () => overlay.remove()),
-    button("Why does my graph look like that?", "blue-button chart-faq", () => showFaqOverlay(overlay)),
-    chartBody
-  );
-  root.append(overlay);
+  overlay.append(chartBody);
+  const closeButton = button("Close Graph", "chart-close", () => {
+    overlay.remove();
+    closeButton.remove();
+    faqButton.remove();
+  });
+  const faqButton = button("Why does my graph look like that?", "chart-faq", () => showFaqOverlay(closeButton, faqButton));
+  root.append(overlay, closeButton, faqButton);
   showVariablePlot(chartBody, variable, rows);
 }
 
-function showFaqOverlay(parent) {
-  if (parent.querySelector(".faq-overlay")) return;
+function showFaqOverlay(closeButton, faqButton) {
+  if (root.querySelector(".faq-overlay")) return;
   const overlay = document.createElement("div");
   overlay.className = "faq-overlay";
   overlay.innerHTML = `<img src="${asset("FAQs.jpg")}" alt="">`;
-  overlay.append(button("Close FAQs", "green-button faq-close", () => overlay.remove()));
-  parent.append(overlay);
+  closeButton.classList.add("hidden");
+  faqButton.classList.add("hidden");
+  overlay.append(button("Close FAQs", "green-button faq-close", () => {
+    overlay.remove();
+    closeButton.classList.remove("hidden");
+    faqButton.classList.remove("hidden");
+  }));
+  root.querySelector(".chart-overlay")?.append(overlay);
 }
 
 let analysisBlinkTimer = null;

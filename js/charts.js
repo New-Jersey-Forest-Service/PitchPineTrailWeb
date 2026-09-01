@@ -6,19 +6,29 @@ const RISK_COLORS = {
   High: "#B22222"
 };
 
+// Y-axis label and fixed [min, max] per variable, matching the desktop gui.py charts.
+const Y_AXIS_CONFIGS = {
+  QMD: ["Quadratic Mean Diameter (inches)", 0, 25],
+  TPA: ["Trees per Acre", 0, 650],
+  BA: ["Basal Area (sq ft/acre)", 0, 150],
+  carbon: ["Carbon (Metric Tons/acre)", 0, 25],
+  CI: ["Crowning Index (mph)", 0, 50]
+};
+
 let currentChart = null;
 
 // Data Table
 
 export function renderDataTable(rows) {
   const headers = ["Year", "QMD", "TPA", "BA", "Carbon", "CI", "Fire risk", "SPB risk"];
+  const roundTwo = (value) => typeof value === "number" ? Math.round(value * 100) / 100 : value;
   const data = rows.map((row) => [
     row.year,
-    row.QMD,
-    row.TPA,
-    row.BA,
-    row.carbon,
-    row.CI,
+    roundTwo(row.QMD),
+    roundTwo(row.TPA),
+    roundTwo(row.BA),
+    roundTwo(row.carbon),
+    roundTwo(row.CI),
     row.fireRisk,
     row.spbRisk
   ]);
@@ -50,7 +60,6 @@ export function showVariablePlot(container, variable, decadalData) {
   // Labels for variables
 
   const labels = decadalData.map((row) => row.year === "Start" ? -1 : Number(row.year));
-  const displayLabels = labels.map((year) => year === -1 ? "" : String(year));
   const isRisk = variable === "fireRisk" || variable === "spbRisk";
   const fieldLabel = {
     QMD: "Quadratic Mean Diameter over time",
@@ -65,19 +74,22 @@ export function showVariablePlot(container, variable, decadalData) {
   const values = isRisk
     ? decadalData.map((row) => ({ Low: 1, Moderate: 2, High: 3 }[row[variable]] ?? null))
     : decadalData.map((row) => Number(row[variable]));
+  const points = values.map((value, index) => ({ x: labels[index], y: value }));
+  const [yAxisLabel, yMin, yMax] = Y_AXIS_CONFIGS[variable] ?? ["", undefined, undefined];
 
   const dataset = isRisk
     ? {
         type: "bar",
         label: fieldLabel,
-        data: values,
+        data: points,
         backgroundColor: decadalData.map((row) => RISK_COLORS[row[variable]] ?? "#b5c3d8"),
-        borderColor: "#1b2336"
+        borderColor: "#1b2336",
+        barThickness: 20
       }
     : {
         type: "line",
         label: fieldLabel,
-        data: values,
+        data: points,
         borderColor: "#05dd4c",
         backgroundColor: "#05dd4c",
         pointBackgroundColor: "#05dd4c",
@@ -86,7 +98,7 @@ export function showVariablePlot(container, variable, decadalData) {
       };
 
   currentChart = new Chart(canvas, {
-    data: { labels: displayLabels, datasets: [dataset] },
+    data: { datasets: [dataset] },
     options: {
       responsive: true,
       maintainAspectRatio: false,
@@ -102,20 +114,25 @@ export function showVariablePlot(container, variable, decadalData) {
       },
       scales: {
         x: {
-          min: 0,
-          max: displayLabels.length - 1,
+          type: "linear",
+          min: -1,
+          max: 100,
+          afterBuildTicks: (axis) => {
+            axis.ticks = Array.from({ length: 11 }, (_, i) => ({ value: i * 10 }));
+          },
           ticks: { color: "#b5c3d8" },
           grid: { color: "#2c404b" },
           title: { display: true, text: "Year", color: "#b5c3d8" }
         },
         y: {
-          min: isRisk ? 0 : undefined,
-          max: isRisk ? 3.4 : undefined,
+          min: isRisk ? 0 : yMin,
+          max: isRisk ? 3.4 : yMax,
           ticks: {
             color: "#b5c3d8",
             callback: (value) => isRisk ? ({ 1: "Low", 2: "Moderate", 3: "High" }[value] ?? "") : value
           },
-          grid: { color: "#2c404b" }
+          grid: { color: "#2c404b" },
+          title: { display: !isRisk && !!yAxisLabel, text: yAxisLabel, color: "#b5c3d8" }
         }
       }
     }

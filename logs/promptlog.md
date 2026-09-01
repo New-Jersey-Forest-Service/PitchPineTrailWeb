@@ -125,3 +125,35 @@ Excellent. Can we commit and push these changes?
 Okay, I switched branches. Can you see which branch we're on? We should be on WZport now.
 Let's do a pull request into the branch's root.
 Okay, I'll take care of the, uh, pull request then.
+On all the ending screens I want to subtitute the button for images which change when hovered over and when clicked preform the same function that the original button did. All images should start at their orginal pixel size and scale accordingly with screen size. For the Analyze my Mangment button I want to use the analysislab_button.png and for the hover image use analysislab_button_hover.png. The top left of both images should be at (3236,2098). For the exit button we will use exitbutton.png and for the hover we will use exitbutton_hover.png. Top left will be at (3394,1776). For the Try again button we will use tryagain.png and for the hover we will use tryagain_hover.png. Top left will be at (3394,1295). Finally for the save you management certificate button we will use savecert.png and for the hover we will use savecert_hover.png. Top left will be at (3560,43). Only replace buttons on the screen where they alreadly exist.
+Now I would like to replace the exit and restart button on the main play screen. For the exit button plase use the same images as before. Top left should be at (783, 40). For restart use restart.png and restart_hover.png. Top left at (1124,40). Height for both should be H:171. The size should scale with screen size.
+Now let's replace the return to game button in the analysis lab with returntogame.png and returntogame_hover.png. top left at (1378,1923). H: 896 and W:198. This should scale with screen size.
+can we change the hover and click region for the two buttons on the analysis lab screen so it is not just the size of the images. For return to game is should start is the same top left corner and be Width and Height of 200 px. for dowload data is should be (3774,1923) and wdith ad height 200 px
+I now what to add pop up text on the following three buttons only on the clsoing screens. For try again, "Whoo Hoo! Let's go!" for exit "Hope to see you again soon!" and for the analysis lab "To the computer lab!". Text should appear to the left of the buttons on a navy background with the green text.
+Pleae add the same to the loss screens
+Now I want to add a new button to both win and loss screens. The images are pocketprez.png and pocketprez_hover.png. Top left is (3005,1602). When hovering the text pop up should read "Click here to learn more about the Forestry concepts presented in this game!". When clicked this website should open https://dep.nj.gov/parksandforests/conservation/pocket-presentations/
+can we make it so the text hovers load stacked over other button images. At the moment the exit hover text is stacked behind the pocket prez button
+The bookshelf medals should be removed fro mthe loss screens like they are the winning screens
+The wildfire loss screen should have the fire.wav sound instead of the losing_trombone.wav
+The forest_sound.wave should no be stopped when a winning screen is achieved
+can you make the conitnue button on the non losing fire and the hurricane the same size and location as the continue button on the achievment screens
+Can we seprate it out so loss mesages and achievment messges point at 4450, 280 but event mesages are 4450, 200?
+I want to add a text pop when the let's play button is pressed. Is should load in the center of the screen with a navey background and green text. The text should read "PLEASE NOTE: This game is based on real NJ forest data, tree growth and forest management concepts! However, in order to make this game playable and to best communicate the decision making and tradeoffs that go into real world forestry, adjustments have been made to growth and regeneration equations to mimic exaggerated scenarios that don't necessarily represent the real world and it's complexities. Ultimately this is a game, not a tool to plan or predict management! If you would like more details on actual forests metrics in NJ and how we actually plan management in our forests, please reach out at askaforester@dep.nj.gov". At the buttom there should be a navy button that says "Got it!" that turns green with navy text when hovered. When the button is click the game should proceed to the main play screen like the Let's Play button used to do.
+Where is the location and size of the graph a variable buttons controlled. I want to make all the buttons shorter and remove the minimum text size for scaling
+can we make it no more than two spos after the decimal place is ever displayed in the data table in the analysis lab
+can we remove the close graph button and the why does my graph look like that? button from inside the graph frame so I can control them seperately. I want to reporiton both and reduce the text size of both as well as having their size and text size scale with screen size
+the x axis for every chart should always be [-1,100] even if there is not data all the way to 100. The scale should be continuous not discreet and the start year should be graphed at -1
+even though the graph starts at -1 please make the first label at 0 going up by 10 from there
+please make it so the chart FAQ and the chart close button size and text fully scale with screen size with no minimum text size
+the close graph and the chart-faq button should disappear when the FAQ.png is loaded and reappear when close FAQ is pressed. Also I want to change the appearence to be green with navy text and when hovered, navy with green text.
+now use those to apply them in charts.js so the y-axis are the same as they were in gui.py for each variable
+can I make the close FAQ button smaller with smaller text and both size and text scale with screen size
+If the analysis lab is closed the forest_sound.wav should restart on the winning and loosing screens
+make sure the wind.wav is played and looped on the LowTPA loss screen in adition to the losing_trombone.wav
+please remove the minimum font size for the metrics panel and metric-risk
+the metrics pannel and action buttons don't seem to be scaling with screen size
+why when I change this   size("metrics", 1100, 1000);  is the metrics pannel not changing size. Is there another place it is controlled?
+something strange is happening where the size of "metrics" amd "actions" set in screens seems to have no affect on the size of thoose things in the game
+how do I force the metric text to stay within the confins of the metric pannel size?
+sometimes an image doesn't load fast enough so a navy screen dsiplays instead of the correct image. can you make it so throughout the game images are only displayed once they are fully loaded to prevent the navy background from showing
+the hover and click regions for the hints, glossary and field guide seem to be off when the screen is resized to a different aspect ratio. can we make sure they always are tied to the pixel in the background image even as the background image is moved around

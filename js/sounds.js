@@ -40,8 +40,10 @@ function stopLoop(key) {
   }
 }
 
-export function stopAllLoops() {
-  for (const key of [...loops.keys()]) stopLoop(key);
+export function stopAllLoops(exclude = []) {
+  for (const key of [...loops.keys()]) {
+    if (!exclude.includes(key)) stopLoop(key);
+  }
 }
 
 // Sound loops with time played

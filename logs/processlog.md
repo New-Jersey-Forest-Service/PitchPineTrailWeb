@@ -904,3 +904,224 @@ Reminder: ask the user before shutting this server down at session end.
 - Files changed: `js/screens.js`, `css/style.css`, `logs/promptlog.md`, `logs/processlog.md`.
 - Layout: Artwork-scaled slots use `bookshelf-medal-slot-1` through `bookshelf-medal-slot-9`, beginning at `75,2000`; medals are `150 x 200` artwork pixels.
 - Verification: `get_errors` reported no errors in `js/screens.js` or `css/style.css`.
+
+## 2026-09-01 Update: Image Buttons On Ending Screens
+
+- Summary: Replaced the text buttons on the winning (closing) and loss screens with hover-swappable PNG image buttons (Analyze My Management, Save your certificate, Try Again, Exit), positioned top-left by artwork pixel coordinates and scaled with the background image.
+- Files changed: `js/screens.js`, `css/style.css`, `logs/promptlog.md`, `logs/processlog.md`.
+- Details: Added an imageButton helper (img element with mouseenter/mouseleave src swap, click, and Enter/Space keyboard support). Repurposed the `closing-analyze`/`closing-certificate`/`closing-restart`/`closing-exit` point/size CSS vars from center-anchored button positions to top-left/width/height image positions using each PNG's native pixel dimensions (814x643, 613x490, 500x500, 495x279). The loss screen only received the three buttons it already had (no certificate button).
+- Verification: `get_errors` reported no errors in `js/screens.js` or `css/style.css`.
+
+## 2026-09-01 Update: Image Buttons On Main Play Screen Nav
+
+- Summary: Replaced the main play screen's Exit and Restart text buttons with hover-swappable PNG image buttons (exitbutton.png/exitbutton_hover.png and restart.png/restart_hover.png), each positioned independently by top-left artwork pixel coordinates and scaled with the background image.
+- Files changed: `js/screens.js`, `css/style.css`, `logs/promptlog.md`, `logs/processlog.md`.
+- Details: Removed the `.exit-link` flex wrapper in favor of two independently positioned `main-exit` (783,40, 303.39x171) and `main-restart` (1124,40, 527.25x171) point/size CSS vars, with widths derived from each image's native aspect ratio at a fixed 171px height.
+- Verification: `get_errors` reported no errors in `js/screens.js` or `css/style.css`.
+
+## 2026-09-01 Update: Image Button For Analysis Lab Return
+
+- Summary: Replaced the analysis lab's "Return to Game" text button with a hover-swappable image button (returntogame.png/returntogame_hover.png), positioned top-left at (1378,1923) with a 198x896 artwork-pixel size that scales with the background image.
+- Files changed: `js/screens.js`, `css/style.css`, `logs/promptlog.md`, `logs/processlog.md`.
+- Verification: `get_errors` reported no errors in `js/screens.js` or `css/style.css`.
+
+## 2026-09-01 Update: Independent Hotspots For Analysis Lab Buttons
+
+- Summary: Decoupled the hover/click regions for the Return to Game and Download Data image buttons in the analysis lab from their visible image bounds. Added an imageButtonWithHotspot helper that renders the button image (now pointer-events: none) alongside a separate transparent, independently positioned/sized hotspot element that handles hover-swap and click.
+- Files changed: js/screens.js, css/style.css, logs/promptlog.md, logs/processlog.md.
+- Details: nalysis-return-hotspot starts at the same top-left as the return image (1378,1923), sized 200x200. download-data-hotspot starts at (3774,1923), sized 200x200. Both scale with the background image via the existing point/size CSS var system.
+- Verification: get_errors reported no errors in js/screens.js or css/style.css.
+
+## 2026-09-01 Update: Hover Popup Text On Closing Screen Buttons
+
+- Summary: Added hover/focus popup tooltips (navy background, green text) to the left of the Try Again, Exit, and Analyze My Management image buttons on the winning/closing screen only. Try Again shows "Whoo Hoo! Let's go!", Exit shows "Hope to see you again soon!", and Analyze My Management shows "To the computer lab!".
+- Files changed: `js/screens.js`, `css/style.css`, `logs/promptlog.md`, `logs/processlog.md`.
+- Details: Added an `imageButtonWithPopup` helper that wraps the button image and a `.image-button-popup` element in a positioned `.image-button-wrapper` div, showing the popup on hover/focus. The certificate button and the loss-screen buttons are unchanged (plain `imageButton`, no popup).
+- Verification: `get_errors` reported no errors in `js/screens.js` or `css/style.css`.
+
+## 2026-09-01 Update: Hover Popup Text On Loss Screen Buttons
+
+- Summary: Extended the same hover/focus popup tooltips to the loss screen's Analyze My Management, Try Again, and Exit image buttons, matching the closing screen text and styling.
+- Files changed: `js/screens.js`, `logs/promptlog.md`, `logs/processlog.md`.
+- Verification: `get_errors` reported no errors in `js/screens.js`.
+
+## 2026-09-01 Update: Pocket Presentation Link Button On Win/Loss Screens
+
+- Summary: Added a new image button (pocketprez.png/pocketprez_hover.png) to both the winning/closing and loss screens, top-left at (3005,1602), sized 350x464 native pixels and scaling with the background. Hovering shows the popup "Click here to learn more about the Forestry concepts presented in this game!"; clicking opens https://dep.nj.gov/parksandforests/conservation/pocket-presentations/ in a new tab.
+- Files changed: `js/screens.js`, `css/style.css`, `logs/promptlog.md`, `logs/processlog.md`.
+- Details: Reused the `imageButtonWithPopup` helper and added `closing-pocketprez` point/size vars and a `.closing-pocketprez-button` CSS rule alongside the other closing-action buttons.
+- Verification: `get_errors` reported no errors in `js/screens.js` or `css/style.css`.
+
+## 2026-09-01 Update: Fixed Popup Stacking Order
+
+- Summary: Fixed hover popups on closing/loss screen image buttons rendering behind neighboring buttons (e.g. Exit's popup was behind the pocket presentation button). Hovered/focused button wrappers now raise their z-index above sibling buttons.
+- Files changed: `css/style.css`, `logs/promptlog.md`, `logs/processlog.md`.
+- Details: Added `.image-button-wrapper:hover, .image-button-wrapper:focus { z-index: 10; }` so the hovered wrapper's stacking context (and its popup) renders above other same-level buttons that share the base z-index of 2.
+- Verification: `get_errors` reported no errors in `css/style.css`.
+
+## 2026-09-01 Update: Removed Bookshelf Medals From Loss Screens
+
+- Summary: Removed the `renderBookshelfMedals()` call from `showLossScreen` so loss screens no longer display the bookshelf medal grid, matching the winning/closing screen behavior.
+- Files changed: `js/screens.js`, `logs/promptlog.md`, `logs/processlog.md`.
+- Verification: `get_errors` reported no errors in `js/screens.js`.
+
+## 2026-09-01 Update: Wildfire Loss Screen Sound
+
+- Summary: Changed the wildfire loss screen (`showFireLossScreen`) to play `fire.wav` (`sounds.playFireSound`) instead of `losing_trombone.wav`. The low-stocking and SPB loss screens are unchanged.
+- Files changed: `js/screens.js`, `logs/promptlog.md`, `logs/processlog.md`.
+- Verification: `get_errors` reported no errors in `js/screens.js`.
+
+## 2026-09-01 Update: Keep Forest Ambience On Winning Screen
+
+- Summary: The winning/closing screen no longer stops the `forest_sound.wav` ambient loop when it appears; all other loops (fire, wind, SPB, etc.) are still stopped.
+- Files changed: `js/sounds.js`, `js/screens.js`, `logs/promptlog.md`, `logs/processlog.md`.
+- Details: `stopAllLoops` now accepts an optional array of loop keys to exclude. `showClosingScreen` calls `stopAllLoops(["forest"])` instead of `stopAllLoops()`. Loss screens and other call sites are unchanged.
+- Verification: `get_errors` reported no errors in `js/sounds.js` or `js/screens.js`.
+
+## 2026-09-01 Update: Matched Hurricane/Wildfire Continue Button Size
+
+- Summary: The Continue button on the non-losing wildfire and hurricane event screens now matches the size of the Continue button on achievement screens (location was already shared via the same point coordinates).
+- Files changed: `css/style.css`, `logs/promptlog.md`, `logs/processlog.md`.
+- Details: Removed the `font-size: clamp(9px, 1vw, 24px)` and `width: clamp(50px, 9vw, 170px)` overrides from `.event-actions button` so it falls back to the same unstyled size as `.achievement-actions button`.
+- Verification: `get_errors` reported no errors in `css/style.css`.
+
+## 2026-09-01 Update: Separated Event Message Position
+
+- Summary: Split the shared `loss-message` point so loss and achievement messages stay at (4450,280) while event messages (hurricane/wildfire narration) now use their own point at (4450,200).
+- Files changed: `js/screens.js`, `css/style.css`, `logs/promptlog.md`, `logs/processlog.md`.
+- Details: Added a new `event-message` point/size in `updatePixelLayout`. In CSS, `.loss-message`/`.achievement-message` keep `--loss-message-left/top` while `.event-message` now uses new `--event-message-left/top` vars; shared styling (padding, background, color, font-size, etc.) remains in the combined selector.
+- Verification: `get_errors` reported no errors in `js/screens.js` or `css/style.css`.
+
+## 2026-09-01 Update: Disclaimer Popup After Let's Play
+
+- Summary: Clicking "Let's Play!" now shows a centered navy/green disclaimer popup with the requested real-world-vs-game disclaimer text and a "Got it!" button (navy by default, green background with navy text on hover). Clicking "Got it!" plays the lets_play sound and proceeds to the main play screen, matching the old Let's Play behavior.
+- Files changed: `js/screens.js`, `css/style.css`, `logs/promptlog.md`, `logs/processlog.md`.
+- Details: Added `showGameDisclaimerOverlay()`; the Let's Play button now opens this overlay instead of calling `showGameScreen()` directly. Added `.disclaimer-overlay`/`.disclaimer-text`/`.disclaimer-button` CSS, centered via `position: fixed` and a translate transform (not tied to the artwork pixel-scaling system since it's a viewport-centered modal).
+- Verification: `get_errors` reported no errors in `js/screens.js` or `css/style.css`.
+
+## 2026-09-01 Update: Shortened Graph Variable Buttons
+
+- Summary: Made the analysis lab's graph variable buttons (QMD, TPA, BA, Carbon, CI, Fire Risk, SPB Risk) shorter and removed their inherited 12px font-size floor.
+- Files changed: `css/style.css`, `logs/promptlog.md`, `logs/processlog.md`.
+- Details: `.plot-buttons button` now sets its own `padding: 3px 14px` (overriding the inherited `.green-button` 8px padding) and `font-size: 1vw` (overriding the inherited `clamp(12px, 1vw, 16px)` from the combined `.action-panel/.summary-panel/etc.` rule), so text can scale down freely with viewport size.
+- Verification: `get_errors` reported no errors in `css/style.css`.
+
+## 2026-09-01 Update: Rounded Analysis Data Table Values
+
+- Summary: Numeric columns (QMD, TPA, BA, Carbon, CI) in the analysis lab data table now round to at most 2 decimal places. Year and the risk text columns are unaffected.
+- Files changed: `js/charts.js`, `logs/promptlog.md`, `logs/processlog.md`.
+- Details: Added a `roundTwo` helper in `renderDataTable` that rounds numeric values via `Math.round(value * 100) / 100` before formatting the table rows.
+- Verification: `get_errors` reported no errors in `js/charts.js`.
+
+## 2026-09-01 Update: Independently Positioned Chart Overlay Buttons
+
+- Summary: Moved the "Close Graph" and "Why does my graph look like that?" buttons out of the `.chart-overlay` container so they can be positioned/sized independently, with reduced, screen-scaling text size.
+- Files changed: `js/screens.js`, `css/style.css`, `logs/promptlog.md`, `logs/processlog.md`.
+- Details: Added `chart-close` and `chart-faq` point/size vars (default 1400,555/220x45 and 1400,1750/420x45) in `updatePixelLayout`. `showChartOverlay` now appends both buttons to `root` alongside (not inside) the overlay, removing any stale instances first. CSS gives both their own left/top/width/height vars and a smaller `clamp(6px, 0.6vw, 12px)` font size.
+- Verification: `get_errors` reported no errors in `js/screens.js` or `css/style.css`.
+
+## 2026-09-01 Update: Continuous Fixed Chart X-Axis
+
+- Summary: All analysis lab charts (line and risk bar charts) now use a continuous linear x-axis fixed to the range [-1, 100] regardless of how much data exists, instead of a discrete category axis that stretched to fit only the available decades.
+- Files changed: `js/charts.js`, `logs/promptlog.md`, `logs/processlog.md`.
+- Details: Switched Chart.js datasets from category `labels`/plain value arrays to `{x, y}` point data, with the "Start" row plotted at x=-1. The x scale is now `type: "linear"` with `min: -1, max: 100` and a 10-year tick step; bar (risk) datasets use `barThickness: 20` since linear scales don't auto-size bars like category scales do.
+- Verification: `get_errors` reported no errors in `js/charts.js`.
+
+## 2026-09-01 Update: Chart X-Axis Labels Start At 0
+
+- Summary: Chart x-axis still spans [-1, 100] (so the Start-year data point at x=-1 plots correctly) but the visible tick labels now start at 0 and increment by 10 up to 100, instead of starting at -1.
+- Files changed: `js/charts.js`, `logs/promptlog.md`, `logs/processlog.md`.
+- Details: Added an `afterBuildTicks` override on the x scale that replaces the auto-generated ticks with explicit values 0,10,20,...,100.
+- Verification: `get_errors` reported no errors in `js/charts.js`.
+
+## 2026-09-01 Update: Removed Min Text Size On Chart Buttons
+
+- Summary: The Close Graph and FAQ buttons' text now scales fully with screen size with no minimum floor; their box size already scaled via the existing point/size vars.
+- Files changed: `css/style.css`, `logs/promptlog.md`, `logs/processlog.md`.
+- Details: Changed `.chart-close, .chart-faq` font-size from `clamp(6px, 0.6vw, 12px)` to a plain `0.6vw` so it can shrink below 6px on small viewports.
+- Verification: `get_errors` reported no errors in `css/style.css`.
+
+## 2026-09-01 Update: Chart Buttons Hide During FAQ, New Color Scheme
+
+- Summary: The Close Graph and FAQ buttons now hide while the FAQ overlay is open and reappear when "Close FAQs" is clicked. Both buttons are now green with navy text by default, switching to navy with green text on hover.
+- Files changed: `js/screens.js`, `css/style.css`, `logs/promptlog.md`, `logs/processlog.md`.
+- Details: `showFaqOverlay` now receives the close/FAQ buttons directly and toggles the `.hidden` class on them when the FAQ overlay opens/closes. Removed the shared `blue-button` class from both buttons in favor of dedicated `.chart-close`/`.chart-faq` background/color and `:hover` rules.
+- Verification: `get_errors` reported no errors in `js/screens.js` or `css/style.css`.
+
+## 2026-09-01 Update: Matched Web Chart Y-Axis Limits To Desktop gui.py
+
+- Summary: Applied the same fixed y-axis min/max and labels from the desktop gui.py charts to the web analysis lab charts: QMD 0-25, TPA 0-650, BA 0-150, carbon 0-25, CI 0-50. Risk charts (fire/SPB) are unchanged (auto y-scale with fixed Low/Moderate/High ticks).
+- Files changed: `js/charts.js`, `logs/promptlog.md`, `logs/processlog.md`.
+- Details: Added a `Y_AXIS_CONFIGS` map (label, min, max per variable) mirroring gui.py's `y_axis_configs`. `showVariablePlot` now looks up the config for the non-risk variable and applies it to the y scale's min/max and axis title.
+- Verification: `get_errors` reported no errors in `js/charts.js`.
+
+## 2026-09-01 Update: Smaller Scaling Close FAQ Button
+
+- Summary: Shrunk the "Close FAQs" button and its text, with both now scaling with screen size via viewport-relative units instead of fixed sizing.
+- Files changed: `css/style.css`, `logs/promptlog.md`, `logs/processlog.md`.
+- Details: `.faq-close` now sets `padding: 0.2vw 0.6vw` and `font-size: 0.45vw` (overriding the inherited `.green-button` fixed `8px 14px` padding), smaller than the chart-close/chart-faq buttons' `0.6vw` sizing.
+- Verification: `get_errors` reported no errors in `css/style.css`.
+
+## 2026-09-01 Update: Restart Forest Ambience After Closing Analysis Lab
+
+- Summary: Clicking "Return to Game" from the analysis lab now restarts `forest_sound.wav` when landing back on the winning (closing) screen or any of the loss screens, since entering the analysis lab always stops it and it was never being resumed.
+- Files changed: `js/screens.js`, `logs/promptlog.md`, `logs/processlog.md`.
+- Details: Added `sounds.playForestSound()` calls after `showClosingScreen()`, `showLowTpaScreen()`, `showFireLossScreen()`, and `showSpbLossScreen()` in the analysis lab's return-to-game handler. The normal (in-progress game) return branch is unchanged.
+- Verification: `get_errors` reported no errors in `js/screens.js`.
+
+## 2026-09-01 Update: Wind Loop On LowTPA Loss Screen
+
+- Summary: The LowTPA loss screen (showLowTpaScreen) now plays wind.wav on a loop in addition to the one-shot losing_trombone.wav.
+- Files changed: `js/screens.js`, `logs/promptlog.md`, `logs/processlog.md`.
+- Details: `showLowTpaScreen` now passes a combined sound function to `showLossScreen` that calls both `sounds.playLosingTromboneSound()` and `sounds.playWindSound()` (an existing looping sound).
+- Verification: `get_errors` reported no errors in `js/screens.js`.
+
+## 2026-09-01 Update: Removed Min Font Size On Metrics Panel
+
+- Summary: Removed the font-size floor on the metrics panel and its risk labels so text can shrink freely with screen size.
+- Files changed: `css/style.css`, `logs/promptlog.md`, `logs/processlog.md`.
+- Details: Changed `.metrics-panel` font-size from `clamp(1px, 0.75vw, 18px)` to a plain `0.75vw`, and `.metric-risk` from `clamp(1px, 1vw, 20px)` to a plain `1vw`.
+- Verification: `get_errors` reported no errors in `css/style.css`.
+
+## 2026-09-01 Update: Fixed Metrics/Action Button Scaling
+
+- Summary: The metrics panel font sizes and the action buttons' width/font-size were using viewport `vw` units, which don't track the same artwork-pixel scale factor used for positioning (they could drift out of sync, e.g. with letterboxing or non-16:9 aspect ratios). Both now scale using the same scale factor as everything else.
+- Files changed: `js/screens.js`, `css/style.css`, `logs/promptlog.md`, `logs/processlog.md`.
+- Details: Added a generic `scalePx(name, value)` helper in `updatePixelLayout` that scales an artwork-pixel value by the same factor used for point/size, and set new vars: `metrics-font-size` (45), `metric-risk-font-size` (55), `action-font-size` (50), `action-width` (750). Updated `.metrics-panel`, `.metric-risk`, and `.action-button` CSS to use these vars instead of `vw`/`clamp` values.
+- Verification: `get_errors` reported no errors in `js/screens.js` or `css/style.css`.
+
+## 2026-09-01 Update: Fixed Metrics Panel Height Not Applying
+
+- Summary: Found and fixed why changing the height argument in `size("metrics", 1100, 1000)` had no visible effect: `.metrics-panel` only applied `width: var(--metrics-width)` and never consumed the `--metrics-height` variable that `size()` computes.
+- Files changed: `css/style.css`, `logs/promptlog.md`, `logs/processlog.md`.
+- Details: Added `height: var(--metrics-height);` to `.metrics-panel`.
+- Verification: `get_errors` reported no errors in `css/style.css`.
+
+## 2026-09-01 Update: Fixed Action Panel Height Not Applying
+
+- Summary: Fixed the same missing-height bug for the action panel that was previously found on the metrics panel: `size("actions", 720, 650)` computed a `--actions-height` variable that `.action-panel` never consumed.
+- Files changed: `css/style.css`, `logs/promptlog.md`, `logs/processlog.md`.
+- Details: Added `height: var(--actions-height);` to `.action-panel`.
+- Caveat: The metrics panel's background is now transparent (per an earlier request), so width/height changes there can be visually subtle since there's no visible box edge — the text is centered and short, so it may not visibly reflow even though the container size is correctly applied.
+- Verification: `get_errors` reported no errors in `css/style.css`.
+
+## 2026-09-01 Update: Clip Metrics Text To Panel Bounds
+
+- Summary: Added `overflow: hidden` to `.metrics-panel` so its text content is clipped to the panel's width/height instead of spilling outside the box when the panel is sized smaller than the content.
+- Files changed: `css/style.css`, `logs/promptlog.md`, `logs/processlog.md`.
+- Verification: `get_errors` reported no errors in `css/style.css`.
+
+## 2026-09-01 Update: Preload Intro Background To Prevent Navy Flash
+
+- Summary: Investigated the navy flash issue. `setBg` already keeps the previous background image showing on screen until the new one has fully loaded and decoded (it never clears `root.style.backgroundImage` early), so the only moment the navy body background can show through is before the very first background is ever applied (page load), when `#game-root` has no background-image set yet.
+- Files changed: `js/screens.js`, `logs/promptlog.md`, `logs/processlog.md`.
+- Details: Extracted a reusable `preloadImage(name)` helper (same load+decode+cache logic as `setBg`) and used it in `showIntroScreen` to fully preload `introscreen.jpg` before calling `clearScreen`, so the game's very first screen never shows navy even on a cold cache/slow connection.
+- Verification: `get_errors` reported no errors in `js/screens.js`.
+
+## 2026-09-01 Update: Fixed Hotspot Drift On Non-Cover Aspect Ratios
+
+- Summary: Fixed the hint, glossary, and field guide hover/click hotspots (on the main play screen, guide-return screens, and analysis lab) drifting out of alignment on differing aspect ratios.
+- Files changed: `js/screens.js`, `logs/promptlog.md`, `logs/processlog.md`.
+- Root cause: The background switches to `background-size: contain` starting from the zoom sequence and stays that way for the rest of the game (never reset to `cover`). `updatePixelLayout` and `addHotspotHoverImage` correctly checked `root.style.backgroundSize` to pick `Math.min` (contain) vs `Math.max` (cover), but seven other hotspot-positioning call sites (`addGameDefinitionsHotspot`, `addGameFieldGuideHotspot`, `addGameHintHotspot`, `addGuideReturnHotspot`, `addAnalysisDefinitionsHotspot`, `addAnalysisFieldGuideHotspot`, `showHintOverlay`) hardcoded the `cover`-style `Math.max` formula regardless of the actual mode, causing them to drift from the real letterboxed image position whenever the window aspect ratio differed from the artwork's.
+- Fix: Added a shared `getArtLayout(imageWidth, imageHeight)` helper that computes `{ scale, imageLeft, imageTop }` using the same contain/cover-aware logic in one place, and updated all seven call sites (plus refactored `addHotspotHoverImage`) to use it instead of duplicating the calculation.
+- Verification: `get_errors` reported no errors in `js/screens.js`.

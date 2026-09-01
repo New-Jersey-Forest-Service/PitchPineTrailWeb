@@ -70,20 +70,23 @@ input:focus-visible {
   top: var(--metrics-top);
   z-index: 2;
   width: var(--metrics-width);
+  height: var(--metrics-height);
   min-width: 100px;
-  padding: clamp(10px, 1vw, 18px);
-  background: var(--paper);
+  max-height: 1000px;
+  overflow: hidden;
+  padding: clamp(1px, 1vw, 18px);
+  background: transparent;
   color: var(--ink);
   text-align: center;
-  line-height: 1.24;
+  line-height: var(--metrics-line-height);
   letter-spacing: -0.4px;
-  font-size: clamp(9px, 0.75vw, 18px);
+  font-size: var(--metrics-font-size);
 }
 
 .metric-risk {
   display: block;
   margin-top: 14px;
-  font-size: clamp(10px, 1vw, 20px);
+  font-size: var(--metric-risk-font-size);
 }
 
 /* text color for risk levels - green color for good */
@@ -110,15 +113,15 @@ input:focus-visible {
 .achievement-list,
 .plot-buttons{
   position: absolute;
-  font-size: clamp(12px, 1vw, 16px);
+  font-size: clamp(1px, 1vw, 16px);
   padding: clamp(5px, 1vw, 5px);
-  background: var(--navy);
+  background: transparent;
   color: var(--green);
 }
 
 .analysis-table {
   position: absolute;
-  background: var(--navy);
+  background: transparent;
   color: var(--green);
 }
 
@@ -129,19 +132,22 @@ input:focus-visible {
   left: var(--actions-left);
   top: var(--actions-top);
   width: var(--actions-width);
+  height: var(--actions-height);
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: var(--actions-gap);
+  font-size: var(--actions-font-size);
 }
 
 /* This is for the actual blue buttons with the management options. */
 
 .action-button {
-  width: clamp(100px, 15vw, 300px);
-  padding: 8px 14px;
+  width: var(--actions-width);
+  height: var(--actions-height);
+  padding: var(--actions-padding);
   background: var(--button);
   color: var(--green);
-  font-size: clamp(9px, 1vw, 20px);
+  font-size: var(--actions-font-size);
 }
 
 /* Is the hover effect for the management action buttons. They turn green when mouse is hovered over them. */
@@ -233,11 +239,11 @@ input:focus-visible {
 /* This needs to be relabeled  */
 
 .tan-button {
-  min-width: 170px;
-  padding: 8px 16px;
+  min-width: var(--button-width);
+  padding: var(--button-padding);
   background: #f7d79e;
   color: #663e1d;
-  font-size: clamp(14px, 1vw, 20px);
+  font-size: var(--button-font-size);
 }
 
 /* Hover action effect */
@@ -272,8 +278,25 @@ input:focus-visible {
   color: #3d0606;
 }
 
+.main-exit-button,
+.main-restart-button {
+  position: absolute;
+  z-index: 3;
+  cursor: pointer;
+}
+
 .main-exit-button {
-  font-size: 25px;
+  left: var(--main-exit-left);
+  top: var(--main-exit-top);
+  width: var(--main-exit-width);
+  height: var(--main-exit-height);
+}
+
+.main-restart-button {
+  left: var(--main-restart-left);
+  top: var(--main-restart-top);
+  width: var(--main-restart-width);
+  height: var(--main-restart-height);
 }
 
 .definitions-link {
@@ -286,15 +309,6 @@ input:focus-visible {
   position: absolute;
   left: var(--field-guide-left);
   top: var(--field-guide-top);
-}
-
-.exit-link {
-  position: absolute;
-  left: var(--exit-left);
-  top: var(--exit-top);
-  z-index: 3;
-  display: flex;
-  gap: 10px;
 }
 
 .hint-link {
@@ -325,6 +339,44 @@ input:focus-visible {
   display: block;
   width: 100%;
   height: auto;
+}
+
+.disclaimer-overlay {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  max-width: min(700px, 80vw);
+  padding: 24px 28px;
+  background: var(--navy);
+  color: var(--green);
+  text-align: center;
+}
+
+.disclaimer-text {
+  margin: 0;
+  font-size: clamp(12px, 1.3vw, 18px);
+  line-height: 1.4;
+  white-space: pre-wrap;
+}
+
+.disclaimer-button {
+  border: 2px solid var(--green);
+  background: var(--navy);
+  color: var(--green);
+  padding: 10px 24px;
+  font-size: clamp(12px, 1vw, 18px);
+  cursor: pointer;
+}
+
+.disclaimer-button:hover {
+  background: var(--green);
+  color: var(--navy);
 }
 
 .hint-close {
@@ -376,7 +428,7 @@ input:focus-visible {
   overflow: auto;
   padding: 12px;
   white-space: pre-wrap;
-  font-size: clamp(12px, 0.95vw, 19px);
+  font-size: var(--summary-font-size);
 }
 
 .ending-medal-overlay {
@@ -466,8 +518,7 @@ input:focus-visible {
   z-index: 2;
   transform: translate(-50%, -50%);
   pointer-events: auto;
-  font-size: clamp(9px, 1vw, 24px);
-  width: clamp(50px, 9vw, 170px);
+  font-size: var(--event-actions-font-size);
 }
 
 .achievement-actions {
@@ -477,7 +528,7 @@ input:focus-visible {
   display: flex;
   gap: 12px;
   align-items: center;
-  font-size: clamp(9px, 1vw, 24px);
+  font-size: var(--achievement-actions-font-size);
   width: clamp(50px, 9vw, 170px);
 }
 
@@ -504,74 +555,116 @@ input:focus-visible {
   pointer-events: auto;
 }
 
-.closing-analyze-button{
-  font-size: clamp(12px, 1vw, 24px);
+.closing-analyze-button,
+.closing-certificate-button,
+.closing-restart-button,
+.closing-exit-button,
+.closing-pocketprez-button {
   position: absolute;
   z-index: 2;
-  transform: translate(-50%, -50%);
   pointer-events: auto;
-}
-
-.closing-certificate-button{
-  font-size: clamp(12px, 1vw, 24px);
-  position: absolute;
-  z-index: 2;
-  transform: translate(-50%, -50%);
-  pointer-events: auto;
-  white-space: normal;
-  width: 300px;
-}
-
-.closing-restart-button{
-  font-size: clamp(12px, 1vw, 33px);
-  position: absolute;
-  z-index: 2;
-  transform: translate(-50%, -50%);
-  pointer-events: auto;
-}
-
-.closing-exit-button {
-  font-size: clamp(12px, 1vw, 33px);
-  position: absolute;
-  z-index: 2;
-  transform: translate(-50%, -50%);
-  pointer-events: auto;
+  cursor: pointer;
 }
 
 .closing-analyze-button {
   left: var(--closing-analyze-left);
   top: var(--closing-analyze-top);
+  width: var(--closing-analyze-width);
+  height: var(--closing-analyze-height);
 }
 
 .closing-certificate-button {
   left: var(--closing-certificate-left);
   top: var(--closing-certificate-top);
+  width: var(--closing-certificate-width);
+  height: var(--closing-certificate-height);
 }
 
 .closing-restart-button {
   left: var(--closing-restart-left);
   top: var(--closing-restart-top);
+  width: var(--closing-restart-width);
+  height: var(--closing-restart-height);
 }
 
 .closing-exit-button {
   left: var(--closing-exit-left);
   top: var(--closing-exit-top);
+  width: var(--closing-exit-width);
+  height: var(--closing-exit-height);
+}
+
+.closing-pocketprez-button {
+  left: var(--closing-pocketprez-left);
+  top: var(--closing-pocketprez-top);
+  width: var(--closing-pocketprez-width);
+  height: var(--closing-pocketprez-height);
+}
+
+.image-button-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.image-button-popup {
+  position: absolute;
+  right: calc(100% + 10px);
+  top: 50%;
+  transform: translateY(-50%);
+  display: none;
+  width: max-content;
+  max-width: min(360px, 30vw);
+  padding: 10px 14px;
+  background: var(--navy);
+  color: var(--green);
+  font-size: clamp(10px, 0.9vw, 17px);
+  line-height: 1.25;
+  text-align: center;
+  white-space: normal;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.image-button-wrapper:hover .image-button-popup,
+.image-button-wrapper:focus .image-button-popup {
+  display: block;
+}
+
+.image-button-wrapper:hover,
+.image-button-wrapper:focus {
+  z-index: 10;
 }
 
 .loss-message,
 .event-message,
 .achievement-message {
   position: absolute;
-  left: var(--loss-message-left);
-  top: var(--loss-message-top);
   width: var(--loss-message-width);
   padding: 14px;
   background: var(--navy);
   color: var(--green);
-  font-size: clamp(9px, 1.15vw, 22px);
   text-align: center;
+  font-size: var(--loss-message-font-size);
   line-height: 1.25;
   white-space: pre-wrap;
+}
+.event-message {
+  font-size: var(--event-message-font-size);
+  text-align: center;
+}
+
+.loss-message,
+.achievement-message {
+  left: var(--loss-message-left);
+  top: var(--loss-message-top);
+}
+
+.event-message {
+  left: var(--event-message-left);
+  top: var(--event-message-top);
 }
 
 .analysis-table {
@@ -583,7 +676,7 @@ input:focus-visible {
   padding: 12px;
   background: var(--graph-bg);
   color: var(--green);
-  font-size: clamp(11px, 0.78vw, 15px);
+  font-size: var(--analysis-table-font-size);
   text-align: center;
   white-space: pre;
 }
@@ -599,6 +692,8 @@ input:focus-visible {
 
 .plot-buttons button {
   width: clamp(100px, 9vw, 170px);
+  padding: 3px 14px;
+  font-size: var(--plot-buttons-font-size);
 }
 
 .achievement-list {
@@ -609,14 +704,37 @@ input:focus-visible {
   overflow: auto;
   padding: 10px;
   white-space: pre-wrap;
-  font-size: clamp(12px, 0.85vw, 16px);
+  font-size: var(--achievement-list-font-size);
 }
 
 .analysis-return {
   position: absolute;
   left: var(--analysis-return-left);
   top: var(--analysis-return-top);
-  transform: translate(-50%, -50%);
+  width: var(--analysis-return-width);
+  height: var(--analysis-return-height);
+  pointer-events: none;
+}
+
+.analysis-return-hotspot,
+.download-data-hotspot {
+  position: absolute;
+  z-index: 3;
+  cursor: pointer;
+}
+
+.analysis-return-hotspot {
+  left: var(--analysis-return-hotspot-left);
+  top: var(--analysis-return-hotspot-top);
+  width: var(--analysis-return-hotspot-width);
+  height: var(--analysis-return-hotspot-height);
+}
+
+.download-data-hotspot {
+  left: var(--download-data-hotspot-left);
+  top: var(--download-data-hotspot-top);
+  width: var(--download-data-hotspot-width);
+  height: var(--download-data-hotspot-height);
 }
 
 .analysis-definitions-link {
@@ -635,7 +753,7 @@ input:focus-visible {
   top: var(--download-data-top);
   width: var(--download-data-width);
   height: var(--download-data-height);
-  cursor: pointer;
+  pointer-events: none;
 }
 
 .floppy-confirmation {
@@ -663,18 +781,33 @@ input:focus-visible {
   height: 100% !important;
 }
 
-.chart-close {
+.chart-close,
+.chart-faq {
   position: absolute;
-  top: 4px;
-  left: 8px;
   z-index: 14;
+  font-size: 0.6vw;
+  background: var(--green);
+  color: var(--navy);
+}
+
+.chart-close:hover,
+.chart-faq:hover {
+  background: var(--navy);
+  color: var(--green);
+}
+
+.chart-close {
+  left: var(--chart-close-left);
+  top: var(--chart-close-top);
+  width: var(--chart-close-width);
+  height: var(--chart-close-height);
 }
 
 .chart-faq {
-  position: absolute;
-  left: 8px;
-  bottom: 6px;
-  z-index: 14;
+  left: var(--chart-faq-left);
+  top: var(--chart-faq-top);
+  width: var(--chart-faq-width);
+  height: var(--chart-faq-height);
 }
 
 .faq-overlay {
@@ -692,9 +825,11 @@ input:focus-visible {
 
 .faq-close {
   position: absolute;
-  right: 12px;
-  bottom: 12px;
+  right: 6px;
+  bottom: 6px;
   z-index: 16;
+  padding: 0.2vw 0.6vw;
+  font-size: 0.7vw;
 }
 
 .certificate-overlay {
