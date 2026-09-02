@@ -163,7 +163,7 @@ function updatePixelLayout() {
   size("metrics", 1100, 1044);
   scalePx("metrics-font-size", 42);
   scalePx("metric-risk-font-size", 52);
-  scalePx("metrics-line-height", 50);
+  scalePx("metrics-line-height", 45);
   point("actions", 4550, 300);
   size("actions", 720, 590);
   scalePx("actions-font-size", 50);
@@ -189,6 +189,7 @@ function updatePixelLayout() {
   point("bookshelf-medal-slot-5", 275, 2210);
   point("bookshelf-medal-slot-6", 475, 2210);
   point("bookshelf-medal-slot-7", 275, 2420);
+  scalePx("bookshelf-medal-font-size", 50);
   size("bookshelf-medal", 150, 200);
   point("coloring-page", 90, 1990);
   size("coloring-page", 510, 653);

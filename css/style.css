@@ -254,28 +254,31 @@ input:focus-visible {
 
 .dark-button {
   min-width: 160px;
-  padding: 8px 14px;
+  padding: var(--button-padding);
   background: #000000;
   color: #ffffff;
   font-size: clamp(12px, 0.8vw, 17px);
 }
 
 .green-button {
-  padding: 8px 14px;
+  padding: var(--button-padding);
   background: var(--green);
   color: var(--navy);
+  font-size: var(--button-font-size);
 }
 
 .blue-button {
-  padding: 8px 14px;
+  padding: var(--button-padding);
   background: var(--navy);
   color: var(--muted);
+  font-size: var(--button-font-size);
 }
 
 .red-button {
-  padding: 8px 14px;
+  padding: var(--button-padding);
   background: #9c3432;
   color: #3d0606;
+  font-size: var(--button-font-size);
 }
 
 .main-exit-button,
@@ -360,7 +363,7 @@ input:focus-visible {
 
 .disclaimer-text {
   margin: 0;
-  font-size: clamp(12px, 1.3vw, 18px);
+  font-size: calc(var(--button-font-size) * 1.6);
   line-height: 1.4;
   white-space: pre-wrap;
 }
@@ -370,7 +373,7 @@ input:focus-visible {
   background: var(--navy);
   color: var(--green);
   padding: 10px 24px;
-  font-size: clamp(12px, 1vw, 18px);
+  font-size: calc(var(--button-font-size) * 1.6);
   cursor: pointer;
 }
 
@@ -401,7 +404,7 @@ input:focus-visible {
   position: fixed;
   z-index: 21;
   transform: translate(-50%, -50%);
-  font-size: clamp(11px, 0.9vw, 18px);
+  font-size: calc(var(--button-font-size) * 1.2);
 }
 
 .survey-open-button {
@@ -470,10 +473,10 @@ input:focus-visible {
   padding: 3px 5px;
   background: #f7d79e;
   color: #663e1d;
-  font-size: 8px;
+  font-size: var(--bookshelf-medal-font-size);
   line-height: 1.2;
   text-align: center;
-  white-space: nowrap;
+  white-space: pre-wrap;
   transform: translateX(-50%);
 }
 
