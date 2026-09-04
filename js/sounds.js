@@ -1,6 +1,25 @@
 const ASSET_BASE = "assets/";
+const VOLUME_STORAGE_KEY = "pptMasterVolume";
 
 const loops = new Map();
+
+function loadMasterVolume() {
+  const stored = Number.parseFloat(localStorage.getItem(VOLUME_STORAGE_KEY));
+  return Number.isFinite(stored) ? Math.min(1, Math.max(0, stored)) : 1;
+}
+
+let masterVolume = loadMasterVolume();
+
+export function getMasterVolume() {
+  return masterVolume;
+}
+
+// Rescales every currently looping sound so dragging the slider is heard immediately.
+export function setMasterVolume(volume) {
+  masterVolume = Math.min(1, Math.max(0, volume));
+  localStorage.setItem(VOLUME_STORAGE_KEY, String(masterVolume));
+  for (const audio of loops.values()) audio.volume = audio._baseVolume * masterVolume;
+}
 
 function src(name) {
   return `${ASSET_BASE}${name}`;
@@ -9,7 +28,7 @@ function src(name) {
 function playOne(name, volume = 1) {
   try {
     const audio = new Audio(src(name));
-    audio.volume = volume;
+    audio.volume = volume * masterVolume;
     audio.play().catch(() => {});
     return audio;
   } catch {
@@ -21,7 +40,8 @@ function playLoop(key, name, volume = 1) {
   stopLoop(key);
   try {
     const audio = new Audio(src(name));
-    audio.volume = volume;
+    audio._baseVolume = volume;
+    audio.volume = volume * masterVolume;
     audio.loop = true;
     audio.play().catch(() => {});
     loops.set(key, audio);

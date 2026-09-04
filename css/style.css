@@ -252,6 +252,19 @@ input:focus-visible {
   background: #069134;
 }
 
+.yellow-button {
+  min-width: var(--button-width);
+  padding: var(--button-padding);
+  background: #e4940b;
+  color: #663e1d;
+  font-size: var(--button-font-size);
+}
+
+.yellow-button:hover {
+  background: #0a421d;
+  color: #e4940b;
+}
+
 .dark-button {
   min-width: 160px;
   padding: var(--button-padding);
@@ -874,4 +887,42 @@ input:focus-visible {
 
 .hidden {
   display: none !important;
+}
+
+.volume-icon,
+.volume-panel,
+.volume-toggle-hotspot,
+.volume-drag-hotspot {
+  position: fixed;
+  z-index: 1000;
+}
+
+.volume-icon {
+  pointer-events: none;
+}
+
+.volume-panel {
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.volume-bar,
+.volume-slider {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.volume-toggle-hotspot {
+  cursor: pointer;
+}
+
+.volume-drag-hotspot {
+  cursor: grab;
+}
+
+.volume-drag-hotspot:active {
+  cursor: grabbing;
 }

@@ -1141,3 +1141,35 @@ Reminder: ask the user before shutting this server down at session end.
 - Root cause: The prior fix only constrained `html2canvas` capture bounds to `root`'s size, but the game background uses `background-size: contain` (confirmed via the 2026-09-01 hotspot-drift entry above), so on non-matching window aspect ratios the captured screenshot includes navy letterbox bars around the art. Stretching that full capture (art + letterbox) into the fixed-size photo box distorted/shrank the actual art.
 - Fix: Reused the existing `getArtLayout()` helper (same contain/cover-aware scale + offset math used for hotspot positioning) to compute exactly where the art image is rendered within `root`, then cropped the captured canvas to that rectangle (accounting for the canvas's device-pixel-ratio scale factor vs. CSS pixels) before embedding it in the PDF. Only the actual background art is now embedded and stretched to fill the photo box, regardless of window size/aspect ratio.
 - Verification: `get_errors` reported no errors in `js/screens.js`. Not tested live in a browser this session.
+
+## 2026-09-04 Update: Intro Screen Now Resizes Like The Rest Of The Game
+
+- Summary: Fixed the intro/title screen (`introscreen.jpg`) being the only screen using `background-size: cover` (crops on resize) while every other screen uses `contain` (letterboxes, no cropping).
+- Files changed: `js/screens.js`, `logs/promptlog.md`, `logs/processlog.md`.
+- Fix: Changed `showIntroScreen` to set `root.style.backgroundSize = "contain"` instead of `"cover"`, matching the zoom sequence and every subsequent screen.
+- Verification: `get_errors` reported no errors in `js/screens.js`. Not tested live in a browser this session.
+
+## 2026-09-04 Update: Persistent Volume Icon/Slider Control
+
+- Summary: Added a master-volume icon and vertical slider (using existing `volume.png`, `volumebar.png`, `volumeslider.png` assets, all 178x1045 native px sharing one coordinate space) that is present on every screen and controls the volume of every sound in the game.
+- Files changed: `js/sounds.js`, `js/screens.js`, `css/style.css`, `logs/promptlog.md`, `logs/processlog.md`.
+- Details:
+  - `js/sounds.js`: Added `getMasterVolume()`/`setMasterVolume()` backed by `localStorage` (key `pptMasterVolume`). `playOne`/`playLoop` now multiply their per-sound volume by the master volume, and `setMasterVolume` rescales all currently looping sounds live so dragging the slider is heard immediately.
+  - `js/screens.js`: Added `initVolumeControl()`, called once at startup alongside `showIntroScreen()`. It appends the icon, bar+slider panel, and two hotspots (toggle at art coords 4295,74 sized 184x184; drag handle at 4348,319 sized 70x70, offset relative to the slider's own top-left) directly to `document.body` (not `#game-root`) so they survive every `clearScreen()` wipe and appear on every screen. Slider position maps linearly between art-y 74 (loudest) and 580 (quietest); dragging uses Pointer Events and reuses `getArtLayout()` for resize-aware scaling. Clicking the icon region toggles the panel open/closed; the slider stays at its last position (in-memory, and persisted via master volume in localStorage) when reopened.
+  - `css/style.css`: Added `.volume-icon`/`.volume-panel`/`.volume-bar`/`.volume-slider`/`.volume-toggle-hotspot`/`.volume-drag-hotspot` rules using `position: fixed` and `z-index: 1000` since these elements live outside `#game-root`.
+- Verification: `get_errors` reported no errors in `js/screens.js`, `js/sounds.js`, `css/style.css`. Could not test live in a browser this session — no working Python or Node.js interpreter was found on this machine (the `python` command resolves to the Microsoft Store app-execution alias placeholder, and no `node`/`npx` was found), so the local static server from AGENTS.md could not be started. A downstream agent should verify a python/node install path on this machine (or ask the user) before attempting local server testing again.
+
+## 2026-09-04 Update: Fixed Squished Volume Icon
+
+- Summary: Fixed `volume.png` rendering squished/distorted.
+- Files changed: `js/screens.js`, `logs/promptlog.md`, `logs/processlog.md`.
+- Root cause: `volume.png` shares the same 178x1045 native canvas as `volumebar.png`/`volumeslider.png` (confirmed via image dimension inspection earlier this session), but the icon element was sized to the 184x184 click region, stretching the tall native image into a square box.
+- Fix: The icon element is now sized at its full native dimensions (`VOLUME_PANEL_WIDTH` x `VOLUME_PANEL_HEIGHT`, scaled) so it renders undistorted, while the separate `toggleHotspot` element remains the 184x184 click/toggle region on top of it.
+- Verification: `get_errors` reported no errors in `js/screens.js`. Not tested live in a browser this session (see prior entry re: no working local Python/Node interpreter).
+
+## 2026-09-04 Update: Volume Control Repositions For Intro/Zoom Sequence
+
+- Summary: The volume icon/slider now moves to a different spot on the intro screen, disappears during the zoom-in sequence, and reappears at its normal spot once the zoom_10 screen shows.
+- Files changed: `js/screens.js`, `logs/promptlog.md`, `logs/processlog.md`.
+- Details: `initVolumeControl()` now returns a `volumeControlApi` object (module-level) with `setIconX(x)` and `setHidden(hidden)`, replacing the previously-constant icon X position with a mutable `iconX` closure variable and adding a `forceHidden` flag (independent of the open/closed toggle state) checked in `applyVisibility`. `showIntroScreen` calls `setIconX(VOLUME_ICON_INTRO_X)` (5400,74), `startZoomSequence` calls `setHidden(true)`, and `showZoomFinalScreen` calls `setIconX(VOLUME_ICON_DEFAULT_X)` + `setHidden(false)` so it's back at (4295,74) for the rest of the game.
+- Verification: `get_errors` reported no errors in `js/screens.js`. Not tested live in a browser this session (no working local Python/Node interpreter on this machine).

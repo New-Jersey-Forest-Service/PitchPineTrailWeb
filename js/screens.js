@@ -1,6 +1,6 @@
 import { ACTIONS, Game } from "./game.js";
 import { exportCSV, renderDataTable, showVariablePlot } from "./charts.js";
-import { sounds, stopAllLoops } from "./sounds.js";
+import { sounds, stopAllLoops, getMasterVolume, setMasterVolume } from "./sounds.js";
 
 const root = document.getElementById("game-root");
 const ASSET_BASE = "assets/";
@@ -87,6 +87,142 @@ function getArtLayout(imageWidth = ART_WIDTH, imageHeight = ART_HEIGHT) {
   const imageLeft = (root.clientWidth - imageWidth * scale) / 2;
   const imageTop = (root.clientHeight - imageHeight * scale) / 2;
   return { scale, imageLeft, imageTop };
+}
+
+// Volume control (icon + bar + slider), kept outside #game-root so it survives every clearScreen() wipe.
+const VOLUME_ICON_DEFAULT_X = 4295;
+const VOLUME_ICON_INTRO_X = 5200;
+const VOLUME_ICON_Y = 74;
+const VOLUME_ICON_SIZE = 184;
+const VOLUME_PANEL_WIDTH = 178;
+const VOLUME_PANEL_HEIGHT = 1045;
+const VOLUME_SLIDER_TOP_MIN = 74; // loudest
+const VOLUME_SLIDER_TOP_MAX = 580; // quietest
+const VOLUME_HANDLE_OFFSET_X = 53;
+const VOLUME_HANDLE_OFFSET_Y = 319 - VOLUME_ICON_Y;
+const VOLUME_HANDLE_SIZE = 70;
+
+function volumeToSliderTop(volume) {
+  return VOLUME_SLIDER_TOP_MIN + (1 - volume) * (VOLUME_SLIDER_TOP_MAX - VOLUME_SLIDER_TOP_MIN);
+}
+
+function sliderTopToVolume(top) {
+  return 1 - (top - VOLUME_SLIDER_TOP_MIN) / (VOLUME_SLIDER_TOP_MAX - VOLUME_SLIDER_TOP_MIN);
+}
+
+let volumeControlApi = null;
+
+function initVolumeControl() {
+  let open = false;
+  let forceHidden = false;
+  let iconX = VOLUME_ICON_DEFAULT_X;
+  let sliderTop = volumeToSliderTop(getMasterVolume());
+
+  const icon = document.createElement("img");
+  icon.className = "volume-icon";
+  icon.src = asset("volume.png");
+  icon.alt = "Volume";
+
+  const panel = document.createElement("div");
+  panel.className = "volume-panel";
+  const bar = document.createElement("img");
+  bar.className = "volume-bar";
+  bar.src = asset("volumebar.png");
+  bar.alt = "";
+  const slider = document.createElement("img");
+  slider.className = "volume-slider";
+  slider.src = asset("volumeslider.png");
+  slider.alt = "";
+  panel.append(bar, slider);
+
+  const toggleHotspot = document.createElement("div");
+  toggleHotspot.className = "volume-toggle-hotspot";
+  toggleHotspot.tabIndex = 0;
+  toggleHotspot.setAttribute("role", "button");
+  toggleHotspot.setAttribute("aria-label", "Toggle volume control");
+
+  const dragHotspot = document.createElement("div");
+  dragHotspot.className = "volume-drag-hotspot";
+  dragHotspot.tabIndex = 0;
+  dragHotspot.setAttribute("role", "slider");
+  dragHotspot.setAttribute("aria-label", "Volume slider");
+
+  document.body.append(icon, panel, toggleHotspot, dragHotspot);
+
+  const applyVisibility = () => {
+    icon.style.display = !forceHidden && !open ? "" : "none";
+    panel.style.display = !forceHidden && open ? "" : "none";
+    toggleHotspot.style.display = forceHidden ? "none" : "";
+    dragHotspot.style.display = !forceHidden && open ? "" : "none";
+  };
+
+  const positionAll = () => {
+    const { scale, imageLeft, imageTop } = getArtLayout();
+    const place = (element, x, y, width, height) => {
+      element.style.left = `${imageLeft + x * scale}px`;
+      element.style.top = `${imageTop + y * scale}px`;
+      element.style.width = `${width * scale}px`;
+      element.style.height = `${height * scale}px`;
+    };
+    place(icon, iconX, VOLUME_ICON_Y, VOLUME_PANEL_WIDTH, VOLUME_PANEL_HEIGHT);
+    place(panel, iconX, VOLUME_ICON_Y, VOLUME_PANEL_WIDTH, VOLUME_PANEL_HEIGHT);
+    place(toggleHotspot, iconX, VOLUME_ICON_Y, VOLUME_ICON_SIZE, VOLUME_ICON_SIZE);
+    place(dragHotspot, iconX + VOLUME_HANDLE_OFFSET_X, sliderTop + VOLUME_HANDLE_OFFSET_Y, VOLUME_HANDLE_SIZE, VOLUME_HANDLE_SIZE);
+    slider.style.top = `${(sliderTop - VOLUME_ICON_Y) * scale}px`;
+  };
+
+  applyVisibility();
+  positionAll();
+  window.addEventListener("resize", positionAll);
+
+  toggleHotspot.addEventListener("click", () => {
+    open = !open;
+    applyVisibility();
+    positionAll();
+  });
+  toggleHotspot.addEventListener("keydown", (event) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      toggleHotspot.click();
+    }
+  });
+
+  let dragging = false;
+  let dragStartClientY = 0;
+  let dragStartSliderTop = 0;
+
+  const onPointerMove = (event) => {
+    if (!dragging) return;
+    const { scale } = getArtLayout();
+    const deltaArtY = (event.clientY - dragStartClientY) / scale;
+    sliderTop = Math.min(VOLUME_SLIDER_TOP_MAX, Math.max(VOLUME_SLIDER_TOP_MIN, dragStartSliderTop + deltaArtY));
+    setMasterVolume(sliderTopToVolume(sliderTop));
+    positionAll();
+  };
+  const endDrag = () => {
+    dragging = false;
+    window.removeEventListener("pointermove", onPointerMove);
+    window.removeEventListener("pointerup", endDrag);
+  };
+  dragHotspot.addEventListener("pointerdown", (event) => {
+    dragging = true;
+    dragStartClientY = event.clientY;
+    dragStartSliderTop = sliderTop;
+    window.addEventListener("pointermove", onPointerMove);
+    window.addEventListener("pointerup", endDrag);
+    event.preventDefault();
+  });
+
+  volumeControlApi = {
+    setIconX: (x) => {
+      iconX = x;
+      positionAll();
+    },
+    setHidden: (hidden) => {
+      forceHidden = hidden;
+      applyVisibility();
+    }
+  };
 }
 
 // Resolves once an image has fully loaded (and decoded, when supported), caching the result.
@@ -247,9 +383,9 @@ function updatePixelLayout() {
   size("chart-close", 320, 75);
   point("chart-faq", 1400, 1660);
   size("chart-faq", 800, 75);
-  point("certificate", 3100, 150);
+  point("certificate", 2850, 130);
   size("certificate", 1400);
-  point("certificate-save", 4400, 770);
+  point("certificate-save", 4050, 690);
   point("hint-overlay", 2758, 54);
   size("hint-overlay", 2640);
   point("survey-overlay", 780, 40);
@@ -257,13 +393,13 @@ function updatePixelLayout() {
   point("survey-open", 2100, 800);
   point("survey-exit", 1950, 950);
   point("survey-cancel", 2250, 950);
-  point("medal-slot-1", 1379, 324);
-  point("medal-slot-2", 1379, 972);
-  point("medal-slot-3", 1379, 1620);
-  point("medal-slot-4", 2482, 324);
-  point("medal-slot-5", 2482, 972);
-  point("medal-slot-6", 2482, 1620);
-  point("medal-slot-7", 3589, 972);
+  point("medal-slot-1", 1229, 324);
+  point("medal-slot-2", 1229, 972);
+  point("medal-slot-3", 1229, 1620);
+  point("medal-slot-4", 2282, 324);
+  point("medal-slot-5", 2282, 972);
+  point("medal-slot-6", 2282, 1620);
+  point("medal-slot-7", 3335, 972);
   size("medal", 950);
 }
 
@@ -709,6 +845,7 @@ function startAnimation(during, durationMs, final) {
 
 function showIntroScreen() {
   root.style.backgroundSize = "contain";
+  volumeControlApi?.setIconX(VOLUME_ICON_INTRO_X);
   preloadImage("introscreen.jpg").then(() => {
     clearScreen("introscreen.jpg");
     sounds.playForestSound();
@@ -729,6 +866,7 @@ function showIntroScreen() {
 
 function startZoomSequence() {
   root.style.backgroundSize = "contain";
+  volumeControlApi?.setHidden(true);
   sounds.playZoomSound();
   const frames = Array.from({ length: 10 }, (_, index) => `zoom_${index + 1}.jpg`);
   const preload = frames.map((name) => new Promise((resolve) => {
@@ -761,6 +899,8 @@ function startZoomSequence() {
 
 function showZoomFinalScreen() {
   root.style.backgroundSize = "contain";
+  volumeControlApi?.setIconX(VOLUME_ICON_DEFAULT_X);
+  volumeControlApi?.setHidden(false);
   clearScreen("zoom_10.jpg");
   zoomHotspotCleanup = addZoomDefinitionsHotspot();
   const buttons = document.createElement("div");
@@ -1482,7 +1622,7 @@ function showCertificateOverlay() {
     }
   };
   input.addEventListener("input", fitCertificateName);
-  const save = button("Save", "green-button certificate-save", async () => {
+  const save = button("Save", "yellow-button certificate-save", async () => {
     sounds.playSaveSound();
     if (!window.html2canvas || !window.PDFLib) return;
     const enteredName = input.value.trim();
@@ -1764,4 +1904,5 @@ function restartGameToZoom() {
   showZoomFinalScreen();
 }
 
+initVolumeControl();
 showIntroScreen();
