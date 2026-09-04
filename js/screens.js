@@ -334,7 +334,7 @@ function updatePixelLayout() {
   point("main-restart", 1124, 40);
   size("main-restart", 527.25, 171);
   point("hint", 3695, 81);
-  point("summary", 4550, 260);
+  point("summary", 4490, 260);
   size("summary", 1000);
   scalePx("summary-font-size", 48);
   scalePx("summary-width", 900);
