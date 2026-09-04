@@ -1125,3 +1125,19 @@ Reminder: ask the user before shutting this server down at session end.
 - Root cause: The background switches to `background-size: contain` starting from the zoom sequence and stays that way for the rest of the game (never reset to `cover`). `updatePixelLayout` and `addHotspotHoverImage` correctly checked `root.style.backgroundSize` to pick `Math.min` (contain) vs `Math.max` (cover), but seven other hotspot-positioning call sites (`addGameDefinitionsHotspot`, `addGameFieldGuideHotspot`, `addGameHintHotspot`, `addGuideReturnHotspot`, `addAnalysisDefinitionsHotspot`, `addAnalysisFieldGuideHotspot`, `showHintOverlay`) hardcoded the `cover`-style `Math.max` formula regardless of the actual mode, causing them to drift from the real letterboxed image position whenever the window aspect ratio differed from the artwork's.
 - Fix: Added a shared `getArtLayout(imageWidth, imageHeight)` helper that computes `{ scale, imageLeft, imageTop }` using the same contain/cover-aware logic in one place, and updated all seven call sites (plus refactored `addHotspotHoverImage`) to use it instead of duplicating the calculation.
 - Verification: `get_errors` reported no errors in `js/screens.js`.
+
+## 2026-09-04 Update: Certificate Screenshot Stretched To Fill Photo Box
+
+- Summary: Fixed certificate screenshots potentially showing whitespace on the sides in the exported PDF.
+- Files changed: `js/screens.js`, `logs/promptlog.md`, `logs/processlog.md`.
+- Root cause: `page.drawImage` in the Save Certificate handler already draws the screenshot into a fixed-size photo box (non-uniform stretch, no aspect-ratio preservation), but `html2canvas(root)` was called with no explicit capture bounds, so it could capture extra blank canvas area beyond the visible viewport (e.g. from scroll/size mismatches). That extra blank area got stretched into the photo box along with the real content, shrinking the actual screenshot and leaving white bars on the sides.
+- Fix: Passed explicit `width`, `height`, `windowWidth`, `windowHeight`, `x`, `y`, `scrollX: 0`, `scrollY: 0` options to `html2canvas` matching `root.clientWidth`/`root.clientHeight` exactly, so the captured canvas always matches the visible game screen with no extra blank area, and is stretched to completely fill the certificate's fixed photo box regardless of window size/aspect ratio.
+- Verification: Not run locally (no browser test performed this session); code change only.
+
+## 2026-09-04 Update: Crop Letterbox Bars From Certificate Screenshot
+
+- Summary: Fixed squished/distorted certificate images caused by `background-size: contain` letterbox bars being captured and stretched into the PDF photo box.
+- Files changed: `js/screens.js`, `logs/promptlog.md`, `logs/processlog.md`.
+- Root cause: The prior fix only constrained `html2canvas` capture bounds to `root`'s size, but the game background uses `background-size: contain` (confirmed via the 2026-09-01 hotspot-drift entry above), so on non-matching window aspect ratios the captured screenshot includes navy letterbox bars around the art. Stretching that full capture (art + letterbox) into the fixed-size photo box distorted/shrank the actual art.
+- Fix: Reused the existing `getArtLayout()` helper (same contain/cover-aware scale + offset math used for hotspot positioning) to compute exactly where the art image is rendered within `root`, then cropped the captured canvas to that rectangle (accounting for the canvas's device-pixel-ratio scale factor vs. CSS pixels) before embedding it in the PDF. Only the actual background art is now embedded and stretched to fill the photo box, regardless of window size/aspect ratio.
+- Verification: `get_errors` reported no errors in `js/screens.js`. Not tested live in a browser this session.

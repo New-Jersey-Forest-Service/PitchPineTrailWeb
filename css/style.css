@@ -659,13 +659,13 @@ input:focus-visible {
   text-align: center;
 }
 
-.loss-message,
-.achievement-message {
+.loss-message {
   left: var(--loss-message-left);
   top: var(--loss-message-top);
 }
 
-.event-message {
+.event-message,
+.achievement-message {
   left: var(--event-message-left);
   top: var(--event-message-top);
 }

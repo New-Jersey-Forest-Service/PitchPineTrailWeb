@@ -157,3 +157,9 @@ something strange is happening where the size of "metrics" amd "actions" set in 
 how do I force the metric text to stay within the confins of the metric pannel size?
 sometimes an image doesn't load fast enough so a navy screen dsiplays instead of the correct image. can you make it so throughout the game images are only displayed once they are fully loaded to prevent the navy background from showing
 the hover and click regions for the hints, glossary and field guide seem to be off when the screen is resized to a different aspect ratio. can we make sure they always are tied to the pixel in the background image even as the background image is moved around
+
+Please change it so no matter what size the screen shot for the certificate is taken in, it is strechted to fit the pixel space provided in the PDF. There should be no white space showing on either side of the screen shot
+
+This didn't fix the problem. I still have a very squished image if the screen size on the web window is changed. I want it so the background image is strechted to the width and height of aviable space on the cert PDF with no white space. Is there a way to idetify within the screen shot where the background image of the wining screen starts and stop and crop it there and then strech to the usable space in the cert PDF. I think the problem is that the screen shot is including the blank space created when the iamge is resize to fit the new window and rendering that into the cert PDF when I only want the area of the background iamge included
+
+Can we make it so the intro screen loads and resizes the same way the other screens do? I notice when the window is resized it does resize correctly like the rest of the background images do

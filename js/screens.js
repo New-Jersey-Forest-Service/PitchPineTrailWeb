@@ -708,7 +708,7 @@ function startAnimation(during, durationMs, final) {
 }
 
 function showIntroScreen() {
-  root.style.backgroundSize = "cover";
+  root.style.backgroundSize = "contain";
   preloadImage("introscreen.jpg").then(() => {
     clearScreen("introscreen.jpg");
     sounds.playForestSound();
@@ -1489,7 +1489,28 @@ function showCertificateOverlay() {
     const hiddenElements = [overlay, ...root.querySelectorAll("button")];
     hiddenElements.forEach((element) => element.classList.add("hidden"));
     try {
-      const canvas = await html2canvas(root);
+      const rawCanvas = await html2canvas(root, {
+        width: root.clientWidth,
+        height: root.clientHeight,
+        windowWidth: root.clientWidth,
+        windowHeight: root.clientHeight,
+        x: 0,
+        y: 0,
+        scrollX: 0,
+        scrollY: 0
+      });
+      // The game background uses "contain" and letterboxes on non-matching aspect ratios; crop those blank bars out before embedding.
+      const { scale, imageLeft, imageTop } = getArtLayout();
+      const pixelScaleX = rawCanvas.width / root.clientWidth;
+      const pixelScaleY = rawCanvas.height / root.clientHeight;
+      const cropX = Math.max(0, imageLeft * pixelScaleX);
+      const cropY = Math.max(0, imageTop * pixelScaleY);
+      const cropWidth = Math.min(rawCanvas.width - cropX, ART_WIDTH * scale * pixelScaleX);
+      const cropHeight = Math.min(rawCanvas.height - cropY, ART_HEIGHT * scale * pixelScaleY);
+      const canvas = document.createElement("canvas");
+      canvas.width = cropWidth;
+      canvas.height = cropHeight;
+      canvas.getContext("2d").drawImage(rawCanvas, cropX, cropY, cropWidth, cropHeight, 0, 0, cropWidth, cropHeight);
       const pdfBytes = await fetch(asset("certificate_blank.pdf")).then((response) => {
         if (!response.ok) throw new Error("Unable to load certificate PDF template.");
         return response.arrayBuffer();
