@@ -956,3 +956,21 @@ input:focus-visible {
 .volume-drag-hotspot:active {
   cursor: grabbing;
 }
+
+/* Hidden watering-can easter egg hotspot; deliberately unstyled on hover per design. */
+.watering-hotspot {
+  position: fixed;
+  z-index: 999;
+}
+
+.watering-cactus-image {
+  position: fixed;
+  z-index: 997;
+  pointer-events: none;
+}
+
+.watering-can-image {
+  position: fixed;
+  z-index: 998;
+  pointer-events: none;
+}

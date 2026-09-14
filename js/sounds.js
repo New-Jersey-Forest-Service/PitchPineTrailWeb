@@ -132,5 +132,6 @@ export const sounds = {
   playBuntingSound: () => playOne("bunting.wav"),
   playSaveSound: () => playOne("save.wav"),
   playComputerStartup: () => playOne("computer_startup.wav"),
-  playComputerShutdown: () => playOne("computer_shutdown.wav")
+  playComputerShutdown: () => playOne("computer_shutdown.wav"),
+  playWateringCanSound: () => playOne("wateringcan.wav")
 };

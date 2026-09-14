@@ -26,7 +26,8 @@ Object.assign(game, {
   wildfire_last_shown_year: null,
   hurricane_last_shown_year: null,
   certificate_saved: false,
-  hint_index: 0
+  hint_index: 0,
+  watering_click_count: 0
 });
 
 window.pitchPineTrailGame = game;
@@ -221,6 +222,92 @@ function initVolumeControl() {
     setHidden: (hidden) => {
       forceHidden = hidden;
       applyVisibility();
+    }
+  };
+}
+
+// Hidden watering-can easter egg: an invisible click area (present on every screen except intro/zoom)
+// that plays a watering animation/sound, and grows a cactus after repeated clicks in the same game.
+const WATERING_HOTSPOT_AREA = { x: 406, y: 303, width: 201, height: 293 };
+const WATERING_CAN_IMAGE_AREA = { x: 445, y: 13, width: 504, height: 456 };
+const WATERING_CAN_DISPLAY_MS = 4000;
+const CACTUS_FLOWER_CLICK_COUNT = 2;
+const CACTUS_BROWN_CLICK_COUNT = 4;
+
+let wateringHotspotApi = null;
+
+function initWateringEasterEgg() {
+  let hidden = true;
+  let wateringTimeout = null;
+
+  const hotspot = document.createElement("div");
+  hotspot.className = "watering-hotspot";
+
+  const wateringImage = document.createElement("img");
+  wateringImage.className = "watering-can-image hidden";
+  wateringImage.src = asset("watering.png");
+  wateringImage.alt = "";
+
+  const cactusImage = document.createElement("img");
+  cactusImage.className = "watering-cactus-image hidden";
+  cactusImage.alt = "";
+
+  document.body.append(hotspot, wateringImage, cactusImage);
+
+  const positionAll = () => {
+    const { scale, imageLeft, imageTop } = getArtLayout();
+    const place = (element, { x, y, width, height }) => {
+      element.style.left = `${imageLeft + x * scale}px`;
+      element.style.top = `${imageTop + y * scale}px`;
+      element.style.width = `${width * scale}px`;
+      element.style.height = `${height * scale}px`;
+    };
+    place(hotspot, WATERING_HOTSPOT_AREA);
+    place(wateringImage, WATERING_CAN_IMAGE_AREA);
+    place(cactusImage, WATERING_HOTSPOT_AREA);
+  };
+
+  const applyVisibility = () => {
+    hotspot.classList.toggle("hidden", hidden);
+  };
+
+  const updateCactusImage = () => {
+    const count = game.watering_click_count || 0;
+    if (count >= CACTUS_BROWN_CLICK_COUNT) {
+      cactusImage.src = asset("catcus_brown.jpg");
+      cactusImage.classList.remove("hidden");
+    } else if (count >= CACTUS_FLOWER_CLICK_COUNT) {
+      cactusImage.src = asset("catcus_flower.jpg");
+      cactusImage.classList.remove("hidden");
+    } else {
+      cactusImage.classList.add("hidden");
+    }
+  };
+
+  positionAll();
+  applyVisibility();
+  window.addEventListener("resize", positionAll);
+
+  hotspot.addEventListener("click", () => {
+    game.watering_click_count = (game.watering_click_count || 0) + 1;
+    sounds.playWateringCanSound();
+    wateringImage.classList.remove("hidden");
+    clearTimeout(wateringTimeout);
+    wateringTimeout = setTimeout(() => wateringImage.classList.add("hidden"), WATERING_CAN_DISPLAY_MS);
+    updateCactusImage();
+  });
+
+  wateringHotspotApi = {
+    setHidden: (value) => {
+      hidden = value;
+      applyVisibility();
+      // Background-size mode (contain vs. cover) can change between screens, so recompute on every reveal.
+      if (!hidden) positionAll();
+    },
+    reset: () => {
+      clearTimeout(wateringTimeout);
+      wateringImage.classList.add("hidden");
+      updateCactusImage();
     }
   };
 }
@@ -920,6 +1007,7 @@ function showMobilePopup() {
 function showIntroScreen() {
   root.style.backgroundSize = "contain";
   volumeControlApi?.setIconX(VOLUME_ICON_INTRO_X);
+  wateringHotspotApi?.setHidden(true);
   preloadImage("introscreen.jpg").then(() => {
     clearScreen("introscreen.jpg");
     sounds.playForestSound();
@@ -942,6 +1030,7 @@ function showIntroScreen() {
 function startZoomSequence() {
   root.style.backgroundSize = "contain";
   volumeControlApi?.setHidden(true);
+  wateringHotspotApi?.setHidden(true);
   sounds.playZoomSound();
   const frames = Array.from({ length: 10 }, (_, index) => `zoom_${index + 1}.jpg`);
   const preload = frames.map((name) => new Promise((resolve) => {
@@ -976,6 +1065,7 @@ function showZoomFinalScreen() {
   root.style.backgroundSize = "contain";
   volumeControlApi?.setIconX(VOLUME_ICON_DEFAULT_X);
   volumeControlApi?.setHidden(false);
+  wateringHotspotApi?.setHidden(true);
   clearScreen("zoom_10.jpg");
   zoomHotspotCleanup = addZoomDefinitionsHotspot();
   const buttons = document.createElement("div");
@@ -1281,6 +1371,7 @@ function addAnalysisFieldGuideHotspot(label, onClick, text = "", showHover = tru
 function showGameScreen(narration = "") {
   const bg = game.current_bg_img?.startsWith("zoom_") ? "Evenagestand.jpg" : game.current_bg_img || "Evenagestand.jpg";
   clearScreen(bg);
+  wateringHotspotApi?.setHidden(false);
   renderMetrics();
   renderBookshelfMedals();
   const actions = document.createElement("section");
@@ -1957,8 +2048,10 @@ function resetGameState() {
     wildfire_pending: false,
     wildfire_last_shown_year: null,
     hurricane_last_shown_year: null,
-    certificate_saved: false
+    certificate_saved: false,
+    watering_click_count: 0
   });
+  wateringHotspotApi?.reset();
 }
 
 function restartGame() {
@@ -1974,4 +2067,5 @@ function restartGameToZoom() {
 }
 
 initVolumeControl();
+initWateringEasterEgg();
 showIntroScreen();
