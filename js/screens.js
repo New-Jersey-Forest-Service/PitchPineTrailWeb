@@ -335,7 +335,7 @@ function updatePixelLayout() {
   point("main-restart", 1124, 40);
   size("main-restart", 527.25, 171);
   point("hint", 3695, 81);
-  point("summary", 4490, 260);
+  point("summary", 4520, 260);
   size("summary", 1000);
   scalePx("summary-font-size", 48);
   scalePx("summary-width", 900);
@@ -861,6 +861,14 @@ function isMobileDevice() {
   return uaMobile || Boolean(coarsePointer);
 }
 
+// The management summary sits a bit closer to the edge of the screen on mobile, so nudge it left.
+function createSummaryPanel() {
+  const summary = document.createElement("section");
+  summary.className = isMobileDevice() ? "summary-panel summary-panel-mobile" : "summary-panel";
+  summary.textContent = game.getActionSummary();
+  return summary;
+}
+
 function showMobilePopup() {
   const overlay = document.createElement("img");
   overlay.className = "mobile-popup-overlay";
@@ -1324,10 +1332,7 @@ function showClosingScreen() {
       medal.alt = "";
       root.append(medal);
   });
-  const summary = document.createElement("section");
-  summary.className = "summary-panel";
-  summary.textContent = game.getActionSummary();
-  root.append(summary);
+  root.append(createSummaryPanel());
   const actions = document.createElement("div");
   actions.className = "closing-actions";
   actions.append(
@@ -1775,10 +1780,7 @@ function showCertificateOverlay() {
 
 function renderAnalysisOverlays(rows, showGraphs = true) {
   renderBookshelfMedals();
-  const summary = document.createElement("section");
-  summary.className = "summary-panel";
-  summary.textContent = game.getActionSummary();
-  root.append(summary);
+  root.append(createSummaryPanel());
 
   const achievements = document.createElement("section");
   achievements.className = "achievement-list";

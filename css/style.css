@@ -471,6 +471,12 @@ input:focus-visible {
   font-size: var(--summary-font-size);
 }
 
+/* Nudges the summary text left on mobile only, where it otherwise sits closer to the screen edge. */
+.summary-panel-mobile {
+  transform: translateX(clamp(-10px, -6vw, -5px));
+  width: 110%;
+}
+
 .ending-medal-overlay {
   position: absolute;
   width: var(--medal-width);

@@ -179,3 +179,5 @@ The second button should be the same size top left corner at (2250, 1625) and sa
 Both nutton should be HEX #f4ebdd and with text HEX #7d7b5a. When hovered they should be HEX #dacbb1.
 
 I also want a way to test this on my computer before publishing online to test on mobile
+
+is there a way I can shift the "summary" text to the left a little but only if the code detects the user is on mobile not on desktop?
