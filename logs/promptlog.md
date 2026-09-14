@@ -169,3 +169,13 @@ Here is how I want this to work. I want the volume.png in assets to be present o
 This is almost perfect but the volume.png is loading squished I want it to load at it's full dimension but the click region is limited to  W: 184, H:184.
 
 On the intro screen can move the volume apparatus start top left (5400, 74). Then it can disappear during the zoom function and reappear at the normal location on the zoom10 background image
+
+the game is experiencing a problem where the forest_sound.wav is not consitenly loading on the intro screen. When I test it on a local serve it works correctly but when on the web it is inconsistent. It will eventually play when try again is clicked. I think the issue is the file is not loading fast enoguh when it is orginally played on the web and therefore it is not playing until that line of code is triggered again when click try again. Do you have any way to ensure the sound loads in plays on the first intro screen even is the web connection means the forest sound.wav take a bit to load?
+
+Now I want to add conditional formatting for if the game is loaded on a mobile device rather than a computer. On the intro screen I want the mobile_popup.png to load in it's current size (scaled to screen size) with the center in the ceter of the screen, on top of the normal intro screen. I want there to be two buttons on top of the pop up. Left button should have its top left corner at (880, 1625) and (W: 1176, H: 460) and say "email me a link". When clicked it should open an email with a blank "to" for user to enter their own email address, a subject that says "Pitch Pine Trail Game Link". The body of email should say "Here is the link to Pitch Pine Trail the web version! https://new-jersey-forest-service.github.io/PitchPineTrailWeb/ Happy trails!"
+
+The second button should be the same size top left corner at (2250, 1625) and say "continue one mobile". That button should remove the mobile_popup.png and allow the user to play the game normally.
+
+Both nutton should be HEX #f4ebdd and with text HEX #7d7b5a. When hovered they should be HEX #dacbb1.
+
+I also want a way to test this on my computer before publishing online to test on mobile
