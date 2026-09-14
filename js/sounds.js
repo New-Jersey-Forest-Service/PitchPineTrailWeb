@@ -25,9 +25,34 @@ function src(name) {
   return `${ASSET_BASE}${name}`;
 }
 
+// Browsers can reject autoplay (e.g. forest_sound.wav on the intro screen loads
+// before any click has occurred) or fail to start a slow-loading file in time.
+// Track loops that failed to start so the very first user gesture retries them.
+const pendingGestureResumes = new Map();
+let gestureResumeArmed = false;
+
+function armGestureResume() {
+  if (gestureResumeArmed) return;
+  gestureResumeArmed = true;
+  const resumeAll = () => {
+    gestureResumeArmed = false;
+    document.removeEventListener("pointerdown", resumeAll);
+    document.removeEventListener("keydown", resumeAll);
+    document.removeEventListener("touchstart", resumeAll);
+    for (const [key, audio] of pendingGestureResumes) {
+      if (loops.get(key) === audio) audio.play().catch(() => {});
+    }
+    pendingGestureResumes.clear();
+  };
+  document.addEventListener("pointerdown", resumeAll, { once: true });
+  document.addEventListener("keydown", resumeAll, { once: true });
+  document.addEventListener("touchstart", resumeAll, { once: true });
+}
+
 function playOne(name, volume = 1) {
   try {
     const audio = new Audio(src(name));
+    audio.preload = "auto";
     audio.volume = volume * masterVolume;
     audio.play().catch(() => {});
     return audio;
@@ -40,11 +65,16 @@ function playLoop(key, name, volume = 1) {
   stopLoop(key);
   try {
     const audio = new Audio(src(name));
+    audio.preload = "auto";
     audio._baseVolume = volume;
     audio.volume = volume * masterVolume;
     audio.loop = true;
-    audio.play().catch(() => {});
     loops.set(key, audio);
+    audio.play().catch(() => {
+      // Autoplay blocked or the file wasn't ready in time; retry on the next user gesture.
+      pendingGestureResumes.set(key, audio);
+      armGestureResume();
+    });
     return audio;
   } catch {
     return null;
@@ -58,6 +88,7 @@ function stopLoop(key) {
     audio.currentTime = 0;
     loops.delete(key);
   }
+  pendingGestureResumes.delete(key);
 }
 
 export function stopAllLoops(exclude = []) {

@@ -295,6 +295,7 @@ function updatePixelLayout() {
   // Scales a font/spacing value (defined in artwork pixels) by the same factor used for positioning.
   const scalePx = (name, value) => set(name, value * scale);
 
+  scalePx("mobile-font-size", 130);
   point("metrics", 4190, 1490);
   size("metrics", 1100, 1044);
   scalePx("metrics-font-size", 42);
@@ -843,6 +844,71 @@ function startAnimation(during, durationMs, final) {
   }, durationMs);
 }
 
+// mobile_popup.png's own native pixel size; the two buttons below are positioned relative to it.
+const MOBILE_POPUP_WIDTH = 4500;
+const MOBILE_POPUP_HEIGHT = 2194;
+const MOBILE_EMAIL_BUTTON = { x: 450, y: 1400, width: 1100, height: 460 };
+const MOBILE_CONTINUE_BUTTON = { x: 1600, y: 1400, width: 1100, height: 460 };
+const GAME_LINK_URL = "https://new-jersey-forest-service.github.io/PitchPineTrailWeb/";
+
+// Add ?mobile=1 (or ?mobile=0) to the page URL to force the mobile popup on/off for desktop testing.
+function isMobileDevice() {
+  const forced = new URLSearchParams(window.location.search).get("mobile");
+  if (forced === "1") return true;
+  if (forced === "0") return false;
+  const uaMobile = /Android|iPhone|iPad|iPod|Mobile|Windows Phone/i.test(navigator.userAgent);
+  const coarsePointer = window.matchMedia?.("(pointer: coarse)").matches;
+  return uaMobile || Boolean(coarsePointer);
+}
+
+function showMobilePopup() {
+  const overlay = document.createElement("img");
+  overlay.className = "mobile-popup-overlay";
+  overlay.src = asset("mobile_popup.png");
+  overlay.alt = "This game is best played on a computer rather than a phone.";
+  const emailButton = button("Email\na Link", "mobile-popup-button", () => {
+    const subject = encodeURIComponent("Pitch Pine Trail Game Link");
+    const body = encodeURIComponent(
+      `Here is the link to Pitch Pine Trail the web version!\n\n${GAME_LINK_URL}\n\nHappy trails!`
+    );
+    window.location.href = `mailto:?subject=${subject}&body=${body}`;
+  });
+  const continueButton = button("Continue\non Mobile", "mobile-popup-button", () => cleanup());
+  root.append(overlay, emailButton, continueButton);
+
+  const positionAll = () => {
+    const { scale } = getArtLayout();
+    const popupWidth = MOBILE_POPUP_WIDTH * scale;
+    const popupHeight = MOBILE_POPUP_HEIGHT * scale;
+    const popupLeft = (root.clientWidth - popupWidth) / 2;
+    const popupTop = (root.clientHeight - popupHeight) / 2;
+    overlay.style.left = `${popupLeft}px`;
+    overlay.style.top = `${popupTop}px`;
+    overlay.style.width = `${popupWidth}px`;
+    overlay.style.height = `${popupHeight}px`;
+    const place = (element, { x, y, width, height }) => {
+      element.style.left = `${popupLeft + x * scale}px`;
+      element.style.top = `${popupTop + y * scale}px`;
+      element.style.width = `${width * scale}px`;
+      element.style.height = `${height * scale}px`;
+    };
+    place(emailButton, MOBILE_EMAIL_BUTTON);
+    place(continueButton, MOBILE_CONTINUE_BUTTON);
+  };
+
+  positionAll();
+  window.addEventListener("resize", positionAll);
+
+  const cleanup = () => {
+    window.removeEventListener("resize", positionAll);
+    overlay.remove();
+    emailButton.remove();
+    continueButton.remove();
+    if (zoomHotspotCleanup === cleanup) zoomHotspotCleanup = null;
+  };
+  zoomHotspotCleanup = cleanup;
+}
+
 function showIntroScreen() {
   root.style.backgroundSize = "contain";
   volumeControlApi?.setIconX(VOLUME_ICON_INTRO_X);
@@ -858,6 +924,7 @@ function showIntroScreen() {
       button("Exit", "tan-button", () => showExitSurveyOverlay())
     );
     root.append(buttons);
+    if (isMobileDevice()) showMobilePopup();
   });
 }
 

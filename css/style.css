@@ -265,6 +265,30 @@ input:focus-visible {
   color: #e4940b;
 }
 
+.mobile-popup-overlay {
+  position: absolute;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.mobile-popup-button {
+  position: absolute;
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background: #f8f4ea;
+  color: #877651;
+  font-size: var(--mobile-font-size);
+  white-space: pre-wrap;
+  box-shadow: 2px 3px 1px #917b57;
+}
+
+.mobile-popup-button:hover {
+  background: #dacbb1;
+}
+
 .dark-button {
   min-width: 160px;
   padding: var(--button-padding);
