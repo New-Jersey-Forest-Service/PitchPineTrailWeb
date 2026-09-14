@@ -35,13 +35,13 @@ window.pitchPineTrailGame = game;
 // Achievement Screen images with sound and text description.
 
 const achievementScreens = {
-  snake: { image: "Pinesnake.jpg", sound: sounds.playPineSnakeSound, title: "This forest is excellent northern pine snake habitat.\n\nPine snakes are utilizing the stand!" },
-  gentian: { image: "gentian.jpg", sound: sounds.playGentianSound, title: "This forest now supports rare Pine Barrens gentian!\n\nGentian is growing in the stand!" },
-  short: { image: "shortleaf.jpg", sound: sounds.playPageTurnSound, title: "You created sunny spots in your forest & received funding to plant seedlings...\n\nYou earned the Shortleaf Pine achievement!" },
-  turkey: { image: "turkeybeard.jpg", sound: sounds.playPageTurnSound, title: "Turkeybeard is now growing in this stand!\n\nYou earned the Turkeybeard achievement!" },
-  tanager: { image: "Tanager.jpg", sound: sounds.playTanagerSound, title: "This forest is being visited by Summer Tanagers.\n\nThese neotropical birds are migrating through the stand!" },
-  bunting: { image: "bunting.jpg", sound: sounds.playBuntingSound, title: "This forest is being visited by Indigo Buntings.\n\nThese neotropical birds are migrating through the stand!" },
-  frog: { image: "treefrog.jpg", sound: sounds.playTreeFrogSound, title: " Pine Barrens tree frogs have colonized this forest.\n\nTree frogs are calling from the stand!" }
+  snake: { image: "Pinesnake.jpg", sound: sounds.playPineSnakeSound, title: "\nThis sunny spot is Pine and dandy!\n\nNorthern Pinesnakes are utilizing your forest!" },
+  gentian: { image: "gentian.jpg", sound: sounds.playGentianSound, title: "\nWelcome to the Gentian Convention!\n\nPine Barrens Gentian is now growing in your forest!" },
+  short: { image: "shortleaf.jpg", sound: sounds.playPageTurnSound, title: "Hey! I'm not short, I'm restoration sized!\n\nYou created sunny spots in your forest & received funding to plant Shortleaf Pine seedlings!" },
+  turkey: { image: "turkeybeard.jpg", sound: sounds.playPageTurnSound, title: "\n'bout time for some Gravy and a Razor!\n\nTurkeybeard is now growing in your forest!" },
+  tanager: { image: "Tanager.jpg", sound: sounds.playTanagerSound, title: "\nRED HOT BIRD ALERT!\n\nThese neotropical Summer Tanagers are migrating through your forest!" },
+  bunting: { image: "bunting.jpg", sound: sounds.playBuntingSound, title: "\nOh how BLUE-tiful!\n\nThese neotropical Indigo Buntings are migrating through your forest!" },
+  frog: { image: "treefrog.jpg", sound: sounds.playTreeFrogSound, title: "The frog father welcomes you to this ribbit-ing night...\n\nPine Barrens tree frogs are calling from your forest!" }
 };
 
 const endingMedals = [
