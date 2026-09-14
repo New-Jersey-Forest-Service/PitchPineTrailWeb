@@ -877,7 +877,7 @@ function showMobilePopup() {
   const emailButton = button("Email\na Link", "mobile-popup-button", () => {
     const subject = encodeURIComponent("Pitch Pine Trail Game Link");
     const body = encodeURIComponent(
-      `Here is the link to Pitch Pine Trail the web version!\n\n${GAME_LINK_URL}\ncopy and paste to a browser if this link is not clickable\n\nHappy trails!\n\n\n<3 The New Jersey Forest Service`
+      `Here is the link to Pitch Pine Trail the web version!\n\n${GAME_LINK_URL}\n\n(copy and paste to a browser if this link is not clickable)\n\nHappy trails!\n\n\n<3 The New Jersey Forest Service`
     );
     window.location.href = `mailto:?subject=${subject}&body=${body}`;
   });
