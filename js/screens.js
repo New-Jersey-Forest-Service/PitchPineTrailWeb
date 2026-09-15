@@ -233,6 +233,7 @@ const WATERING_CAN_IMAGE_AREA = { x: 445, y: 13, width: 504, height: 456 };
 const WATERING_CAN_DISPLAY_MS = 4000;
 const CACTUS_FLOWER_CLICK_COUNT = 2;
 const CACTUS_BROWN_CLICK_COUNT = 4;
+const CACTUS_DEAD_CLICK_COUNT = 5;
 
 let wateringHotspotApi = null;
 
@@ -273,7 +274,10 @@ function initWateringEasterEgg() {
 
   const updateCactusImage = () => {
     const count = game.watering_click_count || 0;
-    if (count >= CACTUS_BROWN_CLICK_COUNT) {
+    if (count >= CACTUS_DEAD_CLICK_COUNT) {
+      cactusImage.src = asset("catcus_dead.jpg");
+      cactusImage.classList.remove("hidden");
+    } else if (count >= CACTUS_BROWN_CLICK_COUNT) {
       cactusImage.src = asset("catcus_brown.jpg");
       cactusImage.classList.remove("hidden");
     } else if (count >= CACTUS_FLOWER_CLICK_COUNT) {
