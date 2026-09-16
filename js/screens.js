@@ -1233,7 +1233,7 @@ function addGameHintHotspot() {
   const width = 250;
   const height = 237;
   const hotspot = document.createElement("div");
-  hotspot.className = "zoom-definitions-hotspot";
+  hotspot.className = "zoom-definitions-hotspot hint-hotspot";
   hotspot.tabIndex = 0;
   hotspot.setAttribute("aria-label", "Hint information");
   hotspot.addEventListener("click", showHintOverlay);
