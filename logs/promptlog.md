@@ -181,3 +181,9 @@ Both nutton should be HEX #f4ebdd and with text HEX #7d7b5a. When hovered they s
 I also want a way to test this on my computer before publishing online to test on mobile
 
 is there a way I can shift the "summary" text to the left a little but only if the code detects the user is on mobile not on desktop?
+
+I want to make sure that the "stuck? click for a hint!" hover pop up loads on top of the catcus images if they have been trgigered. Right now it is loading under them
+
+this is still not workingcatcus is still showing above the hint pop up
+
+THis is now fixed, but I also want the hint.jpgs to load on top of the catcus not underneath it

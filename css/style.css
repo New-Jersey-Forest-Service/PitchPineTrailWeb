@@ -210,6 +210,11 @@ input:focus-visible {
   display: block;
 }
 
+/* Own stacking context must outrank the fixed-position watering-can easter egg (z-index up to 999). */
+.hint-hotspot {
+  z-index: 1000;
+}
+
 .guide-return-hotspot {
   position: absolute;
   z-index: 2;
@@ -371,6 +376,7 @@ input:focus-visible {
   left: var(--hint-overlay-left);
   width: var(--hint-overlay-width);
   transform: translateX(-50%);
+  z-index: 1000;
 }
 
 .hint-overlay img,

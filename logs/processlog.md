@@ -1196,3 +1196,19 @@ Reminder: ask the user before shutting this server down at session end.
 - Files changed: `js/screens.js`, `css/style.css`, `logs/promptlog.md`, `logs/processlog.md`.
 - Details: Factored the two duplicated summary-panel-creation blocks (closing screen and `renderAnalysisOverlays`) into a new `createSummaryPanel()` helper in `js/screens.js`, which adds a `summary-panel-mobile` class alongside the existing `summary-panel` class when `isMobileDevice()` is true (reusing the mobile-detection helper and its `?mobile=1`/`?mobile=0` URL override added earlier this session). `css/style.css` adds `.summary-panel-mobile { transform: translateX(clamp(-60px, -6vw, -20px)); }`, layered on top of the existing `--summary-left`/`--summary-top` positioning, so the panel nudges left by a viewport-proportional amount without touching the desktop path.
 - Verification: `get_errors` reported no errors in `js/screens.js`/`css/style.css`. Restarted the same ad-hoc PowerShell static server on port 8001 for this session and confirmed via the browser devtools console that a `.summary-panel.summary-panel-mobile` element resolves a `translateX(-60px)` computed transform while a plain `.summary-panel` (no mobile class) resolves `transform: none`. Was not able to click through the full zoom-intro animation sequence to reach the live in-game summary panel this session (the "Begin" click didn't advance past the intro screen in the headless test browser after the mobile popup's "Continue on Mobile" was dismissed); the CSS/class-application logic itself was verified directly, but a follow-up agent or the user should confirm the summary panel visually shifts on an actual mobile viewport/device before relying on this. Stopped the ad-hoc test server after verification.
+
+## Date
+
+2026-09-16
+
+- Summary: Fixed the hidden watering-can easter egg's "Stuck? Click for a hint!" hover popup (`.zoom-definitions-popup` inside the hint hotspot) rendering underneath the triggered cactus/watering-can images (`.watering-cactus-image` z-index 997, `.watering-can-image` z-index 998, `.watering-hotspot` z-index 999).
+- Files changed: `css/style.css`.
+- Details: First attempt added `z-index: 1000` directly to the popup's hover/focus rule, but that had no effect because the popup is nested inside `.zoom-definitions-hotspot`, which has its own `z-index: 2` and therefore forms a stacking context that caps any descendant z-index — the popup could never outrank the fixed-position `.watering-cactus-image`/`.watering-can-image`/`.watering-hotspot` (z-index 997-999) regardless of its own z-index value. Fixed by giving the hint hotspot element a second class, `hint-hotspot` (`js/screens.js`, `addGameHintHotspot`), and adding a `.hint-hotspot { z-index: 1000; }` rule in `css/style.css` so the hotspot's whole stacking context (popup included) now outranks the watering easter-egg layers.
+- Verification: Not tested in a live browser this session. Recommend visually confirming the hint popup appears above the cactus image once triggered.
+- Caveats/next steps: None known.
+
+- Summary: Fixed the hint overlay (the `hint1.jpg`-`hint12.jpg` images shown by `showHintOverlay` when the hint hotspot is clicked) rendering underneath the triggered watering-can/cactus easter egg images.
+- Files changed: `css/style.css`.
+- Details: Same root cause as the hint popup: `.hint-overlay` (shared with `.survey-overlay`/`.certificate-overlay`) only had `z-index: 20`, well below the `position: fixed` `.watering-cactus-image`/`.watering-can-image`/`.watering-hotspot` layers (997-999). Added `z-index: 1000` directly on `.hint-overlay` (left `.survey-overlay`/`.certificate-overlay` untouched at `z-index: 20` since they weren't reported as affected).
+- Verification: Not tested in a live browser this session. Recommend visually confirming the hint overlay image renders above the cactus image once triggered.
+- Caveats/next steps: None known.
