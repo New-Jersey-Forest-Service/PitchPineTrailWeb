@@ -35,7 +35,7 @@ window.pitchPineTrailGame = game;
 // Achievement Screen images with sound and text description.
 
 const achievementScreens = {
-  snake: { image: "Pinesnake.jpg", sound: sounds.playPineSnakeSound, title: "\nThis sunny spot is Pine and dandy!\n\nNorthern Pinesnakes are utilizing your forest!" },
+  snake: { image: "Pinesnake.jpg", sound: sounds.playPineSnakeSound, title: "\nThis ssssunny sssspot is Pine and dandy!\n\nNorthern Pinesnakes are utilizing your forest!" },
   gentian: { image: "gentian.jpg", sound: sounds.playGentianSound, title: "\nWelcome to the Gentian Convention!\n\nPine Barrens Gentian is now growing in your forest!" },
   short: { image: "shortleaf.jpg", sound: sounds.playPageTurnSound, title: "Hey! I'm not short, I'm restoration sized!\n\nYou created sunny spots in your forest & received funding to plant Shortleaf Pine seedlings!" },
   turkey: { image: "turkeybeard.jpg", sound: sounds.playPageTurnSound, title: "\n'bout time for some Gravy and a Razor!\n\nTurkeybeard is now growing in your forest!" },
