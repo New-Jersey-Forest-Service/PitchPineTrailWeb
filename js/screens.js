@@ -1471,7 +1471,7 @@ function showLossScreen(bg, text, soundFn) {
 }
 
 function showLowTpaScreen() {
-  showLossScreen("LowStocking.jpg", "The forest's growing stock trees have been depleted!\n\nWe're supposed to be growing a forest!", () => {
+  showLossScreen("LowStocking.jpg", "You cut too many trees and depleted the growing stock...\n\nWe're supposed to be growing a forest. Instead it got dis-en-treed!", () => {
     sounds.playLosingTromboneSound();
     sounds.playWindSound();
   });
