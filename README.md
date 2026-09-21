@@ -2,7 +2,7 @@
 
 Pitch Pine Trail is a retro-style single player game video game inspired by classic 1980s and 1990s games. The game features a nostalgic graphical interface and engaging gameplay mechanics that immerse players in a unique forest managment experience:
 
-    You are in charge of a Pitch Pine Forest in Southern New Jersey! for the next 100 years, you will make choices on how to best care for your forest. Your choices will impact the way your trees grow, what plants and animals may choose to call your forest home and ultimately how at risk your forest is to detrimental impacts. Your goal? Leave the forest better than you found it for a future generation of managers!
+You are in charge of a Pitch Pine Forest in Southern New Jersey! for the next 100 years, you will make choices on how to best care for your forest. Your choices will impact the way your trees grow, what plants and animals may choose to call your forest home and ultimately how at risk your forest is to detrimental impacts. Your goal? Leave the forest better than you found it for a future generation of managers!
 
 The game was designed and coded in-house featuring 100% human-made orginal artwork all created by New Jersey Forest Service employees.
 
