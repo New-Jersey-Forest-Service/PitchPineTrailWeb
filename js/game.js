@@ -1,5 +1,5 @@
 export const ACTIONS = {
-  "1": "Do nothing",
+  "1": "No action, Monitor",
   "2": "Thin lightly",
   "3": "Thin heavily",
   "4": "Prescribed burn",
