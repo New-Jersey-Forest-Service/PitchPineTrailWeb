@@ -658,7 +658,7 @@ function renderMetrics(parent = root) {
     <br>
     <div>Carbon per Acre: ${Number(status.carbon).toFixed(1)} Metric Tons/acre</div>
     <br>
-    <div>Crowning Index: ${Number(status.CI).toFixed(1)}</div>
+    <div>Crowning Index: ${Number(status.CI).toFixed(1)} mph</div>
     <span class="metric-risk ${riskClass(status.fire_risk)}">Fire Risk:<br>${status.fire_risk}</span>
     <span class="metric-risk ${riskClass(status.SPB_risk)}">Southern Pine Beetle Risk:<br>${status.SPB_risk}</span>
   `;

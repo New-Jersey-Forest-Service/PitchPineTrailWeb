@@ -1,18 +1,16 @@
 # Pitch Pine Trail
 
-Pitch Pine Trail is a retro-style, browser-based forest-management game. It is a static vanilla JavaScript application designed to run locally or on GitHub Pages.
+Pitch Pine Trail is a retro-style single player game video game inspired by classic 1980s and 1990s games. The game features a nostalgic graphical interface and engaging gameplay mechanics that immerse players in a unique forest managment experience:
 
-## Project Structure
+You are in charge of a Pitch Pine Forest in Southern New Jersey! for the next 100 years, you will make choices on how to best care for your forest. Your choices will impact the way your trees grow, what plants and animals may choose to call your forest home and ultimately how at risk your forest is to detrimental impacts. Your goal? Leave the forest better than you found it for a future generation of managers!
 
-```text
-index.html                  # Browser app shell and Pages entry point
-assets/                     # Game images and audio
-css/
-js/
-.github/workflows/pages.yml # GitHub Pages deployment workflow
-```
+The game was designed and coded in-house featuring 100% human-made orginal artwork all created by New Jersey Forest Service employees.
 
-Repository planning, logs, and agent instructions remain separate from the browser app files.
+## Launch the Web App
+
+To play Pitch Pine Trail on the web go to:
+
+https://New-Jersey-Forest-Service.github.io/PitchPineTrailWeb/
 
 ## Run Locally
 
@@ -32,7 +30,20 @@ python -m http.server 8001
 
 Press `Ctrl+C` in the serving terminal to stop the server.
 
-## Deployment
+## Project Structure
+
+```text
+index.html                  # Browser app shell and Pages entry point
+assets/                     # Game images and audio
+css/
+js/
+.github/workflows/pages.yml # GitHub Pages deployment workflow
+```
+
+Repository planning, logs, and agent instructions remain separate from the browser app files.
+
+
+## Web Deployment
 
 The GitHub Pages workflow deploys the site files from the repository root, making `index.html` the public site root. Configure the repository Pages source to **GitHub Actions**. The site will be available at:
 
@@ -44,8 +55,3 @@ https://<organization>.github.io/<repository>/
 
 This project is licensed under the MIT License. See [LICENSE.txt](LICENSE.txt).
 
-## Web App
-
-To access the web app go to:
-
-https://New-Jersey-Forest-Service.github.io/PitchPineTrailWeb/
